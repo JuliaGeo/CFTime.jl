@@ -23,3 +23,49 @@ using Pkg
 Pkg.add("CFTime")
 ```
 
+## Example
+
+```julia
+using CFTime, Dates
+
+# standard calendar
+
+dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00")
+# 4-element Array{Dates.DateTime,1}:
+#  2000-01-01T00:00:00
+#  2000-01-02T00:00:00
+#  2000-01-03T00:00:00
+#  2000-01-04T00:00:00
+
+# "360 day" calendar
+
+CFTime.timeencode(dt,"days since 2000-01-01 00:00:00")
+# 4-element Array{Float64,1}:
+#  0.0
+#  1.0
+#  2.0
+#  3.0
+
+dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00","360_day")
+# 4-element Array{DateTime360Day,1}:
+#  DateTime360Day(2000-01-01T00:00:00)
+#  DateTime360Day(2000-01-02T00:00:00)
+#  DateTime360Day(2000-01-03T00:00:00)
+#  DateTime360Day(2000-01-04T00:00:00)
+
+dt[2]-dt[1]
+# 86400000 milliseconds
+
+Dates.Day(dt[2]-dt[1])
+# 1 day
+
+CFTime.timeencode(dt,"days since 2000-01-01 00:00:00","360_day")
+# 4-element Array{Float64,1}:
+#  0.0
+#  1.0
+#  2.0
+#  3.0
+
+DateTime360Day(2000,1,1) + Dates.Day(360)
+# DateTime360Day(2001-01-01T00:00:00)
+```
