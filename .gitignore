@@ -1,4 +1,10 @@
 *.jl.cov
 *.jl.*.cov
 *.jl.mem
-deps/deps.jl
+*.bak
+*.nc
+*~
+/deps/deps.jl
+/lcov.info
+/notes.txt
+/res/
