@@ -5,9 +5,9 @@ if VERSION >= v"0.7.0-beta.0"
     using Printf
 else
     using Base.Test
+    using Compat
 end
 
-using Compat
 
 
 @testset "Time and calendars" begin

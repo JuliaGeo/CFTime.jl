@@ -10,9 +10,9 @@
 [![documentation latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://alexander-barth.github.io/CFTime.jl/latest/)
 
 
-`CFTime` encode and decodes time units conforming to the Climate and Forecasting (CF) netCDF conventions.
+`CFTime` encodes and decodes time units conforming to the Climate and Forecasting (CF) netCDF conventions.
 `CFTime` was split out of the [NCDatasets](https://github.com/Alexander-Barth/NCDatasets.jl) julia package.
- 
+
 
 ## Installation
 
