@@ -311,9 +311,9 @@ second (`s`, default 0), millisecond (`ms`, default 0).
 All arguments must be convertible to `Int64`.
 `$($CFDateTime)` is a subtype of `AbstractCFDateTime`.
 
-The netCDF CF calendars are defined at [1].
+The netCDF CF calendars are defined in [the CF Standard][1].
 
-[1] https://web.archive.org/web/20180622080424/http://cfconventions.org/cf-conventions/cf-conventions.html#calendar
+[1]: https://web.archive.org/web/20180622080424/http://cfconventions.org/cf-conventions/cf-conventions.html#calendar
         """
         function $CFDateTime(y::Int64, m::Int64=1, d::Int64=1,
                              h::Int64=0, mi::Int64=0, s::Int64=0, ms::Int64=0)
@@ -329,7 +329,7 @@ The netCDF CF calendars are defined at [1].
             Int64(ms))
 
         """
-           $($CFDateTime)(dt::AbstractString, format::AbstractString; locale="english") -> $($CFDateTime)
+    $($CFDateTime)(dt::AbstractString, format::AbstractString; locale="english") -> $($CFDateTime)
 
 Construct a $($CFDateTime) by parsing the `dt` date time string following the
 pattern given in the `format` string.
@@ -650,24 +650,16 @@ function timedecode(data,units,calendar = "standard"; prefer_datetime = true)
 end
 
 
-# Oddly this returns false
-# DataArrays.DataArray{CFTime.DateTimeNoLeap,1} <: AbstractArray{DT,1} where DT <: Union{DateTime,CFTime.DateTimeNoLeap}
-# DataArrays.DataArray{Float64,1} <: AbstractArray{Float64,1}
-#
-# while this is true:
-# DataArrays.DataArray <: AbstractArray
-
-
 """
     data = timeencode(dt,units,calendar = "standard")
 
 Convert a vector or array of `DateTime` (or `DateTimeStandard`,
 `DateTimeProlepticGregorian`, `DateTimeJulian`, `DateTimeNoLeap`,
 `DateTimeAllLeap`, `DateTime360Day`) accoring to
-the specified units (e.g. "days since 2000-01-01 00:00:00") using the calendar
+the specified units (e.g. `"days since 2000-01-01 00:00:00"`) using the calendar
 `calendar`.  Valid values for calendar are:
-"standard", "gregorian", "proleptic_gregorian", "julian", "noleap", "365_day",
-"all_leap", "366_day", "360_day".
+`"standard"`, `"gregorian"`, `"proleptic_gregorian"`, `"julian"`, `"noleap"`, `"365_day"`,
+`"all_leap"`, `"366_day"`, `"360_day"`.
 """
 function timeencode(data::AbstractArray{DT,N},units,
                     calendar = "standard") where N where DT <: Union{DateTime,AbstractCFDateTime,Union{DateTime,Missing}}
