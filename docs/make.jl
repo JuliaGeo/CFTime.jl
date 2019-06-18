@@ -14,8 +14,6 @@ makedocs(
 # for more information.
 
 deploydocs(
-    repo = "github.com/Alexander-Barth/CFTime.jl.git",
-    target = "build",
-    deps = nothing,
-    make = nothing,
+    repo = "github.com/JuliaGeo/CFTime.jl.git",
+    target = "build"
 )
