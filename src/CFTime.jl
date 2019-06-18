@@ -311,9 +311,7 @@ second (`s`, default 0), millisecond (`ms`, default 0).
 All arguments must be convertible to `Int64`.
 `$($CFDateTime)` is a subtype of `AbstractCFDateTime`.
 
-The netCDF CF calendars are defined in [the CF Standard][1].
-
-[1]: https://web.archive.org/web/20180622080424/http://cfconventions.org/cf-conventions/cf-conventions.html#calendar
+The netCDF CF calendars are defined in [the CF Standard](http://cfconventions.org/cf-conventions/cf-conventions.html#calendar).
         """
         function $CFDateTime(y::Int64, m::Int64=1, d::Int64=1,
                              h::Int64=0, mi::Int64=0, s::Int64=0, ms::Int64=0)
@@ -334,9 +332,10 @@ The netCDF CF calendars are defined in [the CF Standard][1].
 Construct a $($CFDateTime) by parsing the `dt` date time string following the
 pattern given in the `format` string.
 
-Note: This function is experimental and migth
-be removed in the future. It relies on some internal function of `Dates` for
-parsing the `format`.
+!!! note
+    This function is experimental and migth
+    be removed in the future. It relies on some internal function of `Dates` for
+    parsing the `format`.
 """
         function $CFDateTime(dt::AbstractString, format::AbstractString; locale="english")
             return parse($CFDateTime, dt, DateFormat(format, locale))
