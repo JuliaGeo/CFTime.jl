@@ -495,7 +495,16 @@ function parseDT(::Type{DT},str) where DT <: Union{DateTime,AbstractCFDateTime}
             (y,m,d,h,mi,s,Int64(0))
             =#
 
-            h_str, mi_str, s_str = split(timestr,':')
+            time_split = split(timestr,':')
+
+            h_str, mi_str, s_str =
+                if length(time_split) == 2
+                    time_split[1], time_split[2], "00"
+                else
+                    time_split
+                end
+
+
             h = parse(Int64,h_str)
             mi = parse(Int64,mi_str)
 
