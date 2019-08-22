@@ -326,6 +326,12 @@ The netCDF CF calendars are defined in [the CF Standard](http://cfconventions.or
             Int64(y), Int64(m), Int64(d), Int64(h), Int64(mi), Int64(s),
             Int64(ms))
 
+        if VERSION >= v"1.3-"
+            function $CFDateTime(y, m, d, h, mi, s, ms, ampm)
+                @assert ampm == Dates.TWENTYFOURHOUR
+                return $CFDateTime(y, m, d, h, mi, s, ms)
+            end
+        end
         """
     $($CFDateTime)(dt::AbstractString, format::AbstractString; locale="english") -> $($CFDateTime)
 
