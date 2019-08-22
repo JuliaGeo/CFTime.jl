@@ -148,6 +148,9 @@ t0,plength = CFTime.timeunits("days since 2000-01-01 0:0:0")
 @test t0 == DateTimeStandard(2000,1,1)
 @test plength == 86400000
 
+t0,plength = CFTime.timeunits("days since 2000-01-01 00:00")
+@test t0 == DateTimeStandard(2000,1,1)
+@test plength == 86400000
 
 # issue 24
 t0,plength = CFTime.timeunits("hours since 1900-01-01 00:00:00.0")
