@@ -11,7 +11,7 @@
 
 
 `CFTime` encodes and decodes time units conforming to the Climate and Forecasting (CF) netCDF conventions.
-`CFTime` was split out of the [NCDatasets](https://github.com/JuliaGeo/NCDatasets.jl) julia package.
+`CFTime` was split out of the [NCDatasets](https://github.com/Alexander-Barth/NCDatasets.jl) julia package.
 
 
 ## Installation
