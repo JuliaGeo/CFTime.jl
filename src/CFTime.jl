@@ -584,6 +584,9 @@ function timetype(calendar = "standard")
     return DT
 end
 
+timetype(dt::Type{<:AbstractCFDateTime}) = dt
+timetype(dt::Type{DateTime}) = dt
+
 """
     t0,plength = timeunits(units,calendar = "standard")
 

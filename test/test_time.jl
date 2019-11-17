@@ -411,3 +411,17 @@ end
 @test Dates.firstdayofyear(DateTimeNoLeap(2008, 12, 31)) == DateTimeNoLeap(2008, 1, 1)
 @test Dates.dayofyear(DateTimeNoLeap(2008, 12, 31)) == 365
 @test Dates.dayofmonth(DateTimeAllLeap(2008, 2, 29)) == 29
+
+
+
+# issue #3
+
+data = [0,1,2,3]
+dt = CFTime.timedecode(DateTime,data,"days since 2000-01-01 00:00:00")
+data2 = CFTime.timeencode(dt,"days since 2000-01-01 00:00:00",DateTime)
+@test data == data2
+
+data = [0,1,2,3]
+dt = CFTime.timedecode(DateTime360Day,data,"days since 2000-01-01 00:00:00")
+data2 = CFTime.timeencode(dt,"days since 2000-01-01 00:00:00",DateTime360Day)
+@test data == data2

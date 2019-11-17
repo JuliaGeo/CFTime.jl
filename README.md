@@ -70,3 +70,5 @@ CFTime.timeencode(dt,"days since 2000-01-01 00:00:00","360_day")
 DateTime360Day(2000,1,1) + Dates.Day(360)
 # DateTime360Day(2001-01-01T00:00:00)
 ```
+
+You can replace in the example above the string `"360_day"` (the name according to the CF conversion) by `DateTime360Day` (the julia type).
