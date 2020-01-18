@@ -1,23 +1,26 @@
 """
+`CFTime` encodes and decodes time units conforming to the Climate and Forecasting (CF) netCDF conventions.
+For example:
 
+```julia
+using CFTime, Dates
+# Decoding "360 day" calendar
+dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00",DateTime360Day)
+# Encoding
+CFTime.timeencode(dt,"days since 2000-01-01 00:00:00",DateTime360Day)
+```
+The following types are supported `DateTime`,
+`DateTimeStandard`, `DateTimeJulian`, `DateTimeProlepticGregorian`
+`DateTimeAllLeap`, `DateTimeNoLeap` and `DateTime360Day`
 """
 module CFTime
 
-if VERSION >= v"0.7.0-beta.0"
-    using Printf
-    using Dates
-    import Dates: UTInstant, Millisecond
-    import Dates: year,  month,  day, hour, minute, second, millisecond
-    import Dates: daysinmonth, daysinyear, yearmonthday, yearmonth
-    import Dates: monthday, len, dayofyear, firstdayofyear
-else
-    using Missings
-    import Base.Dates: UTInstant, Millisecond
-    import Base.Dates: year,  month,  day, hour, minute, second, millisecond
-    import Base.Dates: daysinmonth, daysinyear, yearmonthday, yearmonth
-    import Base.Dates: monthday, len, dayofyear, firstdayofyear
-    import Compat: occursin
-end
+using Printf
+using Dates
+import Dates: UTInstant, Millisecond
+import Dates: year,  month,  day, hour, minute, second, millisecond
+import Dates: daysinmonth, daysinyear, yearmonthday, yearmonth
+import Dates: monthday, len, dayofyear, firstdayofyear
 
 import Base: +, -, isless, string, show, convert, reinterpret
 
