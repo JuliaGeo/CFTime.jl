@@ -1,6 +1,17 @@
 # CFTime.jl
 
-Documentation for CFTime.jl
+This package implement the calendar types from the [CF convention](http://cfconventions.org/Data/cf-conventions/cf-conventions-1.7/cf-conventions.html#calendar), in namely:
+
+* Mixed Gregorian/Julian calendar
+* Proleptic gregorian calendar
+* Gregorian calendar without leap years (all years are 365 days long)
+* Gregorian calendar with only leap year (all years are 366 days long)
+* A calendar with every year being 360 days long (divided into 30 day months)
+* Julian calendar
+
+
+Note that time zones are not supported by `CFTime.jl`.
+ 
 
 ## Installation
 
