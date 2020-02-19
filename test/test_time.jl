@@ -1,5 +1,6 @@
-using Test
 using CFTime
+using Dates
+using Test
 
 # reference value from Meeus, Jean (1998)
 # launch of Sputnik 1
@@ -434,11 +435,15 @@ data2 = CFTime.timeencode(dt,"days since 2000-01-01 00:00:00+00:00",DateTime360D
 @test data == data2
 
 data = [0,1,2,3]
-dt = CFTime.timedecode(DateTime,data,"days since 2000-01-01 00:00:00+01")
+dt = @test_logs (:warn,r"Time zones are currently not supported.*") begin
+    CFTime.timedecode(DateTime,data,"days since 2000-01-01 00:00:00+01")
+end
 data2 = CFTime.timeencode(dt,"days since 2000-01-01 00:00:00+00",DateTime)
 @test data == data2
 
 data = [0,1,2,3]
-dt = CFTime.timedecode(DateTime360Day,data,"days since 2000-01-01 00:00:00-01:00")
+dt = @test_logs (:warn,r"Time zones are currently not supported.*") begin
+    CFTime.timedecode(DateTime360Day,data,"days since 2000-01-01 00:00:00-01:00")
+end
 data2 = CFTime.timeencode(dt,"days since 2000-01-01 00:00:00+00:00",DateTime360Day)
 @test data == data2
