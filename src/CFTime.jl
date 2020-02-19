@@ -506,8 +506,14 @@ function parseDT(::Type{DT},str) where DT <: Union{DateTime,AbstractCFDateTime}
             timestr,tz = if occursin("+",timestr)
               ts,tz = split(timestr,"+")
               ts,tz
+            elseif occursin("-",timestr)
+              ts,tz = split(timestr,"-")
+              ts,string("-",tz)
             else
               timestr, "00:00"
+            end
+            if !all(iszero(parse.(Int,split(tz,":"))))
+              @warn "Time zones are currently not supported by CFTime. Ignoring Time zone information: $(tz)"
             end
 
             time_split = split(timestr,':')
