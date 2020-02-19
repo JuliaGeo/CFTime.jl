@@ -503,9 +503,20 @@ function parseDT(::Type{DT},str) where DT <: Union{DateTime,AbstractCFDateTime}
 
             (y,m,d,h,mi,s,Int64(0))
             =#
+            timestr,tz = if occursin("+",timestr)
+              ts,tz = split(timestr,"+")
+              ts,tz
+            elseif occursin("-",timestr)
+              ts,tz = split(timestr,"-")
+              ts,string("-",tz)
+            else
+              timestr, "00:00"
+            end
+            if !all(iszero(parse.(Int,split(tz,":"))))
+              @warn "Time zones are currently not supported by CFTime. Ignoring Time zone information: $(tz)"
+            end
 
             time_split = split(timestr,':')
-
             h_str, mi_str, s_str =
                 if length(time_split) == 2
                     time_split[1], time_split[2], "00"
@@ -516,7 +527,6 @@ function parseDT(::Type{DT},str) where DT <: Union{DateTime,AbstractCFDateTime}
 
             h = parse(Int64,h_str)
             mi = parse(Int64,mi_str)
-
             s,ms =
                 if occursin('.',s_str)
                     # seconds contain a decimal point, e.g. 00:00:00.0
