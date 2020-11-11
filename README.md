@@ -1,6 +1,6 @@
 # CFTime
 
-[![Build Status Linux and macOS](https://travis-ci.org/JuliaGeo/CFTime.jl.svg?branch=master)](https://travis-ci.org/JuliaGeo/CFTime.jl)
+[![Build Status Linux and macOS](https://travis-ci.com/JuliaGeo/CFTime.jl.svg?branch=master)](https://travis-ci.com/JuliaGeo/CFTime.jl)
 [![Build Status Windows](https://ci.appveyor.com/api/projects/status/dhk8nfaty2c2ko67?svg=true)](https://ci.appveyor.com/project/Alexander-Barth/cftime-jl-vwcs5)
 
 [![Coverage Status](https://coveralls.io/repos/JuliaGeo/CFTime.jl/badge.svg?branch=master&service=github)](https://coveralls.io/github/JuliaGeo/CFTime.jl?branch=master)
