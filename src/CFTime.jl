@@ -394,6 +394,15 @@ pattern given in the `format` string.
 end
 
 
+-(dt1::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian},
+  dt2::DateTime) = DateTime(dt1) - DateTime(dt2)
+
+-(dt1::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian},
+  dt2::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian}) = DateTime(dt1) - DateTime(dt2)
+
+-(dt1::DateTime,
+  dt2::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian}) = DateTime(dt1) - DateTime(dt2)
+
 
 
 """
