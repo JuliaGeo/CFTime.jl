@@ -13,7 +13,7 @@
 
 ## Installation
 
-Inside the Julia shell, you can download and install the package by issuing:
+Inside the [Julia](https://julialang.org/) shell, you can download and install the package by issuing:
 
 ```julia
 using Pkg
