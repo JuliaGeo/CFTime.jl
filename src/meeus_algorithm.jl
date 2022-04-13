@@ -111,26 +111,47 @@ Algorithm:
 Meeus, Jean (1998) Astronomical Algorithms (2nd Edition). Willmann-Bell,
 Virginia. p. 63
 """
-function datetuple_gregjulian(Z,gregorian::Bool)
+function datetuple_gregjulian(Z0::T,gregorian::Bool) where T
+
+    # promote to at least Int64
+    Z = promote_type(T, Int64)(Z0)
+
     # Z is Julian Day plus 0.5
     Z = Z + 2_400_001 - DATENUM_OFFSET
 
     A =
         if gregorian
+            # 1867216.25 - 0.5 corresponds to the date 400-02-29T18:00:00
             # lets magic happen
             α = trunc(Int64, (Z - 1867_216.25)/36524.25)
+            α = floor(Int64, (Z - 1867_216.25)/36524.25)
+           @show Z
+ #           @show (Z - 1867_216.25)/36524.25
+            # 146_097 = 365.2425 * 400
+            # α increases by 1 every century
+            #α = (4*Z - 7468865) ÷ 146097
+            if α < 0
+#                α += 1
+                        end
+#            @show α
             Z + 1 + α - (α ÷ 4)
         else
-            Int64(Z)
+            Z
         end
 
     # even more magic...
     B = A + 1524
-    C = trunc(Int64, (B - 122.1) / 365.25)
-    D = trunc(Int64, 365.25 * C)
-    E = trunc(Int64, (B-D)/30.6001)
+    #C = trunc(Int64, (B - 122.1) / 365.25)
+    C = (100*B - 12210) ÷ 36525
+    #D = trunc(Int64, 365.25 * C)
+    # 1461 = 3*365 + 366
+    D = 1461 * C ÷ 4
+    #E = trunc(Int64, (B-D)/30.6001)
+    E = (10000 * (B-D)) ÷ 306001
 
-    day = B - D - trunc(Int64,30.6001 * E)
+    #day = B - D - trunc(Int64,30.6001 * E)
+    day = B - D - (306001 * E) ÷ 10000
+
     month = (E < 14 ? E-1 : E-13)
     y = (month > 2 ? C - 4716 : C - 4715)
 
