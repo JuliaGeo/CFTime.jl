@@ -468,6 +468,7 @@ for dt = DateTime(-1000,1,1):Day(1):DateTime(1300,3,1)
 
     if (y,month(dt),day(dt)) !== (year(dt1),month(dt1),day(dt1))
         @show dt
+        @test (y,month(dt),day(dt)) !== (year(dt1),month(dt1),day(dt1))
     end
 end
 
