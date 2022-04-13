@@ -73,6 +73,7 @@ function datenum_gregjulian(year,month,day,gregorian::Bool)
         # bring year in range of 1601 to 2000
         ncycles = (2000 - year) ÷ 400
         year = year + 400 * ncycles
+        # 146_097 = 365.2425 * 400
         return datenum_ac(year,month,day,gregorian) - ncycles*146_097
     else
         return datenum_ac(year,month,day,gregorian)
