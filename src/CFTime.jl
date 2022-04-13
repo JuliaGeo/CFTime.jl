@@ -61,8 +61,9 @@ using ._Meeus: datetuple_julian, datetuple_standard, #, datetuple_prolepticgrego
 
 
 function datetuple_prolepticgregorian(Z)
-    if Z > CFTime.datenum_prolepticgregorian(300,3,1)
-    #if Z > -569309
+    # 300-02-28 is the last day where Julian and proleptic Gregorian calendar
+    # match
+    if Z >= CFTime.datenum_prolepticgregorian(300,2,28)
         _Meeus.datetuple_prolepticgregorian(Z)
     else
         _Reference.datetuple_prolepticgregorian(Z)
