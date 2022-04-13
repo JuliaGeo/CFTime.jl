@@ -25,6 +25,9 @@ function datenum_datetuple_all_calendars()
     ]
         for Z = -2_400_000 + CFTime.DATENUM_OFFSET : dayincrement : 600_000 + CFTime.DATENUM_OFFSET
             y,m,d = totuple(Z)
+            if tonum(y,m,d) !== Z
+                @show tonum, (y,m,d), Z
+            end
             @test tonum(y,m,d) == Z
         end
     end
