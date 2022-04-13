@@ -454,3 +454,23 @@ for T in [DateTimeStandard, DateTimeJulian, DateTimeProlepticGregorian,
 
     @test Dates.month(T(300, 3, 1)) == 3
 end
+
+
+
+for dt = DateTime(-1000,1,1):Day(1):DateTime(1300,3,1)
+
+    y = year(dt)
+    if y <= 0
+        y = y-1
+    end
+
+    dt1 = DateTimeProlepticGregorian(y,month(dt),day(dt))
+
+    if (y,month(dt),day(dt)) !== (year(dt1),month(dt1),day(dt1))
+        @show dt
+    end
+end
+
+@test year(dt) == year(dt1)
+month(dt) == month(dt1)
+day(dt) == day(dt1)
