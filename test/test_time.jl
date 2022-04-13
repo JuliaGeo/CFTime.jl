@@ -457,7 +457,7 @@ end
 
 
 
-for dt = DateTime(-1000,1,1):Day(1):DateTime(1300,3,1)
+for dt = DateTime(-1000,1,1):Day(1000):DateTime(2300,3,1)
 
     y = year(dt)
     if y <= 0
@@ -471,7 +471,3 @@ for dt = DateTime(-1000,1,1):Day(1):DateTime(1300,3,1)
         @test (y,month(dt),day(dt)) !== (year(dt1),month(dt1),day(dt1))
     end
 end
-
-@test year(dt) == year(dt1)
-month(dt) == month(dt1)
-day(dt) == day(dt1)
