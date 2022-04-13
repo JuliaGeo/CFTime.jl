@@ -6,9 +6,9 @@ using Test
 # launch of Sputnik 1
 
 @test CFTime.datetuple_standard(2_436_116 - 2_400_001) == (1957, 10, 4)
-@test CFTime.datenum_gregjulian(1957,10,4,true) == 36115
+@test CFTime._Meeus.datenum_gregjulian(1957,10,4,true) == 36115
 
-@test CFTime.datenum_gregjulian(333,1,27,false) == -557288
+@test CFTime._Meeus.datenum_gregjulian(333,1,27,false) == -557288
 
 
 function datenum_datetuple_all_calendars()
@@ -387,23 +387,12 @@ for T in [DateTimeStandard, DateTimeJulian, DateTimeProlepticGregorian,
     @test length(T(2000, 01, 01):Dates.Year(1):T(2001, 1, 1)) == 2
 end
 
-# if @isdefined DataArrays
-
-# # DataArray
-# data_orig = DataArrays.DataArray([54750.5, 54751.5, 54752.5])
-# # Decoding
-# datacal = CFTime.timedecode(data_orig, units, calendar)
-# # Reencoding
-# data_orig_back = CFTime.timeencode(datacal, units, calendar)
-# @test data_orig ≈ data_orig_back
-# end
-
-# issue 21
+# issue #21
 @test parse(DateTimeNoLeap,"1999-12-05", dateformat"yyyy-mm-dd") == DateTimeNoLeap(1999,12,05)
 @test DateTimeNoLeap("1999-12-05", "yyyy-mm-dd") == DateTimeNoLeap(1999,12,05)
 @test DateTimeNoLeap("1999-12-05", dateformat"yyyy-mm-dd") == DateTimeNoLeap(1999,12,05)
 
-# issue 29
+# issue #29
 @test Dates.firstdayofyear(DateTimeNoLeap(2008, 12, 31)) == DateTimeNoLeap(2008, 1, 1)
 @test Dates.dayofyear(DateTimeNoLeap(2008, 12, 31)) == 365
 @test Dates.dayofmonth(DateTimeAllLeap(2008, 2, 29)) == 29
@@ -422,7 +411,7 @@ dt = CFTime.timedecode(DateTime360Day,data,"days since 2000-01-01 00:00:00")
 data2 = CFTime.timeencode(dt,"days since 2000-01-01 00:00:00",DateTime360Day)
 @test data == data2
 
-#issue #6
+# issue #6
 
 data = [0,1,2,3]
 dt = CFTime.timedecode(DateTime,data,"days since 2000-01-01 00:00:00+00")
@@ -453,3 +442,12 @@ data2 = CFTime.timeencode(dt,"days since 2000-01-01 00:00:00+00:00",DateTime360D
 @test DateTimeStandard(2000,1,1) - DateTime(2000,1,1) == Dates.Day(0)
 @test DateTime(2000,1,1) - DateTimeStandard(2000,1,1) == Dates.Day(0)
 @test DateTimeStandard(2000,1,1) - DateTimeProlepticGregorian(2000,1,1) == Dates.Day(0)
+
+
+# issue #16
+
+for T in [DateTimeStandard, DateTimeJulian, DateTimeProlepticGregorian,
+          DateTimeAllLeap, DateTimeNoLeap, DateTime360Day]
+
+    @test Dates.month(T(300, 3, 1)) == 3
+end
