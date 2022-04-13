@@ -69,3 +69,8 @@ DateTime360Day(2000,1,1) + Dates.Day(360)
 ```
 
 You can replace in the example above the type `DateTime360Day` by the string `"360_day"` (the name according to the CF conversion).
+
+
+# Acknowledgments
+
+Thanks to Jeff Whitaker and [contributors](https://github.com/Unidata/cftime/graphs/contributors) for python's [cftime](https://github.com/Unidata/cftime) released under the MIT license which has helped the developpement of this package.
