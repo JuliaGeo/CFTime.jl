@@ -123,17 +123,8 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool) where T
         if gregorian
             # 1867216.25 - 0.5 corresponds to the date 400-02-29T18:00:00
             # lets magic happen
-            α = trunc(Int64, (Z - 1867_216.25)/36524.25)
-            α = floor(Int64, (Z - 1867_216.25)/36524.25)
-           @show Z
- #           @show (Z - 1867_216.25)/36524.25
-            # 146_097 = 365.2425 * 400
-            # α increases by 1 every century
-            #α = (4*Z - 7468865) ÷ 146097
-            if α < 0
-#                α += 1
-                        end
-#            @show α
+            #α = trunc(Int64, (Z - 1867_216.25)/36524.25)
+            α = (4*Z - 7468865) ÷ 146097
             Z + 1 + α - (α ÷ 4)
         else
             Z
