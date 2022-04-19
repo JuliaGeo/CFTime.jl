@@ -467,8 +467,8 @@ Z = CFTime.datenum_prolepticgregorian(-1000,1,1):CFTime.datenum_prolepticgregori
 
 Z = CFTime.datenum_prolepticgregorian(-1000,1,1):100:CFTime.datenum_prolepticgregorian(4000,1,1)
 
-MYMD = @time CFTime.datetuple_prolepticgregorian.(Z);
-RYMD = @time Reference.datetuple_prolepticgregorian.(Z);
+MYMD = CFTime.datetuple_prolepticgregorian.(Z);
+RYMD = Reference.datetuple_prolepticgregorian.(Z);
 
 @test MYMD == RYMD
 
