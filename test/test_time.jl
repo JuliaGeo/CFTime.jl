@@ -462,7 +462,7 @@ end
 
 Z = CFTime._Meeus.datenum_prolepticgregorian(-1000,1,1):CFTime._Meeus.datenum_prolepticgregorian(4000,1,1)
 
-#Z = CFTime._Meeus.datenum_prolepticgregorian(-1000,1,1):100:CFTime._Meeus.datenum_prolepticgregorian(4000,1,1)
+Z = CFTime._Meeus.datenum_prolepticgregorian(-1000,1,1):100:CFTime._Meeus.datenum_prolepticgregorian(4000,1,1)
 
 MYMD = @time CFTime._Meeus.datetuple_prolepticgregorian.(Z);
 RYMD = @time CFTime._Reference.datetuple_prolepticgregorian.(Z);
@@ -471,6 +471,7 @@ RYMD = @time CFTime._Reference.datetuple_prolepticgregorian.(Z);
 
 @test CFTime._Meeus.datetuple_prolepticgregorian.(Z) == CFTime._Reference.datetuple_prolepticgregorian.(Z)
 
+#=
 for dt = DateTime(-1000,1,1):Day(1000):DateTime(2300,3,1)
 
     y = year(dt)
@@ -485,3 +486,4 @@ for dt = DateTime(-1000,1,1):Day(1000):DateTime(2300,3,1)
         @test (y,month(dt),day(dt)) !== (year(dt1),month(dt1),day(dt1))
     end
 end
+=#
