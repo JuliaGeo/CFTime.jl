@@ -122,8 +122,6 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool) where T
         # α number of centuries since 400-02-29
         α = (4*Z - 7468865) ÷ 146097
 
-        #@show (4*Z - 7468865 + 146097) / 146097
-
         β = Z + (-7468865 + 146097) ÷ 4
         if (β <= 0) && (β % 146097 == 0)
             # correction for 300-03-01 AC, 101-03-01 BC, 501-03-01 BC, ...
