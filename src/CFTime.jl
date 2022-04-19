@@ -49,6 +49,27 @@ const DN_GREGORIAN_CALENDAR = -100840 + DATENUM_OFFSET
 
 const DATETIME_OFFSET = Dates.Millisecond(678576 * (24*60*60*Int64(1000)))
 
+include("types.jl")
+
+
+@inline isleap(::Type{DateTimeAllLeap},year,has_year_zero) = true
+@inline isleap(::Type{DateTimeNoLeap},year,has_year_zero) = false
+
+@inline function isleap(::Type{DateTimeProlepticGregorian},year,has_year_zero)
+    if (year < 0) && !has_year_zero
+        year = year + 1
+    end
+    return (year % 400 == 0) || ((year % 4 == 0) && (year % 100 !== 0))
+end
+
+@inline function isleap(::Type{DateTimeJulian},year,has_year_zero)
+    if (year < 0) && !has_year_zero
+        year = year + 1
+    end
+    return year % 4 == 0
+end
+
+
 # fast, but problematic
 # https://github.com/JuliaGeo/CFTime.jl/issues/16
 include("meeus_algorithm.jl")
@@ -63,11 +84,11 @@ using ._Meeus: datetuple_julian, datetuple_standard, #, datetuple_prolepticgrego
 function datetuple_prolepticgregorian(Z)
     # 300-02-28 is the last day where Julian and proleptic Gregorian calendar
     # match
-    if Z > CFTime.datenum_prolepticgregorian(300,3,1)
+#    if Z > CFTime.datenum_prolepticgregorian(300,3,1)
         _Meeus.datetuple_prolepticgregorian(Z)
-    else
-        _Reference.datetuple_prolepticgregorian(Z)
-    end
+#    else
+#        _Reference.datetuple_prolepticgregorian(Z)
+#    end
 end
 
 """
@@ -156,11 +177,6 @@ for (calendar,cmm) in [
 end
 
 
-abstract type AbstractCFDateTime <: Dates.TimeType
-end
-
-const RegTime = Union{Dates.Millisecond,Dates.Second,Dates.Minute,Dates.Hour,Dates.Day}
-
 function validargs(::Type{T},arg...) where T <: AbstractCFDateTime
     return nothing
 end
@@ -173,11 +189,6 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                               (:DateTimeNoLeap,"noleap"),
                               (:DateTime360Day,"360day")]
     @eval begin
-        struct $CFDateTime <: AbstractCFDateTime
-            instant::UTInstant{Millisecond}
-            $CFDateTime(instant::UTInstant{Millisecond}) = new(instant)
-        end
-
         """
     $($CFDateTime)(y, [m, d, h, mi, s, ms]) -> $($CFDateTime)
 

@@ -117,23 +117,36 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool) where T
     Z = promote_type(T, Int64)(Z0)
 
     # Z is Julian Day plus 0.5
-    Z = Z + 2_400_001 - DATENUM_OFFSET
+    Z = Z + (2_400_001 - DATENUM_OFFSET)
 
-    A =
-        if gregorian
-            # 1867216.25 - 0.5 corresponds to the date 400-02-29T18:00:00
-            # lets magic happen
-            #α = trunc(Int64, (Z - 1867_216.25)/36524.25)
-            α = (4*Z - 7468865) ÷ 146097
-            Z + 1 + α - (α ÷ 4)
-        else
-            Z
+    A = Z
+
+    if gregorian
+        # 1867216.25 - 0.5 corresponds to the date 400-02-29T18:00:00
+        # lets magic happen
+        #α = trunc(Int64, (Z - 1867_216.25)/36524.25)
+        # 400 years = 146097 days = (400 * 365 + 100 - 4 + 1) days
+        # α number of centuries since 400-02-29
+        α = (4*Z - 7468865) ÷ 146097
+
+        #@show (4*Z - 7468865 + 146097) / 146097
+
+        β = Z + (-7468865 + 146097) ÷ 4
+        if (β <= 0) && (β % 146097 == 0)
+            # correction for 300-03-01 AC, 101-03-01 BC, 501-03-01 BC, ...
+            A += 1
         end
+
+        # +α: add leap days for 1700, 1800, 1900, 2000, 2100,
+        # -(α ÷ 4): remove leap days for 2000, 2400, ... (already included)
+        # so that Julian and Gregorian calendar coincide
+        A += 1 + α - (α ÷ 4)
+    end
 
     # even more magic...
     B = A + 1524
     #C = trunc(Int64, (B - 122.1) / 365.25)
-    C = (100*B - 12210) ÷ 36525
+    C = (20*B - 2442) ÷ 7305
     #D = trunc(Int64, 365.25 * C)
     # 1461 = 3*365 + 366
     D = 1461 * C ÷ 4
