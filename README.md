@@ -68,8 +68,20 @@ DateTime360Day(2000,1,1) + Dates.Day(360)
 # DateTime360Day(2001-01-01T00:00:00)
 ```
 
+
 You can replace in the example above the type `DateTime360Day` by the string `"360_day"` (the name according to the CF conversion).
 
+## Parsing dates
+
+Dates can be parsed by using `dateformat` from julia's `Dates` module, for example:
+
+```julia
+dt = DateTimeNoLeap("21001231",dateformat"yyyymmdd");
+# or
+# dt = parse(DateTimeNoLeap,"21001231",dateformat"yyyymmdd")
+Dates.year(dt),Dates.month(dt),Dates.day(dt)
+# output (2100, 12, 31)
+```
 
 ## Acknowledgments
 
