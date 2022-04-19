@@ -2,13 +2,16 @@ using CFTime
 using Dates
 using Test
 
+# slow, but accurate and easy to understand (and possibly fix)
+include("reference_algorithm.jl")
+
 # reference value from Meeus, Jean (1998)
 # launch of Sputnik 1
 
 @test CFTime.datetuple_standard(2_436_116 - 2_400_001) == (1957, 10, 4)
-@test CFTime._Meeus.datenum_gregjulian(1957,10,4,true) == 36115
+@test CFTime.datenum_gregjulian(1957,10,4,true) == 36115
 
-@test CFTime._Meeus.datenum_gregjulian(333,1,27,false) == -557288
+@test CFTime.datenum_gregjulian(333,1,27,false) == -557288
 
 
 function datenum_datetuple_all_calendars()
@@ -460,16 +463,16 @@ end
 
 
 
-Z = CFTime._Meeus.datenum_prolepticgregorian(-1000,1,1):CFTime._Meeus.datenum_prolepticgregorian(4000,1,1)
+Z = CFTime.datenum_prolepticgregorian(-1000,1,1):CFTime.datenum_prolepticgregorian(4000,1,1)
 
-Z = CFTime._Meeus.datenum_prolepticgregorian(-1000,1,1):100:CFTime._Meeus.datenum_prolepticgregorian(4000,1,1)
+Z = CFTime.datenum_prolepticgregorian(-1000,1,1):100:CFTime.datenum_prolepticgregorian(4000,1,1)
 
-MYMD = @time CFTime._Meeus.datetuple_prolepticgregorian.(Z);
-RYMD = @time CFTime._Reference.datetuple_prolepticgregorian.(Z);
+MYMD = @time CFTime.datetuple_prolepticgregorian.(Z);
+RYMD = @time Reference.datetuple_prolepticgregorian.(Z);
 
 @test MYMD == RYMD
 
-@test CFTime._Meeus.datetuple_prolepticgregorian.(Z) == CFTime._Reference.datetuple_prolepticgregorian.(Z)
+@test CFTime.datetuple_prolepticgregorian.(Z) == Reference.datetuple_prolepticgregorian.(Z)
 
 #=
 for dt = DateTime(-1000,1,1):Day(1000):DateTime(2300,3,1)

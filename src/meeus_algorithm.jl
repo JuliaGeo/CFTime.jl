@@ -1,10 +1,3 @@
-module _Meeus
-
-import ..DATENUM_OFFSET
-import ..GREGORIAN_CALENDAR
-import ..DN_GREGORIAN_CALENDAR
-
-
 """
     dn = datenum_gregjulian(year,month,day,gregorian::Bool)
 
@@ -174,5 +167,3 @@ datetuple_standard(Z) = datetuple_gregjulian(Z,Z >= DN_GREGORIAN_CALENDAR)
 datenum_prolepticgregorian(y,m,d) = datenum_gregjulian(y,m,d,true)
 datenum_julian(y,m,d) = datenum_gregjulian(y,m,d,false)
 datenum_standard(y,m,d) = datenum_gregjulian(y,m,d,(y,m,d) >= GREGORIAN_CALENDAR)
-
-end

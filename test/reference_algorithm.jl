@@ -1,8 +1,6 @@
-module _Reference
+module Reference
 
-import ..isleap
-import ..DateTimeJulian
-import ..DateTimeProlepticGregorian
+import CFTime: isleap, DateTimeJulian, DateTimeProlepticGregorian
 
 # Adapted
 # from https://github.com/Unidata/cftime/blob/dc75368cd02bbcd1352dbecfef10404a58683f94/src/cftime/_cftime.pyx

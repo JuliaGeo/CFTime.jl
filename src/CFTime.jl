@@ -70,26 +70,7 @@ end
 end
 
 
-# fast, but problematic
-# https://github.com/JuliaGeo/CFTime.jl/issues/16
 include("meeus_algorithm.jl")
-
-# slow, but accurate and easy to understand (and possibly fix)
-include("reference_algorithm.jl")
-
-using ._Meeus: datetuple_julian, datetuple_standard, #, datetuple_prolepticgregorian,
-    datenum_prolepticgregorian, datenum_julian, datenum_standard
-
-
-function datetuple_prolepticgregorian(Z)
-    # 300-02-28 is the last day where Julian and proleptic Gregorian calendar
-    # match
-#    if Z > CFTime.datenum_prolepticgregorian(300,3,1)
-        _Meeus.datetuple_prolepticgregorian(Z)
-#    else
-#        _Reference.datetuple_prolepticgregorian(Z)
-#    end
-end
 
 """
     days,h,mi,s,ms = timetuplefrac(time::Number)
