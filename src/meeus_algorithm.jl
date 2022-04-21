@@ -11,9 +11,9 @@ Gregorian or Julian Calendar.
 [1] Meeus, Jean (1998) Astronomical Algorithms (2nd Edition).
 Willmann-Bell,  Virginia. p. 63
 """
-function datenum_gregjulian(year,month,day,gregorian::Bool,has_year_zero = false)
+function datenum_gregjulian(year,month,day,gregorian::Bool,hasyear0 = false)
     # turn year equal to -1 (1 BC) into year = 0
-    if (year < 0) && !has_year_zero
+    if (year < 0) && !hasyear0
         year = year+1
     end
 
@@ -105,7 +105,7 @@ Algorithm:
 Meeus, Jean (1998) Astronomical Algorithms (2nd Edition). Willmann-Bell,
 Virginia. p. 63
 """
-function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where T
+function datetuple_gregjulian(Z0::T,gregorian::Bool,hasyear0 = false) where T
 
     # promote to at least Int64
     Z = promote_type(T, Int64)(Z0)
@@ -152,7 +152,7 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where
     y = (month > 2 ? C - 4716 : C - 4715)
 
     # turn year 0 into year -1 (1 BC)
-    if (y <= 0) && !has_year_zero
+    if (y <= 0) && !hasyear0
         y = y-1
     end
     return y,month,day
