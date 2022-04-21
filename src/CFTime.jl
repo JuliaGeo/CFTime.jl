@@ -339,12 +339,7 @@ end
 -(dt::AbstractCFDateTime,Δ) = dt + (-Δ)
 
 function parseDT(::Type{DT},str) where DT <: Union{DateTime,AbstractCFDateTime}
-    str =
-        if VERSION >= v"0.7.0-beta.0"
-            replace(str,"T" => " ")
-        else
-            replace(str,"T"," ")
-        end
+    str = replace(str,"T" => " ")
 
     # remove Z time zone indicator
     # all times are assumed UTC anyway
