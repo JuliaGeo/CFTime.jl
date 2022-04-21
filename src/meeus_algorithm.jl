@@ -158,22 +158,46 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where
     return y,month,day
 end
 
+
+
+for hasyear0 in (false,true)
+    @eval begin
+        datetuple_ymd(::Type{DateTimeProlepticGregorian{$hasyear0}},Z::Number) =
+            datetuple_gregjulian(Z,true,$hasyear0)
+
+        datetuple_ymd(::Type{DateTimeJulian{$hasyear0}},Z::Number) =
+            datetuple_gregjulian(Z,false,$hasyear0)
+
+        datetuple_ymd(::Type{DateTimeStandard{$hasyear0}},Z::Number) =
+            datetuple_gregjulian(Z,Z >= DN_GREGORIAN_CALENDAR,$hasyear0)
+
+        datenum(::Type{DateTimeProlepticGregorian{$hasyear0}},y,m,d) =
+            datenum_gregjulian(y,m,d,true,$hasyear0)
+
+        datenum(::Type{DateTimeJulian{$hasyear0}},y,m,d) =
+            datenum_gregjulian(y,m,d,false,$hasyear0)
+
+        datenum(::Type{DateTimeStandard{$hasyear0}},y,m,d) =
+            datenum_gregjulian(y,m,d,(y,m,d) >= GREGORIAN_CALENDAR,$hasyear0)
+
+    end
+
+end
+
 datetuple_ymd(::Type{DateTimeProlepticGregorian},Z::Number) =
-    datetuple_gregjulian(Z,true,_hasyear0(DateTimeProlepticGregorian))
+    datetuple_gregjulian(Z,true,true)
 
 datetuple_ymd(::Type{DateTimeJulian},Z::Number) =
-    datetuple_gregjulian(Z,false,_hasyear0(DateTimeJulian))
+    datetuple_gregjulian(Z,false,false)
 
 datetuple_ymd(::Type{DateTimeStandard},Z::Number) =
-    datetuple_gregjulian(Z,Z >= DN_GREGORIAN_CALENDAR,_hasyear0(DateTimeStandard))
+    datetuple_gregjulian(Z,Z >= DN_GREGORIAN_CALENDAR,false)
 
 datenum(::Type{DateTimeProlepticGregorian},y,m,d) =
-    datenum_gregjulian(y,m,d,true,_hasyear0(DateTimeProlepticGregorian))
+    datenum_gregjulian(y,m,d,true,true)
 
 datenum(::Type{DateTimeJulian},y,m,d) =
-    datenum_gregjulian(y,m,d,false,_hasyear0(DateTimeJulian))
+    datenum_gregjulian(y,m,d,false,false)
 
 datenum(::Type{DateTimeStandard},y,m,d) =
-    datenum_gregjulian(y,m,d,(y,m,d) >= GREGORIAN_CALENDAR,_hasyear0(DateTimeStandard))
-
-
+    datenum_gregjulian(y,m,d,(y,m,d) >= GREGORIAN_CALENDAR,false)

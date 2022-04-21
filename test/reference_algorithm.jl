@@ -83,7 +83,7 @@ end
 end
 
 function datetuple_ymd(::Type{DateTimeProlepticGregorian},Z)
-    has_year_zero = false
+    has_year_zero = true
     julian_gregorian_mixed = false
     return datetuple_ymd(DateTimeProlepticGregorian, Z, julian_gregorian_mixed, has_year_zero)
 end

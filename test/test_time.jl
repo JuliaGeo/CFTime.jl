@@ -5,16 +5,19 @@ using Test
 # slow, but accurate and easy to understand (and possibly fix)
 include("reference_algorithm.jl")
 
+
+
+
 # reference value from Meeus, Jean (1998)
 # launch of Sputnik 1
 
-@test CFTime.datetuple_ymd(DateTimeStandard,2_436_116 - 2_400_001) == (1957, 10, 4)
+@test CFTime.datetuple_ymd(DateTimeStandard{true},2_436_116 - 2_400_001) == (1957, 10, 4)
 @test CFTime.datenum_gregjulian(1957,10,4,true) == 36115
 
 @test CFTime.datenum_gregjulian(333,1,27,false) == -557288
 
 
-function datenum_datetuple_all_calendars(::Type{T}) where T
+function datenum_datetuple(::Type{T}) where T
     #dayincrement = 11
     dayincrement = 11000
 
@@ -30,7 +33,7 @@ end
 
 for T in [DateTimeStandard, DateTimeJulian, DateTimeProlepticGregorian,
           DateTimeAllLeap, DateTimeNoLeap, DateTime360Day]
-    datenum_datetuple_all_calendars(T)
+    datenum_datetuple(T{true})
 end
 # test of DateTime structures
 
@@ -75,7 +78,6 @@ dt = DateTimeNoLeap(1959,12,31,23,39,59,123)
 @test DateTimeJulian(2000,1,1) + Dates.Day(12346) == DateTimeJulian(2033,10,20)
 @test DateTimeJulian(1,1,1) + Dates.Day(1234678) == DateTimeJulian(3381,05,14)
 
-
 # handling of year zero, reference values
 # from pythons cftime 1.6.0
 # issue #17
@@ -87,6 +89,8 @@ dt = DateTimeNoLeap(1959,12,31,23,39,59,123)
 @test DateTimeNoLeap(1,1,1) - Day(1) == DateTimeNoLeap(0,12,31)
 @test DateTime360Day(1,1,1) - Day(1) == DateTime360Day(0,12,30)
 
+@test year(DateTimeProlepticGregorian(1,1,1, _hasyear0=true) - Day(1)) == 0
+@test year(DateTimeProlepticGregorian(1,1,1, _hasyear0=false) - Day(1)) == -1
 
 # generic tests
 function stresstest_DateTime(::Type{DT}) where DT
@@ -235,9 +239,8 @@ end
 @test CFTime.timedecode(DateTime,2_451_545,"days since -4713-11-24T12:00:00") ==
     DateTime(2000,01,01,12,00,00)
 
-@test CFTime.timedecode(DateTimeProlepticGregorian,2_451_545,"days since -4714-11-24T12:00:00") ==
-    DateTimeProlepticGregorian(2000,01,01,12,00,00)
-
+@test CFTime.timedecode(DateTimeProlepticGregorian{false},2_451_545,"days since -4714-11-24T12:00:00") ==
+    DateTimeProlepticGregorian(2000,01,01,12,00,00, _hasyear0 = false)
 
 @test CFTime.timedecode([2455512.375],"days since -4713-01-01T00:00:00","julian", prefer_datetime = false) ==
     [DateTimeJulian(2010,10,29,9,0,0)]
@@ -251,6 +254,8 @@ end
 @test_throws ErrorException CFTime.timeencode(
     [DateTimeJulian(2010,10,29,9,0,0)],
     "days since -4713-01-01T00:00:00","360_day")
+
+
 
 # Transition between Julian and Gregorian Calendar
 
@@ -277,7 +282,7 @@ Out[13]: cftime.DatetimeJulian(1582, 10, 5, 0, 0, 0, 0, -1, 1)
 
 
 dt = CFTime.reinterpret(DateTimeStandard, DateTimeJulian(1900,2,28))
-@test typeof(dt) == DateTimeStandard
+@test typeof(dt) <: DateTimeStandard
 @test CFTime.datetuple(dt) == (1900,2,28,0, 0, 0, 0)
 
 dt = CFTime.reinterpret(DateTime, DateTimeNoLeap(1900,2,28))
@@ -301,6 +306,10 @@ datetuple(dt::DateTime) = (Dates.year(dt),Dates.month(dt),Dates.day(dt),
 
 
 # check conversion
+
+
+@test DateTime(2000,1,1) == DateTimeProlepticGregorian(2000,1,1,_hasyear0=false)
+@test DateTime(2000,1,1) == DateTimeProlepticGregorian(2000,1,1,_hasyear0=true)
 
 for T1 in [DateTimeProlepticGregorian,DateTimeStandard,DateTime]
     for T2 in [DateTimeProlepticGregorian,DateTimeStandard,DateTime]
@@ -467,7 +476,6 @@ for T in [DateTimeStandard, DateTimeJulian, DateTimeProlepticGregorian,
 end
 
 
-
 Z = CFTime.datenum(DateTimeProlepticGregorian,-1000,1,1):CFTime.datenum(DateTimeProlepticGregorian,4000,1,1)
 
 Z = CFTime.datenum(DateTimeProlepticGregorian,-1000,1,1):100:CFTime.datenum(DateTimeProlepticGregorian,4000,1,1)
@@ -477,9 +485,9 @@ RYMD = Reference.datetuple_ymd.(DateTimeProlepticGregorian,Z);
 
 @test MYMD == RYMD
 
-#=
-for dt = DateTime(-1000,1,1):Day(100):DateTime(2300,3,1)
+# compare to Julia's Date.DateTime
 
+for dt = DateTime(-1000,1,1):Day(1):DateTime(2300,3,1)
     y = year(dt)
 
     dt1 = DateTimeProlepticGregorian(y,month(dt),day(dt))
@@ -489,4 +497,6 @@ for dt = DateTime(-1000,1,1):Day(100):DateTime(2300,3,1)
         @test (y,month(dt),day(dt)) !== (year(dt1),month(dt1),day(dt1))
     end
 end
-=#
+
+
+@test DateTime360Day(0,1,1) == DateTime360Day(-1,1,1, _hasyear0 = false)

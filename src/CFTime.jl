@@ -23,6 +23,7 @@ import Dates: daysinmonth, daysinyear, yearmonthday, yearmonth
 import Dates: monthday, len, dayofyear, firstdayofyear
 
 import Base: +, -, isless, string, show, convert, reinterpret
+import Base: promote_rule
 
 
 const DEFAULT_TIME_UNITS = "days since 1900-01-01 00:00:00"
@@ -69,8 +70,19 @@ end
     return year % 4 == 0
 end
 
+for CFDateTime in (:DateTimeStandard,
+                   :DateTimeJulian,
+                   :DateTimeProlepticGregorian,
+                   :DateTimeAllLeap,
+                   :DateTimeNoLeap,
+                   :DateTime360Day)
+    @eval begin
+        @inline _hasyear0(::Type{$CFDateTime{true}}) = true
+        @inline _hasyear0(::Type{$CFDateTime{false}}) = false
+    end
+end
 
-@inline _hasyear0(::Type{T}) where T = false
+_default_has_year0(calendar) = !(calendar in ("standard","gregorian","julian"))
 
 include("meeus_algorithm.jl")
 
@@ -149,13 +161,13 @@ function datetuple_ymd(::Type{T},timed_::Number) where T <: AbstractCFDateTime
     return (y,mo,d)
 end
 
-@inline _cum_month_length(::Type{DateTimeAllLeap}) =
+@inline _cum_month_length(::Type{DateTimeAllLeap{T}}) where T =
     (0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366)
 
-@inline _cum_month_length(::Type{DateTimeNoLeap}) =
+@inline _cum_month_length(::Type{DateTimeNoLeap{T}}) where T =
     (0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365)
 
-@inline _cum_month_length(::Type{DateTime360Day}) =
+@inline _cum_month_length(::Type{DateTime360Day{T}}) where T =
     (0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360)
 
 
@@ -170,6 +182,8 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                               (:DateTimeAllLeap,"allleap"),
                               (:DateTimeNoLeap,"noleap"),
                               (:DateTime360Day,"360day")]
+
+    hasyear0 = _default_has_year0(calendar)
     @eval begin
         """
     $($CFDateTime)(y, [m, d, h, mi, s, ms]) -> $($CFDateTime)
@@ -183,18 +197,27 @@ All arguments must be convertible to `Int64`.
 The netCDF CF calendars are defined in [the CF Standard](http://cfconventions.org/cf-conventions/cf-conventions.html#calendar).
 This type implements the calendar defined as "$($calendar)".
         """
-        function $CFDateTime(y::Int64, m::Int64=1, d::Int64=1,
-                             h::Int64=0, mi::Int64=0, s::Int64=0, ms::Int64=0)
+        function $CFDateTime{T}(y::Int64, m::Int64=1, d::Int64=1,
+                             h::Int64=0, mi::Int64=0, s::Int64=0, ms::Int64=0;
+                             _hasyear0 = $hasyear0) where T
 
-            days = datenum($CFDateTime,y,m,d)
+            days = datenum($CFDateTime{T},y,m,d)
             totalms = datenumfrac(days,h,mi,s,ms)
-            return $CFDateTime(UTInstant(Millisecond(totalms)))
+            return $CFDateTime{T}(UTInstant(Millisecond(totalms)))
+        end
+
+        function $CFDateTime(y::Int64, m::Int64=1, d::Int64=1,
+                             h::Int64=0, mi::Int64=0, s::Int64=0, ms::Int64=0;
+                             _hasyear0 = $hasyear0) where T
+
+            $CFDateTime{_hasyear0}(y,m,d,h,mi,s,ms)
         end
 
         # Fallback constructors
-        $CFDateTime(y::Number, m=1, d=1, h=0, mi=0, s=0, ms=0) = $CFDateTime(
+        $CFDateTime(y::Number, m=1, d=1, h=0, mi=0, s=0, ms=0; kwargs...) = $CFDateTime(
             Int64(y), Int64(m), Int64(d), Int64(h), Int64(mi), Int64(s),
-            Int64(ms))
+            Int64(ms); kwargs...)
+
 
         if VERSION >= v"1.3-"
             function $CFDateTime(y, m, d, h, mi, s, ms, ampm)
@@ -219,6 +242,9 @@ pattern given in the `format` string.
 
         $CFDateTime(dt::AbstractString, format::DateFormat) =
             parse($CFDateTime, dt, format)
+
+
+        $CFDateTime(instant::UTInstant) = $CFDateTime{$hasyear0}(instant)
 
     end
 end
@@ -313,6 +339,40 @@ end
 
 function convert(::Type{T1}, dt::DateTime) where T1 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian}
     T1(UTInstant{Millisecond}(dt.instant.periods - DATETIME_OFFSET))
+end
+
+
+for T in (:DateTimeStandard,:DateTimeProlepticGregorian,:DateTimeJulian)
+    @eval begin
+        convert(::Type{$T{false}},dt::DateTime) =  $T(UTInstant{Millisecond}(dt.instant.periods - DATETIME_OFFSET))
+        convert(::Type{$T{true}},dt::DateTime) =  $T(UTInstant{Millisecond}(dt.instant.periods - DATETIME_OFFSET))
+        convert(::Type{DateTime},dt::$T{true}) =  DateTime(UTInstant{Millisecond}(dt.instant.periods + DATETIME_OFFSET))
+
+
+        promote_rule(::Type{$T{true}},::Type{DateTime}) = DateTime
+        promote_rule(::Type{$T{false}},::Type{DateTime}) = DateTime
+    end
+end
+
+for T in (:DateTimeProlepticGregorian,:DateTimeAllLeap,:DateTimeNoLeap,:DateTime360Day)
+    @eval begin
+        promote_rule(::Type{$T{false}},::Type{$T{true}}) = $T{true}
+    end
+end
+
+for T in (:DateTimeStandard,:DateTimeJulian)
+    @eval begin
+        promote_rule(::Type{$T{false}},::Type{$T{true}}) = $T{false}
+    end
+end
+
+# convertion of types with different year 0 handling
+for T in (:DateTimeStandard,:DateTimeJulian,:DateTimeProlepticGregorian,:DateTimeAllLeap,:DateTimeNoLeap,:DateTime360Day)
+    @eval begin
+        function convert(::Type{$T{true}}, dt::$T)
+            return $T{true}(dt.instant)
+        end
+    end
 end
 
 
@@ -447,20 +507,20 @@ function timeunits(::Type{DT},units) where DT
 end
 
 
-function timetype(calendar = "standard")
+function timetype(calendar::AbstractString, _hasyear0 = _default_has_year0(calendar))
     DT =
         if (calendar == "standard") || (calendar == "gregorian")
-            DateTimeStandard
+            DateTimeStandard{_hasyear0}
         elseif calendar == "proleptic_gregorian"
-            DateTimeProlepticGregorian
+            DateTimeProlepticGregorian{_hasyear0}
         elseif calendar == "julian"
-            DateTimeJulian
+            DateTimeJulian{_hasyear0}
         elseif (calendar == "noleap") || (calendar == "365_day")
-            DateTimeNoLeap
+            DateTimeNoLeap{_hasyear0}
         elseif (calendar == "all_leap") || (calendar == "366_day")
-            DateTimeAllLeap
+            DateTimeAllLeap{_hasyear0}
         elseif calendar == "360_day"
-            DateTime360Day
+            DateTime360Day{_hasyear0}
         else
             error("Unsupported calendar: $(calendar)")
         end
@@ -468,8 +528,8 @@ function timetype(calendar = "standard")
     return DT
 end
 
-timetype(dt::Type{<:AbstractCFDateTime}) = dt
-timetype(dt::Type{DateTime}) = dt
+timetype(dt::Type{<:AbstractCFDateTime},unused) = dt
+timetype(dt::Type{DateTime},unused) = dt
 
 """
     t0,plength = timeunits(units,calendar = "standard")
@@ -477,8 +537,9 @@ timetype(dt::Type{DateTime}) = dt
 Parse time units (e.g. "days since 2000-01-01 00:00:00") and returns the start
 time `t0` and the scaling factor `plength` in milliseconds.
 """
-function timeunits(units, calendar = "standard")
-    DT = timetype(calendar)
+function timeunits(units, calendar = "standard",
+                   _hasyear0 = _default_has_year0(calendar))
+    DT = timetype(calendar,_hasyear0)
     return timeunits(DT,units)
 end
 
@@ -495,7 +556,7 @@ end
 
 
 """
-    dt = timedecode(data,units,calendar = "standard", prefer_datetime = true)
+    dt = timedecode(data,units,calendar = "standard"; prefer_datetime = true)
 
 Decode the time information in data as given by the units `units` according to
 the specified calendar. Valid values for `calendar` are
@@ -537,8 +598,10 @@ dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00","360_day")
 ```
 
 """
-function timedecode(data,units,calendar = "standard"; prefer_datetime = true)
-    DT = timetype(calendar)
+function timedecode(data,units,calendar = "standard"; prefer_datetime = true,
+                    _hasyear0 = _default_has_year0(calendar)
+                    )
+    DT = timetype(calendar,_hasyear0)
     dt = timedecode(DT,data,units)
 
     if prefer_datetime &&
@@ -563,9 +626,11 @@ the specified units (e.g. `"days since 2000-01-01 00:00:00"`) using the calendar
 `"all_leap"`, `"366_day"`, `"360_day"`.
 """
 function timeencode(data::AbstractArray{DT,N},units,
-                    calendar = "standard") where N where DT <: Union{DateTime,AbstractCFDateTime,Union{DateTime,AbstractCFDateTime,Missing}}
+                    calendar = "standard";
+                    _hasyear0 = _default_has_year0(calendar),
+                    ) where N where DT <: Union{DateTime,AbstractCFDateTime,Union{DateTime,AbstractCFDateTime,Missing}}
 
-    DT2 = timetype(calendar)
+    DT2 = timetype(calendar,_hasyear0)
     t0,plength = timeunits(DT2,units)
 
     function encode(dt)
