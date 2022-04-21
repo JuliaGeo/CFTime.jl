@@ -11,9 +11,9 @@ Gregorian or Julian Calendar.
 [1] Meeus, Jean (1998) Astronomical Algorithms (2nd Edition).
 Willmann-Bell,  Virginia. p. 63
 """
-function datenum_gregjulian(year,month,day,gregorian::Bool)
+function datenum_gregjulian(year,month,day,gregorian::Bool,has_year_zero = false)
     # turn year equal to -1 (1 BC) into year = 0
-    if year < 0
+    if (year < 0) && !has_year_zero
         year = year+1
     end
 
@@ -105,7 +105,7 @@ Algorithm:
 Meeus, Jean (1998) Astronomical Algorithms (2nd Edition). Willmann-Bell,
 Virginia. p. 63
 """
-function datetuple_gregjulian(Z0::T,gregorian::Bool) where T
+function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where T
 
     # promote to at least Int64
     Z = promote_type(T, Int64)(Z0)
@@ -152,17 +152,18 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool) where T
     y = (month > 2 ? C - 4716 : C - 4715)
 
     # turn year 0 into year -1 (1 BC)
-    if y <= 0
+    if (y <= 0) && !has_year_zero
         y = y-1
     end
     return y,month,day
 end
 
-datetuple_prolepticgregorian(Z) = datetuple_gregjulian(Z,true)
-datetuple_julian(Z) = datetuple_gregjulian(Z,false)
-datetuple_standard(Z) = datetuple_gregjulian(Z,Z >= DN_GREGORIAN_CALENDAR)
+datetuple_ymd(::Type{DateTimeProlepticGregorian},Z::Number) = datetuple_gregjulian(Z,true)
+datetuple_ymd(::Type{DateTimeJulian},Z::Number) = datetuple_gregjulian(Z,false)
+datetuple_ymd(::Type{DateTimeStandard},Z::Number) = datetuple_gregjulian(Z,Z >= DN_GREGORIAN_CALENDAR)
+
+datenum(::Type{DateTimeProlepticGregorian},y,m,d) = datenum_gregjulian(y,m,d,true)
+datenum(::Type{DateTimeJulian},y,m,d) = datenum_gregjulian(y,m,d,false)
+datenum(::Type{DateTimeStandard},y,m,d) = datenum_gregjulian(y,m,d,(y,m,d) >= GREGORIAN_CALENDAR)
 
 
-datenum_prolepticgregorian(y,m,d) = datenum_gregjulian(y,m,d,true)
-datenum_julian(y,m,d) = datenum_gregjulian(y,m,d,false)
-datenum_standard(y,m,d) = datenum_gregjulian(y,m,d,(y,m,d) >= GREGORIAN_CALENDAR)

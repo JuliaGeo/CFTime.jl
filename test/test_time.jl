@@ -8,36 +8,30 @@ include("reference_algorithm.jl")
 # reference value from Meeus, Jean (1998)
 # launch of Sputnik 1
 
-@test CFTime.datetuple_standard(2_436_116 - 2_400_001) == (1957, 10, 4)
+@test CFTime.datetuple_ymd(DateTimeStandard,2_436_116 - 2_400_001) == (1957, 10, 4)
 @test CFTime.datenum_gregjulian(1957,10,4,true) == 36115
 
 @test CFTime.datenum_gregjulian(333,1,27,false) == -557288
 
 
-function datenum_datetuple_all_calendars()
+function datenum_datetuple_all_calendars(::Type{T}) where T
     #dayincrement = 11
     dayincrement = 11000
 
-    for (tonum,totuple) in [
-        (CFTime.datenum_standard,CFTime.datetuple_standard),
-        (CFTime.datenum_julian,CFTime.datetuple_julian),
-        (CFTime.datenum_prolepticgregorian,CFTime.datetuple_prolepticgregorian),
-        (CFTime.datenum_allleap,CFTime.datetuple_allleap),
-        (CFTime.datenum_noleap,CFTime.datetuple_noleap),
-        (CFTime.datenum_360day,CFTime.datetuple_360day),
-    ]
-        for Z = -2_400_000 + CFTime.DATENUM_OFFSET : dayincrement : 600_000 + CFTime.DATENUM_OFFSET
-            y,m,d = totuple(Z)
-            if tonum(y,m,d) !== Z
-                @show tonum, (y,m,d), Z
-            end
-            @test tonum(y,m,d) == Z
+    for Z = -2_400_000 + CFTime.DATENUM_OFFSET : dayincrement : 600_000 + CFTime.DATENUM_OFFSET
+        y,m,d = CFTime.datetuple_ymd(T,Z)
+        Z2 = CFTime.datenum(T,y,m,d)
+        if Z2 !== Z
+            @show Z2, (y,m,d), Z
         end
+        @test Z2 == Z
     end
 end
 
-datenum_datetuple_all_calendars()
-
+for T in [DateTimeStandard, DateTimeJulian, DateTimeProlepticGregorian,
+          DateTimeAllLeap, DateTimeNoLeap, DateTime360Day]
+    datenum_datetuple_all_calendars(T)
+end
 # test of DateTime structures
 
 dt = DateTimeNoLeap(1959,12,31,23,39,59,123)
@@ -126,7 +120,7 @@ end
 # test show
 io = IOBuffer()
 show(io,DateTimeJulian(-1000,1,1))
-isempty(findfirst("Julian",String(take!(io)))) == false
+@test isempty(findfirst("Julian",String(take!(io)))) == false
 
 
 # time
@@ -463,16 +457,14 @@ end
 
 
 
-Z = CFTime.datenum_prolepticgregorian(-1000,1,1):CFTime.datenum_prolepticgregorian(4000,1,1)
+Z = CFTime.datenum(DateTimeProlepticGregorian,-1000,1,1):CFTime.datenum(DateTimeProlepticGregorian,4000,1,1)
 
-Z = CFTime.datenum_prolepticgregorian(-1000,1,1):100:CFTime.datenum_prolepticgregorian(4000,1,1)
+Z = CFTime.datenum(DateTimeProlepticGregorian,-1000,1,1):100:CFTime.datenum(DateTimeProlepticGregorian,4000,1,1)
 
-MYMD = CFTime.datetuple_prolepticgregorian.(Z);
-RYMD = Reference.datetuple_prolepticgregorian.(Z);
+MYMD = CFTime.datetuple_ymd.(DateTimeProlepticGregorian,Z);
+RYMD = Reference.datetuple_ymd.(DateTimeProlepticGregorian,Z);
 
 @test MYMD == RYMD
-
-@test CFTime.datetuple_prolepticgregorian.(Z) == Reference.datetuple_prolepticgregorian.(Z)
 
 #=
 for dt = DateTime(-1000,1,1):Day(1000):DateTime(2300,3,1)

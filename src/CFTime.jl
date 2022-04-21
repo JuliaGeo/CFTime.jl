@@ -99,7 +99,8 @@ function datenumfrac(days,h,mi,s,ms)
     return (24*60*60*1000) * Int64(days) + ms
 end
 
-function datenum_cal(cm, y, m, d)
+function datenum(::Type{T}, y, m, d) where T <: AbstractCFDateTime
+    cm = _cum_month_length(T)
     # turn year equal to -1 (1 BC) into year = 0
     if y < 0
         y = y+1
@@ -126,7 +127,8 @@ function findmonth(cm,t2)
     return mo
 end
 
-function datetuple_cal(cm,timed_::Number)
+function datetuple_ymd(::Type{T},timed_::Number) where T <: AbstractCFDateTime
+    cm = _cum_month_length(T)
     y = fld(Int64(timed_), cm[end])
     t2 = Int64(timed_) - cm[end]*y
 
@@ -145,17 +147,14 @@ function datetuple_cal(cm,timed_::Number)
     return (y,mo,d)
 end
 
+@inline _cum_month_length(::Type{DateTimeAllLeap}) =
+    (0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366)
 
-for (calendar,cmm) in [
-    ("allleap", (0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366)),
-    ("noleap",  (0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365)),
-    ("360day",    (0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360)),
-]
-    @eval begin
-        $(Symbol(:datenum_,calendar))(y, m, d) = datenum_cal($cmm, y, m, d)
-        $(Symbol(:datetuple_,calendar))(days) = datetuple_cal($cmm,days)
-    end
-end
+@inline _cum_month_length(::Type{DateTimeNoLeap}) =
+    (0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365)
+
+@inline _cum_month_length(::Type{DateTime360Day}) =
+    (0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360)
 
 
 function validargs(::Type{T},arg...) where T <: AbstractCFDateTime
@@ -180,11 +179,12 @@ All arguments must be convertible to `Int64`.
 `$($CFDateTime)` is a subtype of `AbstractCFDateTime`.
 
 The netCDF CF calendars are defined in [the CF Standard](http://cfconventions.org/cf-conventions/cf-conventions.html#calendar).
+This type implements the calendar defined as "$($calendar)".
         """
         function $CFDateTime(y::Int64, m::Int64=1, d::Int64=1,
                              h::Int64=0, mi::Int64=0, s::Int64=0, ms::Int64=0)
 
-            days = $(Symbol(:datenum_,calendar))(y,m,d)
+            days = datenum($CFDateTime,y,m,d)
             totalms = datenumfrac(days,h,mi,s,ms)
             return $CFDateTime(UTInstant(Millisecond(totalms)))
         end
@@ -218,12 +218,6 @@ pattern given in the `format` string.
         $CFDateTime(dt::AbstractString, format::DateFormat) =
             parse($CFDateTime, dt, format)
 
-        function datetuple(dt::$CFDateTime)
-            time = Dates.value(dt.instant.periods)
-            days,h,mi,s,ms = timetuplefrac(time)
-            y, m, d = $(Symbol(:datetuple_,calendar))(days)
-            return y, m, d, h, mi, s, ms
-        end
 
         function string(dt::$CFDateTime)
             y,mo,d,h,mi,s,ms = datetuple(dt)
@@ -256,6 +250,13 @@ pattern given in the `format` string.
         isless(dt1::$CFDateTime,dt2::$CFDateTime) = dt1.instant.periods < dt2.instant.periods
 
     end
+end
+
+function datetuple(dt::T) where T <: AbstractCFDateTime
+    time = Dates.value(dt.instant.periods)
+    days,h,mi,s,ms = timetuplefrac(time)
+    y, m, d = datetuple_ymd(T,days)
+    return y, m, d, h, mi, s, ms
 end
 
 
