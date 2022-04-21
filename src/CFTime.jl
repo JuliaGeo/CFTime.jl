@@ -218,37 +218,6 @@ pattern given in the `format` string.
         $CFDateTime(dt::AbstractString, format::DateFormat) =
             parse($CFDateTime, dt, format)
 
-
-        function string(dt::$CFDateTime)
-            y,mo,d,h,mi,s,ms = datetuple(dt)
-            return @sprintf("%04d-%02d-%02dT%02d:%02d:%02d",y,mo,d,h,mi,s)
-        end
-
-        function show(io::IO,dt::$CFDateTime)
-            write(io, string(typeof(dt)), "(",string(dt),")")
-        end
-
-
-
-        function +(dt::$CFDateTime,Δ::Dates.Year)
-            y,mo,d,h,mi,s,ms = datetuple(dt)
-            return $CFDateTime(y+Dates.value(Δ), mo, d, h, mi, s, ms)
-        end
-
-        function +(dt::$CFDateTime,Δ::Dates.Month)
-            y,mo,d,h,mi,s,ms = datetuple(dt)
-            mo = mo + Dates.value(Δ)
-            mo2 = mod(mo - 1, 12) + 1
-            y = y + (mo-mo2) ÷ 12
-            return $CFDateTime(y, mo2, d,h, mi, s, ms)
-        end
-
-        +(dt::$CFDateTime,Δ::RegTime) = $CFDateTime(UTInstant(dt.instant.periods + Dates.Millisecond(Δ)))
-
-        -(dt1::$CFDateTime,dt2::$CFDateTime) = dt1.instant.periods - dt2.instant.periods
-
-        isless(dt1::$CFDateTime,dt2::$CFDateTime) = dt1.instant.periods < dt2.instant.periods
-
     end
 end
 
@@ -258,6 +227,36 @@ function datetuple(dt::T) where T <: AbstractCFDateTime
     y, m, d = datetuple_ymd(T,days)
     return y, m, d, h, mi, s, ms
 end
+
+
+
+function string(dt::T)  where T <: AbstractCFDateTime
+    y,mo,d,h,mi,s,ms = datetuple(dt)
+    return @sprintf("%04d-%02d-%02dT%02d:%02d:%02d",y,mo,d,h,mi,s)
+end
+
+function show(io::IO,dt::T)  where T <: AbstractCFDateTime
+    write(io, string(typeof(dt)), "(",string(dt),")")
+end
+
+function +(dt::T,Δ::Dates.Year)  where T <: AbstractCFDateTime
+    y,mo,d,h,mi,s,ms = datetuple(dt)
+    return T(y+Dates.value(Δ), mo, d, h, mi, s, ms)
+end
+
+function +(dt::T,Δ::Dates.Month)  where T <: AbstractCFDateTime
+    y,mo,d,h,mi,s,ms = datetuple(dt)
+    mo = mo + Dates.value(Δ)
+    mo2 = mod(mo - 1, 12) + 1
+    y = y + (mo-mo2) ÷ 12
+    return T(y, mo2, d,h, mi, s, ms)
+end
+
++(dt::T,Δ::RegTime)  where T <: AbstractCFDateTime = T(UTInstant(dt.instant.periods + Dates.Millisecond(Δ)))
+
+-(dt1::T,dt2::T)  where T <: AbstractCFDateTime = dt1.instant.periods - dt2.instant.periods
+
+isless(dt1::T,dt2::T) where T <: AbstractCFDateTime = dt1.instant.periods < dt2.instant.periods
 
 
 -(dt1::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian},
