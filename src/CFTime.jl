@@ -53,18 +53,18 @@ const DATETIME_OFFSET = Dates.Millisecond(678576 * (24*60*60*Int64(1000)))
 include("types.jl")
 
 
-@inline isleap(::Type{DateTimeAllLeap},year,has_year_zero) = true
-@inline isleap(::Type{DateTimeNoLeap},year,has_year_zero) = false
+@inline isleap(::Type{DateTimeAllLeap},year,hasyear0) = true
+@inline isleap(::Type{DateTimeNoLeap},year,hasyear0) = false
 
-@inline function isleap(::Type{DateTimeProlepticGregorian},year,has_year_zero)
-    if (year < 0) && !has_year_zero
+@inline function isleap(::Type{DateTimeProlepticGregorian},year,hasyear0)
+    if (year < 0) && !hasyear0
         year = year + 1
     end
     return (year % 400 == 0) || ((year % 4 == 0) && (year % 100 !== 0))
 end
 
-@inline function isleap(::Type{DateTimeJulian},year,has_year_zero)
-    if (year < 0) && !has_year_zero
+@inline function isleap(::Type{DateTimeJulian},year,hasyear0)
+    if (year < 0) && !hasyear0
         year = year + 1
     end
     return year % 4 == 0
