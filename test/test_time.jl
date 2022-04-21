@@ -76,6 +76,17 @@ dt = DateTimeNoLeap(1959,12,31,23,39,59,123)
 @test DateTimeJulian(1,1,1) + Dates.Day(1234678) == DateTimeJulian(3381,05,14)
 
 
+# handling of year zero, reference values
+# from pythons cftime 1.6.0
+# issue #17
+
+@test DateTimeProlepticGregorian(1,1,1) - Day(1) == DateTimeProlepticGregorian(0,12,31)
+@test DateTimeJulian(1,1,1) - Day(1) == DateTimeJulian(-1,12,31)
+@test DateTimeStandard(1,1,1) - Day(1) == DateTimeStandard(-1,12,31)
+@test DateTimeAllLeap(1,1,1) - Day(1) == DateTimeAllLeap(0,12,31)
+@test DateTimeNoLeap(1,1,1) - Day(1) == DateTimeNoLeap(0,12,31)
+@test DateTime360Day(1,1,1) - Day(1) == DateTime360Day(0,12,30)
+
 
 # generic tests
 function stresstest_DateTime(::Type{DT}) where DT
@@ -467,12 +478,9 @@ RYMD = Reference.datetuple_ymd.(DateTimeProlepticGregorian,Z);
 @test MYMD == RYMD
 
 #=
-for dt = DateTime(-1000,1,1):Day(1000):DateTime(2300,3,1)
+for dt = DateTime(-1000,1,1):Day(100):DateTime(2300,3,1)
 
     y = year(dt)
-    if y <= 0
-        y = y-1
-    end
 
     dt1 = DateTimeProlepticGregorian(y,month(dt),day(dt))
 
