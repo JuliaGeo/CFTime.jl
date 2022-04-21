@@ -158,12 +158,22 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where
     return y,month,day
 end
 
-datetuple_ymd(::Type{DateTimeProlepticGregorian},Z::Number) = datetuple_gregjulian(Z,true)
-datetuple_ymd(::Type{DateTimeJulian},Z::Number) = datetuple_gregjulian(Z,false)
-datetuple_ymd(::Type{DateTimeStandard},Z::Number) = datetuple_gregjulian(Z,Z >= DN_GREGORIAN_CALENDAR)
+datetuple_ymd(::Type{DateTimeProlepticGregorian},Z::Number) =
+    datetuple_gregjulian(Z,true,_hasyear0(DateTimeProlepticGregorian))
 
-datenum(::Type{DateTimeProlepticGregorian},y,m,d) = datenum_gregjulian(y,m,d,true)
-datenum(::Type{DateTimeJulian},y,m,d) = datenum_gregjulian(y,m,d,false)
-datenum(::Type{DateTimeStandard},y,m,d) = datenum_gregjulian(y,m,d,(y,m,d) >= GREGORIAN_CALENDAR)
+datetuple_ymd(::Type{DateTimeJulian},Z::Number) =
+    datetuple_gregjulian(Z,false,_hasyear0(DateTimeJulian))
+
+datetuple_ymd(::Type{DateTimeStandard},Z::Number) =
+    datetuple_gregjulian(Z,Z >= DN_GREGORIAN_CALENDAR,_hasyear0(DateTimeStandard))
+
+datenum(::Type{DateTimeProlepticGregorian},y,m,d) =
+    datenum_gregjulian(y,m,d,true,_hasyear0(DateTimeProlepticGregorian))
+
+datenum(::Type{DateTimeJulian},y,m,d) =
+    datenum_gregjulian(y,m,d,false,_hasyear0(DateTimeJulian))
+
+datenum(::Type{DateTimeStandard},y,m,d) =
+    datenum_gregjulian(y,m,d,(y,m,d) >= GREGORIAN_CALENDAR,_hasyear0(DateTimeStandard))
 
 

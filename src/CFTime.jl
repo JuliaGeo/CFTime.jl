@@ -70,6 +70,8 @@ end
 end
 
 
+@inline _hasyear0(::Type{T}) where T = false
+
 include("meeus_algorithm.jl")
 
 """
@@ -102,7 +104,7 @@ end
 function datenum(::Type{T}, y, m, d) where T <: AbstractCFDateTime
     cm = _cum_month_length(T)
     # turn year equal to -1 (1 BC) into year = 0
-    if y < 0
+    if (y < 0) && !_hasyear0(T)
         y = y+1
     end
 
@@ -140,7 +142,7 @@ function datetuple_ymd(::Type{T},timed_::Number) where T <: AbstractCFDateTime
     d = d+1
     y = y+1
 
-    if y <= 0
+    if (y <= 0) && !_hasyear0(T)
         y = y-1
     end
 
