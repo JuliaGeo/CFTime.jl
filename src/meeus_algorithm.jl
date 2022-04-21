@@ -3,7 +3,7 @@
 
 Days since 1858-11-17 according to the Gregorian (`gregorian` is `true`) or
 Julian Calendar (`gregorian` is `false`) based on the Algorithm of
-Jean Meeus [1].
+Jean Meeus [1] modified to handle dates prior to 100 BC.
 
 The year -1, correspond to 1 BC. The year 0 does not exist in the
 Gregorian or Julian Calendar.
@@ -21,7 +21,7 @@ function datenum_gregjulian(year,month,day,gregorian::Bool)
         # bring year in range of 1601 to 2000
         ncycles = (2000 - year) ÷ 400
         year = year + 400 * ncycles
-        # 146_097 = 365.2425 * 400
+        # 146_097 = days in 400 years = 365.2425 * 400
         return datenum_ac(year,month,day,gregorian) - ncycles*146_097
     else
         return datenum_ac(year,month,day,gregorian)
@@ -95,6 +95,7 @@ end
 
 Compute year, month and day from Z which is the Modified Julian Day
 for the Gregorian (true) or Julian (false) calendar.
+using the algorithm of Meeus (1998) modified to handle dates prior to 300 AC.
 
 For example:
 Z = 0 for the 1858 November 17 00:00:00
