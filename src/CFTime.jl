@@ -24,6 +24,9 @@ import Dates: monthday, len, dayofyear, firstdayofyear
 
 import Base: +, -, isless, string, show, convert, reinterpret
 
+# solar year in ms (the interval between 2 successive passages of the sun
+# through vernal equinox)
+const SOLAR_YEAR = round(Int64,365.242198781 * 24*60*60*1000)
 
 const DEFAULT_TIME_UNITS = "days since 1900-01-01 00:00:00"
 
@@ -431,7 +434,11 @@ function timeunits(::Type{DT},units) where DT
 
     # make sure that plength is 64-bit on 32-bit platforms
     plength =
-        if (tunit == "days") || (tunit == "day")
+        if (tunit == "years") || (tunit == "year")
+            SOLAR_YEAR
+        elseif (tunit == "months") || (tunit == "month")
+            SOLAR_YEAR ÷ 12
+        elseif (tunit == "days") || (tunit == "day")
             24*60*60*Int64(1000)
         elseif (tunit == "hours") || (tunit == "hour")
             60*60*Int64(1000)
@@ -439,8 +446,10 @@ function timeunits(::Type{DT},units) where DT
             60*Int64(1000)
         elseif (tunit == "seconds") || (tunit == "second")
             Int64(1000)
+        elseif (tunit == "milliseconds") || (tunit == "millisecond")
+            Int64(1)
         else
-            error("unknown units $(tunit)")
+            error("unknown units \"$(tunit)\"")
         end
 
     return t0,plength
