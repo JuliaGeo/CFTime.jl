@@ -212,7 +212,7 @@ Construct a $($CFDateTime) by parsing the `dt` date time string following the
 pattern given in the `format` string.
 
 !!! note
-    This function is experimental and migth
+    This function is experimental and might
     be removed in the future. It relies on some internal function of `Dates` for
     parsing the `format`.
 """
@@ -299,7 +299,7 @@ Convert a DateTime of type `DateTimeStandard`, `DateTimeProlepticGregorian`,
 `DateTimeJulian` or `DateTime` into the type `T` which can also be either
 `DateTimeStandard`, `DateTimeProlepticGregorian`, `DateTimeJulian` or `DateTime`.
 
-Converstion is done such that durations (difference of DateTime types) are
+Conversion is done such that duration (difference of DateTime types) are
 preserved. For dates on and after 1582-10-15, the year, month and days are the same for
 the types `DateTimeStandard`, `DateTimeProlepticGregorian` and `DateTime`.
 
@@ -363,20 +363,6 @@ function parseDT(::Type{DT},str) where DT <: Union{DateTime,AbstractCFDateTime}
             datestr,timestr = split(str,' ')
             y,m,d = parse.(Int64,split(datestr,'-'))
 
-            #=
-            hour_min_sec = parse.(Int64,split(timestr,':'))
-            s = 0
-            mi = 0
-            if length(hour_min_sec) == 3
-                h,mi,s = hour_min_sec
-            elseif length(hour_min_sec) == 2
-                h,mi = hour_min_sec
-            elseif length(hour_min_sec) == 1
-                h, = hour_min_sec
-            end
-
-            (y,m,d,h,mi,s,Int64(0))
-            =#
             timestr,tz = if occursin("+",timestr)
               ts,tz = split(timestr,"+")
               ts,tz
@@ -569,7 +555,7 @@ end
 
 Convert a vector or array of `DateTime` (or `DateTimeStandard`,
 `DateTimeProlepticGregorian`, `DateTimeJulian`, `DateTimeNoLeap`,
-`DateTimeAllLeap`, `DateTime360Day`) accoring to
+`DateTimeAllLeap`, `DateTime360Day`) according to
 the specified units (e.g. `"days since 2000-01-01 00:00:00"`) using the calendar
 `calendar`.  Valid values for calendar are:
 `"standard"`, `"gregorian"`, `"proleptic_gregorian"`, `"julian"`, `"noleap"`, `"365_day"`,
@@ -618,7 +604,7 @@ export timeencode, timedecode, datetuple
     monthlength = daysinmonth(::Type{DT},y,m)
 
 Returns the number of days in a month for the year `y` and the month `m`
-according to the calenar given by the type `DT`.
+according to the calendar given by the type `DT`.
 
 Example
 ```julia-repl
@@ -651,7 +637,7 @@ end
     yearlength = daysinyear(::Type{DT},y)
 
 Returns the number of days in a year for the year `y`
-according to the calenar given by the type `DT`.
+according to the calendar given by the type `DT`.
 
 Example
 ```julia-repl
@@ -766,3 +752,14 @@ function __init__()
 end
 
 end
+
+#  LocalWords:  CFTime netCDF julia dt timedecode DateTime timeencode
+#  LocalWords:  DateTimeStandard DateTimeJulian DateTimeAllLeap MJD
+#  LocalWords:  DateTimeProlepticGregorian DateTimeNoLeap DATENUM jl
+#  LocalWords:  datenum gregjulian const UTInstant prolepticgregorian
+#  LocalWords:  meeus timetuplefrac millisecods fld julian allleap dT
+#  LocalWords:  noleap CFDateTime subtype AbstractCFDateTime english
+#  LocalWords:  tz plength tunit gregorian proleptic timeunits repl
+#  LocalWords:  datetime monthlength daysinmonth yearlength yearmonth
+#  LocalWords:  daysinyear yearmonthday monthday firstdayofyear
+#  LocalWords:  dayofyear
