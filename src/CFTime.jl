@@ -496,10 +496,12 @@ function timedecode(::Type{DT},data::AbstractArray{Float32,N},units) where {DT,N
     return timedecode(DT,Float64.(data),units)
 end
 
+_convert(x,t0,plength) = t0 + Dates.Millisecond(round(Int64,plength * x))
+_convert(x::Missing,t0,plength) = missing
+
 function timedecode(::Type{DT},data,units) where DT
     t0,plength = timeunits(DT,units)
-    convert(x) = t0 + Dates.Millisecond(round(Int64,plength * x))
-    return convert.(data)
+    return _convert.(data,t0,plength)
 end
 
 
@@ -553,7 +555,9 @@ function timedecode(data,units,calendar = "standard"; prefer_datetime = true)
     if prefer_datetime &&
         (DT in [DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian])
 
-        return convert.(DateTime,dt)
+        datetime_convert(dt) = convert(DateTime,dt)
+        datetime_convert(dt::Missing) = missing
+        return datetime_convert.(dt)
     else
         return dt
     end

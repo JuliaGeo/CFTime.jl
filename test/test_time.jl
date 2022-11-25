@@ -490,3 +490,17 @@ for dt = DateTime(-1000,1,1):Day(100):DateTime(2300,3,1)
     end
 end
 =#
+
+# issue https://github.com/Alexander-Barth/NCDatasets.jl/issues/192
+# Allow missing in dates
+
+@test isequal(
+    timedecode(DateTimeProlepticGregorian,[0,missing], "seconds since 2000-01-01 00:00:00"),
+    [DateTimeProlepticGregorian(2000,1,1), missing]
+)
+
+
+@test isequal(
+    timedecode([0,missing], "seconds since 2000-01-01 00:00:00", "proleptic_gregorian"),
+    [DateTime(2000,1,1), missing]
+)
