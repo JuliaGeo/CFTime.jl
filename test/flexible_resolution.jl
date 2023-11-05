@@ -1,24 +1,24 @@
 using CFTime
-import CFTime: timetuplefrac, datetuple_ymd
+import CFTime: timetuplefrac, datetuple_ymd, timeunits
+using Dates
 
+# if base is 1 then the units of instant is seconds
+# if base is 60 then the units of instant is minutes
+# if base is 1//1000 then the units of instant is milliseconds
 struct DateTime2{T,base,origintupe}
     instant::T
 end
 
 
-Val(1000)
+
+timeunits(DateTime,"days in 2000-01-01")
 
 origintuple = (2000,1,1,0,0,0.0)
 
-Val(origintuple)
 
-Val((1000,20))
-
-
-# if base is 1 then the units of instant is seconds
 instant = 1
 T = typeof(instant)
-base = 24*60*60
+base = 1//1000
 
 
 dt = DateTime2{T,Val(base),Val(origintuple)}(instant)
@@ -27,9 +27,7 @@ dt = DateTime2{T,Val(base),Val(origintuple)}(instant)
 y,m,d,H,M,S = origintuple
 
 # in seconds
-time = 24*60*60 * (
-    dt.instant + (CFTime.datenum_gregjulian(y,m,d,true,false) * 24*60*60) / base)
-
+time =  (dt.instant*base + (CFTime.datenum_gregjulian(y,m,d,true,false) * 24*60*60))
 days,h,mi,s,ms = timetuplefrac(time*1000)
 y, m, d = datetuple_ymd(DateTimeStandard,days)
 
@@ -37,20 +35,16 @@ y, m, d = datetuple_ymd(DateTimeStandard,days)
 
 unwrap(::Val{x}) where x = x
 
-# function datetuple_ymd(dt::DateTime2{T,Tbase,origintuple}) where {T,Tbase,origintuple}
-#     base = unwrap(Tbase)
-#     y,m,d,H,M,S = unwrap(origintuple)
+function datetuple_ymd(dt::DateTime2{T,Tbase,Torigintuple}) where {T,Tbase,Torigintuple}
+     base = unwrap(Tbase)
+     origintuple = unwrap(Torigintuple)
+     y,m,d,H,M,S = origintuple
+    time =  (dt.instant*base + (CFTime.datenum_gregjulian(y,m,d,true,false) * 24*60*60))
+    days,h,mi,s,ms = timetuplefrac(time*1000)
+    y, m, d = datetuple_ymd(DateTimeStandard,days)
 
-#     #time = dt.instant + (CFTime.datenum_gregjulian(y,m,d,true,false) * 24*60*60) / base
-#     time = dt.instant
-
-#     days,h,mi,s,ms = timetuplefrac(time)
-#     y, m, d = datetuple_ymd(T,days)
-#     return y, m, d, h, mi, s, ms
-
-
-#     CFTime.datetuple(2)
-# end
+    return y, m, d, h, mi, s, ms
+end
 
 # @show datetuple_ymd(dt)
 
