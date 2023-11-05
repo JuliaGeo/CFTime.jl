@@ -422,6 +422,7 @@ function timeunits(::Type{DT},units) where DT
     t0 = parseDT(DT,starttime)
 
     # make sure that plength is 64-bit on 32-bit platforms
+    # plength is duration is *milliseconds*
     plength =
         if (tunit == "years") || (tunit == "year")
             SOLAR_YEAR
@@ -437,6 +438,16 @@ function timeunits(::Type{DT},units) where DT
             Int64(1000)
         elseif (tunit == "milliseconds") || (tunit == "millisecond")
             Int64(1)
+        elseif (tunit == "microseconds") || (tunit == "microsecond")
+            1//Int64(10)^3
+        elseif (tunit == "nanoseconds") || (tunit == "nanosecond")
+            1//Int64(10)^6
+        elseif (tunit == "picoseconds") || (tunit == "picosecond")
+            1//Int64(10)^9
+        elseif (tunit == "femtoseconds") || (tunit == "femtosecond")
+            1//Int64(10)^12
+        elseif (tunit == "attoseconds") || (tunit == "attosecond")
+            1//Int64(10)^15
         else
             error("unknown units \"$(tunit)\"")
         end

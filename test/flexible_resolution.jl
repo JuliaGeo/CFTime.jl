@@ -1,60 +1,64 @@
 using CFTime
-import CFTime: timetuplefrac, datetuple_ymd, timeunits
+import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple
 using Dates
+using Test
 
-# if base is 1 then the units of instant is seconds
-# if base is 60 then the units of instant is minutes
-# if base is 1//1000 then the units of instant is milliseconds
+unwrap(::Val{x}) where x = x
 
+"""
 
+base is the ratio of units of duration and milliseconds.
+It is a value type.
+
+| base | duration units |
+|------|----------------|
+|    1 | milliseconds |
+|    1/1000 | microseconds |
+"""
 struct Period{T,base}
     duration::T
 end
 
+Period(duration,base) = Period{typeof(duration),Val(base)}(duration)
 
-struct DateTime2{T,base,origintupe}
+_base(p::Period{T,base}) where {T,base} = unwrap(base)
+
+struct DateTime2{T,origintupe}
     instant::T
 end
 
+function DateTime2(t,units::AbstractString)
+    origintuple, base = timeunits(Tuple,units)
 
+    instant = Period(t,base)
+    dt = DateTime2{typeof(instant),Val(origintuple)}(instant)
+end
 
-t0, plength = timeunits(Tuple,"days since 2000-01-01")
+function datetuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple}
+    base = _base(dt.instant)
+    origintuple = unwrap(Torigintuple)
+    y,m,d,H,M,S = origintuple
+    time = (dt.instant.duration*base +
+        (((CFTime.datenum_gregjulian(y,m,d,true,false) * 24 + H)*60 + M)*60 + S)*1000)
 
-origintuple = (2000,1,1,0,0,0.0)
-
-
-base = 1//1000
-instant = 1
-T = typeof(instant)
-
-
-dt = DateTime2{T,Val(base),Val(origintuple)}(instant)
-
-
-y,m,d,H,M,S = origintuple
-
-# in seconds
-time =  (dt.instant*base + (CFTime.datenum_gregjulian(y,m,d,true,false) * 24*60*60))
-days,h,mi,s,ms = timetuplefrac(time*1000)
-y, m, d = datetuple_ymd(DateTimeStandard,days)
-
-
-@test (2000, 1, 1, 0, 0, 0, 1) == (y, m, d, h,mi,s,ms)
-
-#@show y, m, d, h,mi,s,ms
-
-unwrap(::Val{x}) where x = x
-
-function datetuple_ymd(dt::DateTime2{T,Tbase,Torigintuple}) where {T,Tbase,Torigintuple}
-     base = unwrap(Tbase)
-     origintuple = unwrap(Torigintuple)
-     y,m,d,H,M,S = origintuple
-    time =  (dt.instant*base + (CFTime.datenum_gregjulian(y,m,d,true,false) * 24*60*60))
-    days,h,mi,s,ms = timetuplefrac(time*1000)
+    days,h,mi,s,ms = timetuplefrac(time)
     y, m, d = datetuple_ymd(DateTimeStandard,days)
 
     return y, m, d, h, mi, s, ms
 end
 
 
-@test (2000, 1, 1, 0, 0, 0, 1) == datetuple_ymd(dt)
+dt = DateTime2(1,"milliseconds since 2000-01-01")
+@test (2000, 1, 1, 0, 0, 0, 1) == datetuple(dt)
+
+
+dt = DateTime2(10^9,"nanoseconds since 2000-01-01")
+@test (2000, 1, 1, 0, 0, 1, 0) == datetuple(dt)
+
+dt = DateTime2(10^9,"nanoseconds since 2000-01-01T23:59:59")
+@test (2000, 1, 2, 0, 0, 0, 0) == datetuple(dt)
+
+
+#broken
+#dt = DateTime2(1,"microseconds since 2000-01-01")
+#@test (2000, 1, 1, 0, 0, 1, 0) == datetuple(dt)
