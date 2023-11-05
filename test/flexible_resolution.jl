@@ -10,8 +10,12 @@ struct DateTime2{T,base,origintupe}
 end
 
 
+struct Period{T,base}
+    duration::T
+end
 
-timeunits(DateTime,"days in 2000-01-01")
+
+t0, plength = timeunits(Tuple,"days since 2000-01-01")
 
 origintuple = (2000,1,1,0,0,0.0)
 

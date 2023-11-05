@@ -343,7 +343,7 @@ end
 
 -(dt::AbstractCFDateTime,Δ) = dt + (-Δ)
 
-function parseDT(::Type{DT},str) where DT <: Union{DateTime,AbstractCFDateTime}
+function datetime_tuple(str)
     str = replace(str,"T" => " ")
 
     # remove Z time zone indicator
@@ -408,9 +408,18 @@ function parseDT(::Type{DT},str) where DT <: Union{DateTime,AbstractCFDateTime}
         y = -y
     end
 
-    return DT(y,m,d,h,mi,s,ms)
+    return (y,m,d,h,mi,s,ms)
 end
 
+
+
+function parseDT(::Type{DT},str) where DT <: Union{DateTime,AbstractCFDateTime}
+    return DT(datetime_tuple(str)...)
+end
+
+function parseDT(::Type{Tuple},str)
+    return datetime_tuple(str)
+end
 
 function timeunits(::Type{DT},units) where DT
     tunit_mixedcase,starttime = strip.(split(units," since "))
