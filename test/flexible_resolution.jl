@@ -2,6 +2,17 @@ using CFTime
 import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple
 using Dates
 using Test
+using BenchmarkTools
+
+const DIVI = (
+    (:day, 1, 24*60*60*1000),
+    (:hour, 1, 60*60*1000),
+    (:minute, 1, 60*1000),
+    (:second, 1, 1000),
+    (:millisecond,    1, 1),
+    (:microsecond, 10^3, 1),
+    (:nanosecond,  10^6, 1),
+)
 
 unwrap(::Val{x}) where x = x
 
@@ -22,6 +33,47 @@ end
 Period(duration,base) = Period{typeof(duration),Val(base)}(duration)
 
 _base(p::Period{T,base}) where {T,base} = unwrap(base)
+
+
+@inline __tf(result,time) = result
+@inline function __tf(result,time,d1,dn...)
+   if d1 == 0
+       __tf((result...,0),0,dn...)
+   else
+       p = fld(time, d1)
+       time2 = time - p*d1
+       __tf((result...,p),time2,dn...)
+    end
+end
+@inline tf(time,divi) = __tf((),time,divi...)
+
+
+function timetuplefrac(t::Period{T,Tbase}) where {T,Tbase}
+    # for integers
+    divi = getindex.(DIVI,3) .÷ (getindex.(DIVI,2) .* _base(t))
+    time = t.duration
+
+    tf(time,divi)
+end
+
+#@code_warntype tf(time,divi)
+
+
+
+@test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5)*1000,1))[1:4] == (2,3,4,5)
+
+
+@test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5),1000))[1:4] == (2,3,4,5)
+
+
+
+#@btime tf($time,$divi)
+
+
+#@code_warntype tf(time,divi)
+
+#@test tf(time,divi)[1:4] == (2,3,4,5)
+
 
 struct DateTime2{T,origintupe}
     instant::T
