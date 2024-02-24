@@ -17,19 +17,20 @@ import Base: +, -, *
 # We use a ratio of integers to avoid floating point rounding
 # Int64 is used to avoid overflow on 32-bit for femtosecond and beyond
 
-const DIVI = (
+const TIME_DIVISION = (
     # name             numerator,   denominator
-    (:day,         24*60*60*1000,            1),
-    (:hour,           60*60*1000,            1),
-    (:minute,            60*1000,            1),
-    (:second,               1000,            1),
-    (:millisecond,             1,            1),
-    (:microsecond,             1,         10^3),
-    (:nanosecond,              1,         10^6),
-    (:picosecond,              1,         10^9),
-    (:femtosecond,             1, Int64(10)^12),
-    (:attosecond,              1, Int64(10)^15),
-    (:zeptosecond,             1, Int64(10)^18),
+    (:day,         24*60*60*1000,             1),
+    (:hour,           60*60*1000,             1),
+    (:minute,            60*1000,             1),
+    (:second,               1000,             1),
+    (:millisecond,             1,             1),
+    (:microsecond,             1,          10^3),
+    (:nanosecond,              1,          10^6),
+    (:picosecond,              1,          10^9),
+    (:femtosecond,             1,  Int64(10)^12),
+    (:attosecond,              1,  Int64(10)^15),
+    (:zeptosecond,             1,  Int64(10)^18),
+    (:yoctosecond,             1, Int128(10)^21),
 )
 
 unwrap(::Val{x}) where x = x
@@ -69,7 +70,7 @@ end
 
 # rescale the time units for the ratio numerator/denominator
 @inline function division(numerator,denominator)
-    (denominator .* getindex.(DIVI,2)) .÷ (getindex.(DIVI,3) .* numerator)
+    (denominator .* getindex.(TIME_DIVISION,2)) .÷ (getindex.(TIME_DIVISION,3) .* numerator)
 end
 
 @inline function datenum_(tuf::Tuple,numerator,denominator)
@@ -151,25 +152,29 @@ function datetuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple}
     denominator = _denominator(dt.instant)
     y,m,d,HMS... = _origintuple(dt)
 
+    # time origin
     p = Period(
         (CFTime.datenum_gregjulian(y,m,d,true,false),HMS...),
-        numerator,denominator)
+        numerator,
+        denominator)
 
-    p2 = Period(p.duration
-                + (dt.instant.duration)
-                ,numerator,denominator)
+    # add duration to time origin
+    p2 = Period(
+        p.duration + dt.instant.duration,
+        numerator,
+        denominator)
 
+
+    # HMS contains hours, minutes, seconds and all sub-second units
     days,HMS... = timetuplefrac(p2)
     y, m, d = datetuple_ymd(DateTimeStandard,days)
 
-
-    tt = (y, m, d, HMS...)
-    return tt
+    return (y, m, d, HMS...)
 end
 
 
 
-for (i,(name,numerator,denominator)) in enumerate(DIVI)
+for (i,(name,numerator,denominator)) in enumerate(TIME_DIVISION)
     function_name = Symbol(uppercasefirst(String(name)))
 
     @eval begin
@@ -254,3 +259,18 @@ dt = DateTime2(1,"microseconds since 2000-01-01")
 
 #dt + p1
 
+
+
+dt = DateTime2(1,"milliseconds since 2000-01-01T23:59:59.999")
+@test same_tuple((2000, 1, 2), datetuple(dt))
+
+
+dt = DateTime2(1,"microseconds since 2000-01-01T23:59:59.999999")
+@test same_tuple((2000, 1, 2), datetuple(dt))
+
+
+dt = DateTime2(1,"microseconds since 2000-01-01T23:59:59.999999")
+@test same_tuple((2000, 1, 2), datetuple(dt))
+
+dt = DateTime2(1,"nanoseconds since 2000-01-01T23:59:59.999999999")
+@test same_tuple((2000, 1, 2), datetuple(dt))
