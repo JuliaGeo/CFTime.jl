@@ -1,10 +1,11 @@
 using CFTime
-import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple
+import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple, datenum
 import Dates
+import Dates: year,  month,  day, hour, minute, second, millisecond
 using Test
 using BenchmarkTools
 import Base: +, -, *
-
+using Dates
 
 
 # all supported time units, e.g.
@@ -93,6 +94,11 @@ function Period(tuf::Tuple,numerator,denominator=1)
     Period{typeof(duration),Val(numerator),Val(denominator)}(duration)
 end
 
+function Period(T::DataType,tuf::Tuple,numerator,denominator=1)
+    duration = T(datenum_(tuf,numerator,denominator))
+    Period{typeof(duration),Val(numerator),Val(denominator)}(duration)
+end
+
 #@code_warntype tf(time,divi)
 
 
@@ -147,6 +153,34 @@ function DateTime2(t,units::AbstractString)
     dt = DateTime2{typeof(instant),Val(origintuple)}(instant)
 end
 
+_pad3(a::Tuple{T1}) where T1 = (a[1],0,0)
+_pad3(a::Tuple{T1,T2})  where {T1,T2}  = (a[1],a[2],0)
+_pad3(a::Tuple) = a
+
+function DateTime2(
+    args...;
+    origin = (1970, 1, 1),
+    unit = first(TIME_DIVISION[max(length(args),7)-2]),
+    T = Int64)
+
+    y,m,d,HMS... = _pad3(args)
+    oy,om,od,oHMS... = _pad3(origin)
+
+    numerator, denominator = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
+
+    # time origin
+    p = Period(T,
+        (datenum(DateTimeStandard,y,m,d),HMS...),
+        numerator,
+        denominator) -
+            Period(T,
+        (datenum(DateTimeStandard,oy,om,od),oHMS...),
+        numerator,
+                   denominator)
+
+    return DateTime2{typeof(p),Val(origin)}(p)
+end
+
 function datetuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple}
     numerator = _numerator(dt.instant)
     denominator = _denominator(dt.instant)
@@ -154,7 +188,7 @@ function datetuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple}
 
     # time origin
     p = Period(
-        (CFTime.datenum_gregjulian(y,m,d,true,false),HMS...),
+        (datenum(DateTimeStandard,y,m,d),HMS...),
         numerator,
         denominator)
 
@@ -221,22 +255,25 @@ dt = DateTime2(1,"microseconds since 2000-01-01")
 
 
 
+for op in (:+,:-)
+    @eval begin
+        function $op(p1::Period{T,Tnumerator,Tdenominator},p2::Period{T,Tnumerator,Tdenominator}) where {T, Tnumerator, Tdenominator}
+            Period{T,Tnumerator,Tdenominator}($op(p1.duration,p2.duration))
+        end
 
-function +(p1::Period{T,Tnumerator,Tdenominator},p2::Period{T,Tnumerator,Tdenominator}) where {T, Tnumerator, Tdenominator}
-    Period{T,Tnumerator,Tdenominator}(p1.duration + p2.duration)
-end
+        function $op(p1::Period{T1},p2::Period{T2}) where {T1, T2}
+            T = promote_type(T1,T2)
 
+            if _numerator(p1) / _denominator(p1) < _numerator(p2) / _denominator(p2)
 
-function +(p1::Period{T1},p2::Period{T2}) where {T1, T2}
-    T = promote_type(T1,T2)
-
-    if _numerator(p1) / _denominator(p1) < _numerator(p2) / _denominator(p2)
-
-        duration = T(p1.duration) + (T(p2.duration) * _numerator(p2) * _denominator(p1)) ÷
-            (_denominator(p2) * _numerator(p1))
-        return Period(duration,_numerator(p1),_denominator(p1))
-    else
-        return @inline p2 + p1
+                duration = $op(T(p1.duration),
+                               (T(p2.duration) * _numerator(p2) * _denominator(p1)) ÷
+                                   (_denominator(p2) * _numerator(p1)))
+                return Period(duration,_numerator(p1),_denominator(p1))
+            else
+                return @inline $op(p2, p1)
+            end
+        end
     end
 end
 
@@ -274,3 +311,15 @@ dt = DateTime2(1,"microseconds since 2000-01-01T23:59:59.999999")
 
 dt = DateTime2(1,"nanoseconds since 2000-01-01T23:59:59.999999999")
 @test same_tuple((2000, 1, 2), datetuple(dt))
+
+
+dt = DateTime2(2001,1,1)
+@test same_tuple((2001, 1, 1), datetuple(dt))
+
+
+dt = DateTime2(2001,1,1 , 1,2,3,   100,200,300, unit = :nanosecond)
+@test same_tuple((2001, 1, 1, 1,2,3, 100,200,300), datetuple(dt))
+
+
+#dt2 = dt + Millisecond(10);
+#dt2 = dt + Millisecond(10) +  Microsecond(20) + Nanosecond(30);
