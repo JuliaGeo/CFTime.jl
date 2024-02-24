@@ -169,7 +169,9 @@ t0,plength = CFTime.timeunits("seconds since 1992-10-8 15:15:42.5")
 @test t0 == DateTimeStandard(1992,10,8,15,15,42,500)
 @test plength == 1000
 
-
+units = "microseconds since 2000-01-01T23:59:59.12345678"
+origintuple, ratio = timeunits(Tuple,units)
+@test origintuple == (2000, 1, 1, 23, 59, 59, 123, 456, 780)
 
 
 for (calendar,DT) in [

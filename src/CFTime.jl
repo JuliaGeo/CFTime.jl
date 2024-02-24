@@ -358,7 +358,7 @@ function parseDT(::Type{Tuple},str)
         str = str[2:end]
     end
 
-    y,m,d,h,mi,s,ms =
+    y,m,d,h,mi,s,subsec... =
         if occursin(" ",str)
             datestr,timestr = split(str,' ')
             y,m,d = parse.(Int64,split(datestr,'-'))
@@ -387,18 +387,32 @@ function parseDT(::Type{Tuple},str)
 
             h = parse(Int64,h_str)
             mi = parse(Int64,mi_str)
-            s,ms =
+            s,subsec... =
                 if occursin('.',s_str)
                     # seconds contain a decimal point, e.g. 00:00:00.0
-                    secfrac = parse(Float64,s_str)
-                    s = floor(Int64,secfrac)
-                    ms = round(Int64,1000*(secfrac - s))
-                    s,ms
+
+                    sec_str,subsec_str = split(s_str,'.',limit=2)
+
+                    # seconds (whole part)
+                    s = parse(Int64,sec_str)
+
+                    # need to pad 59.99 as 59.990
+                    nparts = div(length(subsec_str),3,RoundUp)
+
+                    # subsec are groups of 3 digits
+                    # milliseconds, microseconds...
+                    subsec =
+                        ntuple(nparts) do i
+                            istr = (3*i-2):min((3*i),length(subsec_str))
+                            parse(Int64,subsec_str[istr]) * 10^(3-length(istr))
+                        end
+
+                    (s,subsec...)
                 else
                     (parse(Int64,s_str),Int64(0))
                 end
 
-            (y,m,d,h,mi,s,ms)
+            (y,m,d,h,mi,s,subsec...)
         else
             y,m,d = parse.(Int64,split(str,'-'))
             (y,m,d,Int64(0),Int64(0),Int64(0),Int64(0))
@@ -408,7 +422,7 @@ function parseDT(::Type{Tuple},str)
         y = -y
     end
 
-    return (y,m,d,h,mi,s,ms)
+    return (y,m,d,h,mi,s,subsec...)
 end
 
 function parseDT(::Type{DT},str) where DT <: Union{DateTime,AbstractCFDateTime}
