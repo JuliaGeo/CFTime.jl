@@ -255,30 +255,33 @@ dt = DateTime2(1,"microseconds since 2000-01-01")
 
 
 
-for op in (:+,:-)
-    @eval begin
-        function $op(p1::Period{T,Tnumerator,Tdenominator},p2::Period{T,Tnumerator,Tdenominator}) where {T, Tnumerator, Tdenominator}
-            Period{T,Tnumerator,Tdenominator}($op(p1.duration,p2.duration))
-        end
+function +(p1::Period{T,Tnumerator,Tdenominator},p2::Period{T,Tnumerator,Tdenominator}) where {T, Tnumerator, Tdenominator}
+    Period{T,Tnumerator,Tdenominator}(p1.duration + p2.duration)
+end
 
-        function $op(p1::Period{T1},p2::Period{T2}) where {T1, T2}
-            T = promote_type(T1,T2)
+function +(p1::Period{T1},p2::Period{T2}) where {T1, T2}
+    T = promote_type(T1,T2)
 
-            if _numerator(p1) / _denominator(p1) < _numerator(p2) / _denominator(p2)
+    if _numerator(p1) / _denominator(p1) < _numerator(p2) / _denominator(p2)
 
-                duration = $op(T(p1.duration),
-                               (T(p2.duration) * _numerator(p2) * _denominator(p1)) ÷
-                                   (_denominator(p2) * _numerator(p1)))
-                return Period(duration,_numerator(p1),_denominator(p1))
-            else
-                return @inline $op(p2, p1)
-            end
-        end
+        duration = T(p1.duration) +
+                       (T(p2.duration) * _numerator(p2) * _denominator(p1)) ÷
+                           (_denominator(p2) * _numerator(p1))
+        return Period(duration,_numerator(p1),_denominator(p1))
+    else
+        return @inline p2 + p1
     end
 end
 
 +(dt::DateTime2{T,Torigintuple},p::T) where {T,Torigintuple} =
     DateTime2{T,Torigintuple}(dt.instant + p)
+
+
+function -(p::Period{T,Tnumerator,Tdenominator}) where {T, Tnumerator, Tdenominator}
+    Period{T,Tnumerator,Tdenominator}(-p.duration)
+end
+
+-(p1::Period,p2::Period) = p1 + (-p2)
 
 
 p1 = Microsecond(1)
