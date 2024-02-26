@@ -29,13 +29,13 @@ const TIME_DIVISION = (
     (:minute,            60*1000,             0),
     (:second,               1000,             0),
     (:millisecond,             1,             0),
-    (:microsecond,             1,          3),
-    (:nanosecond,              1,          6),
-    (:picosecond,              1,          9),
-    (:femtosecond,             1,  12),
-    (:attosecond,              1,  15),
-    (:zeptosecond,             1,  18),
-    (:yoctosecond,             1, 21),
+    (:microsecond,             1,          -3),
+    (:nanosecond,              1,          -6),
+    (:picosecond,              1,          -9),
+    (:femtosecond,             1,  -12),
+    (:attosecond,              1,  -15),
+    (:zeptosecond,             1,  -18),
+    (:yoctosecond,             1, -21),
 )
 
 unwrap(::Val{x}) where x = x
@@ -76,7 +76,7 @@ end
 
 # rescale the time units for the ratio numerator/exponent
 @inline function division(numerator,exponent)
-    (10^exponent .* getindex.(TIME_DIVISION,2)) .÷ (10 .^ getindex.(TIME_DIVISION,3) .* numerator)
+    (10^(-exponent) .* getindex.(TIME_DIVISION,2)) .÷ (10 .^ (.- getindex.(TIME_DIVISION,3)) .* numerator)
 end
 
 @inline function datenum_(tuf::Tuple,numerator,exponent)
@@ -127,7 +127,7 @@ p = Period(tuf,numerator)
 
 
 numerator = 1
-exponent = 6
+exponent = -6
 
 p = Period(tuf,numerator,exponent)
 @test timetuplefrac(p)[1:length(tuf)] == tuf
@@ -136,7 +136,7 @@ p = Period(tuf,numerator,exponent)
 #end
 
 
-@btime datenum_($tuf,$numerator,1)
+@btime datenum_($tuf,$numerator,0)
 
 #@btime tf($time,$divi)
 
@@ -195,7 +195,7 @@ _origintuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple} = unwrap(Tori
 
 function DateTime2(t,units::AbstractString)
     origintuple, ratio = _timeunits(Tuple,units)
-    exponent = round(Int64,log10(Base.denominator(ratio)))
+    exponent = -round(Int64,log10(Base.denominator(ratio)))
     instant = Period(t,Base.numerator(ratio),exponent)
     dt = DateTime2{typeof(instant),Val(origintuple)}(instant)
 end
@@ -286,7 +286,7 @@ dt = DateTime2(1,"seconds since 2000-01-01")
 dt = DateTime2(1,"seconds since 2000-01-01")
 @test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
 
-dt = DateTime2(10^9,"nanoseconds since 2000-01-01")
+dt = DateTime2(10^9,"nanoseconds since 2000-01-01");
 @test same_tuple((2000, 1, 1, 0, 0, 1), datetuple(dt))
 
 dt = DateTime2(10^9,"nanoseconds since 2000-01-01T23:59:59")
@@ -310,11 +310,11 @@ end
 function +(p1::Period{T1},p2::Period{T2}) where {T1, T2}
     T = promote_type(T1,T2)
 
-    if _numerator(p1) / 10^_exponent(p1) < _numerator(p2) / 10^_exponent(p2)
+    if _numerator(p1) / 10^(-_exponent(p1)) < _numerator(p2) / 10^(-_exponent(p2))
 
         duration = T(p1.duration) +
-                       (T(p2.duration) * _numerator(p2) * 10^_exponent(p1)) ÷
-                           (10^_exponent(p2) * _numerator(p1))
+                       (T(p2.duration) * _numerator(p2) * 10^(-_exponent(p1))) ÷
+                           (10^(-_exponent(p2)) * _numerator(p1))
         return Period(duration,_numerator(p1),_exponent(p1))
     else
         return @inline p2 + p1
@@ -382,11 +382,6 @@ Dates.hour(dt) < 24
 
 @which datetuple(dt)
 
-p2 = Period{Float32, Val{1}(), Val{1}()}(4.453488f12)
-
-eps(p2.duration)/1000/60
-
-timetuplefrac(p2)
 
 
 # dt = DateTime2(Float64(24*60*60*1000),"milliseconds since 2000-01-01")
