@@ -1,5 +1,9 @@
+using Pkg
+
+Pkg.activate("CFTime-env",shared=true)
+
 using CFTime
-import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple, datenum, AbstractCFDateTime
+import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple, datenum, AbstractCFDateTime, parseDT
 import Dates
 import Dates: year,  month,  day, hour, minute, second, millisecond
 using Test
@@ -142,6 +146,47 @@ p = Period(tuf,numerator,denominator)
 #@test tf(time,divi)[1:4] == (2,3,4,5)
 
 
+function _timeunits(::Type{DT},units) where DT
+    tunit_mixedcase,starttime = strip.(split(units," since "))
+    tunit = lowercase(tunit_mixedcase)
+
+    t0 = parseDT(DT,starttime)
+
+    # make sure that plength is 64-bit on 32-bit platforms
+    # plength is duration is *milliseconds*
+    plength =
+        if (tunit == "years") || (tunit == "year")
+            SOLAR_YEAR
+        elseif (tunit == "months") || (tunit == "month")
+            SOLAR_YEAR ÷ 12
+        elseif (tunit == "days") || (tunit == "day")
+            24*60*60*Int64(1000)
+        elseif (tunit == "hours") || (tunit == "hour")
+            60*60*Int64(1000)
+        elseif (tunit == "minutes") || (tunit == "minute")
+            60*Int64(1000)
+        elseif (tunit == "seconds") || (tunit == "second")
+            Int64(1000)
+        elseif (tunit == "milliseconds") || (tunit == "millisecond")
+            Int64(1)
+        elseif (tunit == "microseconds") || (tunit == "microsecond")
+            1//Int64(10)^3
+        elseif (tunit == "nanoseconds") || (tunit == "nanosecond")
+            1//Int64(10)^6
+        elseif (tunit == "picoseconds") || (tunit == "picosecond")
+            1//Int64(10)^9
+        elseif (tunit == "femtoseconds") || (tunit == "femtosecond")
+            1//Int64(10)^12
+        elseif (tunit == "attoseconds") || (tunit == "attosecond")
+            1//Int64(10)^15
+        else
+            error("unknown units \"$(tunit)\"")
+        end
+
+    return t0,plength
+end
+
+
 struct DateTime2{T,origintupe} <: AbstractCFDateTime
     instant::T
 end
@@ -149,7 +194,7 @@ end
 _origintuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple} = unwrap(Torigintuple)
 
 function DateTime2(t,units::AbstractString)
-    origintuple, ratio = timeunits(Tuple,units)
+    origintuple, ratio = _timeunits(Tuple,units)
     instant = Period(t,Base.numerator(ratio),Base.denominator(ratio))
     dt = DateTime2{typeof(instant),Val(origintuple)}(instant)
 end
