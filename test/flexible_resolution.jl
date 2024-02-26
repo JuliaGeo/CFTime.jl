@@ -166,24 +166,27 @@ dt = DateTime2(Float32(24*60*60*1000),"milliseconds since 2000-01-01")
 
 dt1 = DateTime2(0,"microseconds since 2000-01-01")
 dt2 = DateTime2(10,"microseconds since 2000-01-01")
+dt3 = DateTime2(2,"days since 2000-01-01")
 
-#Dates.Microsecond(10) == (dt2 - dt1)
+@test (dt2 - dt1) == Dates.Microsecond(10)
+
+
+@test (dt2 - dt1) == Dates.Nanosecond(10_000)
+
+@test dt1 < dt2
+@test dt1 < dt3
+@test dt3 > dt1
 
 #@btime $dt2 - $dt1
 
 
-#dt1 == dt2
+@test !(dt1 == dt2)
 
 # dt1-dt2
-#=
 dr = dt1:Dates.Microsecond(2):dt2;
-#first(dr)
-#@which length(dr)
-length(dr)
 
+@test dr[1] == dt1
+@test dr[2] - dr[1] == Dates.Microsecond(2)
+@test length(dr) == 6
 
-(dt2 - dt1) % Microsecond(2)
-
-import Dates
-dr = Dates.DateTime(2000,1,1):Dates.Day(1):Dates.DateTime(2000,1,1)
-=#
+#(dt2 - dt1) % Microsecond(2)

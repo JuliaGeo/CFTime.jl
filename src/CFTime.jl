@@ -22,7 +22,7 @@ import Dates: year,  month,  day, hour, minute, second, millisecond
 import Dates: daysinmonth, daysinyear, yearmonthday, yearmonth
 import Dates: monthday, len, dayofyear, firstdayofyear
 
-import Base: +, -, isless, string, show, convert, reinterpret
+import Base: +, -, isless, string, show, convert, reinterpret, ==
 
 # solar year in ms (the interval between 2 successive passages of the sun
 # through vernal equinox)

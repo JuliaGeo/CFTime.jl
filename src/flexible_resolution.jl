@@ -120,9 +120,43 @@ end
 
 
 
++(p1::Period,p2::Dates.TimePeriod) = p1 + convert(Period,p2)
+
+
+function -(p::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
+    Period{T,Tfactor,Texponent}(-p.duration)
+end
+
+-(p1::Period,p2) = p1 + (-p2)
+
+
+import Base: convert
+
+for T in (:Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond)
+    local factor, exponent, unit
+    unit = Symbol(lowercase(string(T)))
+    factor, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
+
+    @eval convert(::Type{Period},t::Dates.$T) = Period{Int64,Val($factor),Val($exponent)}(Dates.value(t))
+end
+
+
+function ==(p1::Period,p2)
+    return Dates.value(p1 - p2) == 0
+end
+
+function isless(p1::Period,p2::Period)
+    return Dates.value(p1 - p2) < 0
+end
+
 # methods with DateTime2 as first argument
 
 
+function isless(dt1::DateTime2,dt2::DateTime2)
+    return Dates.value(dt1 - dt2) < 0
+end
+
+Dates.value(p::DateTime2) = Dates.value(p.instant)
 
 _origintuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple} = unwrap(Torigintuple)
 
@@ -233,15 +267,6 @@ function +(p1::Period{T1},p2::Period{T2}) where {T1, T2}
 end
 
 
-import Base: convert
-
-for T in (:Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond)
-    local factor, exponent, unit
-    unit = Symbol(lowercase(string(T)))
-    factor, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
-
-    @eval convert(::Type{Period},t::Dates.$T) = Period{Int64,Val($factor),Val($exponent)}(Dates.value(t))
-end
 
 
 
@@ -254,14 +279,6 @@ function +(dt::DateTime2{T,Torigintuple},p::Period) where {T,Torigintuple}
 end
 
 +(dt::DateTime2,p::Dates.TimePeriod) = dt + convert(Period,p)
-+(p1::Period,p2::Dates.TimePeriod) = p1 + convert(Period,p2)
-
-
-function -(p::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
-    Period{T,Tfactor,Texponent}(-p.duration)
-end
-
--(p1::Period,p2::Period) = p1 + (-p2)
 
 
 
