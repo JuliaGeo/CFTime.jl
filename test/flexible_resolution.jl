@@ -153,6 +153,7 @@ _pad3(a::Tuple{T1}) where T1 = (a[1],0,0)
 _pad3(a::Tuple{T1,T2})  where {T1,T2}  = (a[1],a[2],0)
 _pad3(a::Tuple) = a
 
+
 function DateTime2(T::DataType,
     args...;
     origin = (1970, 1, 1),
@@ -178,6 +179,20 @@ function DateTime2(T::DataType,
 end
 
 DateTime2(y::Integer,args::Vararg{<:Number,N}; kwargs...) where N = DateTime2(Int64,y,args...; kwargs...)
+
+
+function _origin_period(dt::DateTime2)
+    factor = _factor(dt.instant)
+    exponent = _exponent(dt.instant)
+    y,m,d,HMS... = _origintuple(dt)
+
+    # time origin
+    p = Period(
+        (datenum(DateTimeStandard,y,m,d),HMS...),
+        factor,
+        exponent)
+
+end
 
 function datetuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple}
     factor = _factor(dt.instant)
@@ -270,8 +285,6 @@ end
 -(p1::Period,p2::Period) = p1 + (-p2)
 
 
-function _origin_period(dt::DateTime2)
-end
 
 # function -(dt1::DateTime2,dt2::DateTime2)
 #     y1,m1,d1,HMS1... = _origintuple(dt1)
