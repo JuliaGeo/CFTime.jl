@@ -23,19 +23,19 @@ using Dates
 # Int64 is used to avoid overflow on 32-bit for femtosecond and beyond
 
 const TIME_DIVISION = (
-    # name             numerator,   exponent
-    (:day,         24*60*60*1000,             0),
-    (:hour,           60*60*1000,             0),
-    (:minute,            60*1000,             0),
-    (:second,               1000,             0),
-    (:millisecond,             1,             0),
-    (:microsecond,             1,          -3),
-    (:nanosecond,              1,          -6),
-    (:picosecond,              1,          -9),
-    (:femtosecond,             1,  -12),
-    (:attosecond,              1,  -15),
-    (:zeptosecond,             1,  -18),
-    (:yoctosecond,             1, -21),
+    # name             numerator, exponent
+    (:day,         24*60*60,      0),
+    (:hour,           60*60,      0),
+    (:minute,            60,      0),
+    (:second,             1,      0),
+    (:millisecond,        1,     -3),
+    (:microsecond,        1,     -6),
+    (:nanosecond,         1,     -9),
+    (:picosecond,         1,    -12),
+    (:femtosecond,        1,    -15),
+    (:attosecond,         1,    -18),
+    (:zeptosecond,        1,    -21),
+    (:yoctosecond,        1,    -24),
 )
 
 unwrap(::Val{x}) where x = x
@@ -50,7 +50,7 @@ struct Period{T,numerator,exponent}
 end
 
 
-Period(duration::Number,numerator,exponent=0) = Period{typeof(duration),Val(numerator),Val(exponent)}(duration)
+Period(duration::Number,numerator,exponent=-3) = Period{typeof(duration),Val(numerator),Val(exponent)}(duration)
 
 _numerator(p::Period{T,numerator,exponent}) where {T,numerator,exponent} = unwrap(numerator)
 _exponent(p::Period{T,numerator,exponent}) where {T,numerator,exponent} = unwrap(exponent)
@@ -94,12 +94,12 @@ function timetuplefrac(t::Period{T,Tnumerator}) where {T,Tnumerator}
 end
 
 
-function Period(tuf::Tuple,numerator,exponent=0)
+function Period(tuf::Tuple,numerator,exponent=-3)
     duration = datenum_(tuf,numerator,exponent)
     Period{typeof(duration),Val(numerator),Val(exponent)}(duration)
 end
 
-function Period(T::DataType,tuf::Tuple,numerator,exponent=0)
+function Period(T::DataType,tuf::Tuple,numerator,exponent=-3)
     duration = T(datenum_(tuf,numerator,exponent))
     Period{typeof(duration),Val(numerator),Val(exponent)}(duration)
 end
@@ -120,14 +120,14 @@ numerator = 1000
 tuf=    (2,3,4,5,6,7,8)
 #    )
 numerator = 1e-6
-exponent = 0
+exponent = -3
 
 p = Period(tuf,numerator)
 @test timetuplefrac(p)[1:length(tuf)] == tuf
 
 
 numerator = 1
-exponent = -6
+exponent = -9
 
 p = Period(tuf,numerator,exponent)
 @test timetuplefrac(p)[1:length(tuf)] == tuf
@@ -195,7 +195,7 @@ _origintuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple} = unwrap(Tori
 
 function DateTime2(t,units::AbstractString)
     origintuple, ratio = _timeunits(Tuple,units)
-    exponent = -round(Int64,log10(Base.denominator(ratio)))
+    exponent = -3-round(Int64,log10(Base.denominator(ratio)))
     instant = Period(t,Base.numerator(ratio),exponent)
     dt = DateTime2{typeof(instant),Val(origintuple)}(instant)
 end
