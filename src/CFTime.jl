@@ -54,6 +54,8 @@ const DATETIME_OFFSET = Dates.Millisecond(678576 * (24*60*60*Int64(1000)))
 
 include("types.jl")
 
+include("flexible_resolution.jl")
+
 
 @inline isleap(::Type{DateTimeAllLeap},year,has_year_zero) = true
 @inline isleap(::Type{DateTimeNoLeap},year,has_year_zero) = false
@@ -269,7 +271,7 @@ end
 
 +(dt::T,Δ::RegTime)  where T <: AbstractCFDateTime = T(UTInstant(dt.instant.periods + Dates.Millisecond(Δ)))
 
--(dt1::T,dt2::T)  where T <: AbstractCFDateTime = dt1.instant.periods - dt2.instant.periods
+#-(dt1::T,dt2::T)  where T <: AbstractCFDateTime = dt1.instant.periods - dt2.instant.periods
 
 isless(dt1::T,dt2::T) where T <: AbstractCFDateTime = dt1.instant.periods < dt2.instant.periods
 

@@ -17,3 +17,18 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
         end
     end
 end
+
+
+
+"""
+if T is a integer
+duration * factor * 10^exponent represents the time in seconds
+"""
+struct Period{T,factor,exponent}
+    duration::T
+end
+
+
+struct DateTime2{T,origintupe} <: AbstractCFDateTime
+    instant::T
+end
