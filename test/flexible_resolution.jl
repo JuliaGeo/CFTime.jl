@@ -13,17 +13,14 @@ using Dates
 
 
 # all supported time units, e.g.
-# a day is 24*60*60*1000/1 ms long
-# a microsecond is 1/10^3  ms long
+# a day is 24*60*60 s long
 #
 # The base unit is currently millisecond for compatability with the Julia
 # Dates.DateTime type.
 #
-# We use a ratio of integers to avoid floating point rounding
-# Int64 is used to avoid overflow on 32-bit for femtosecond and beyond
 
 const TIME_DIVISION = (
-    # name             numerator, exponent
+    # name           factor, exponent
     (:day,         24*60*60,      0),
     (:hour,           60*60,      0),
     (:minute,            60,      0),
@@ -43,17 +40,17 @@ unwrap(::Val{x}) where x = x
 
 """
 if T is a integer
-duration * numerator / exponent represents the time in milliseconds
+duration * factor / exponent represents the time in milliseconds
 """
-struct Period{T,numerator,exponent}
+struct Period{T,factor,exponent}
     duration::T
 end
 
 
-Period(duration::Number,numerator,exponent=-3) = Period{typeof(duration),Val(numerator),Val(exponent)}(duration)
+Period(duration::Number,factor,exponent=-3) = Period{typeof(duration),Val(factor),Val(exponent)}(duration)
 
-_numerator(p::Period{T,numerator,exponent}) where {T,numerator,exponent} = unwrap(numerator)
-_exponent(p::Period{T,numerator,exponent}) where {T,numerator,exponent} = unwrap(exponent)
+_factor(p::Period{T,factor,exponent}) where {T,factor,exponent} = unwrap(factor)
+_exponent(p::Period{T,factor,exponent}) where {T,factor,exponent} = unwrap(exponent)
 
 # sadly Dates.CompoundPeriod allocates a vector
 #@btime Dates.CompoundPeriod(Dates.Day(1),Dates.Hour(1))
@@ -74,34 +71,34 @@ _exponent(p::Period{T,numerator,exponent}) where {T,numerator,exponent} = unwrap
 end
 @inline tf(time,divi) = __tf((),time,divi...)
 
-# rescale the time units for the ratio numerator/exponent
-@inline function division(numerator,exponent)
-    (10^(-exponent) .* getindex.(TIME_DIVISION,2)) .÷ (10 .^ (.- getindex.(TIME_DIVISION,3)) .* numerator)
+# rescale the time units for the ratio factor/exponent
+@inline function division(factor,exponent)
+    (10^(-exponent) .* getindex.(TIME_DIVISION,2)) .÷ (10 .^ (.- getindex.(TIME_DIVISION,3)) .* factor)
 end
 
-@inline function datenum_(tuf::Tuple,numerator,exponent)
-    divi = division(numerator,exponent)
+@inline function datenum_(tuf::Tuple,factor,exponent)
+    divi = division(factor,exponent)
     return sum(divi[1:length(tuf)] .* tuf)
 end
 
-function timetuplefrac(t::Period{T,Tnumerator}) where {T,Tnumerator}
+function timetuplefrac(t::Period{T,Tfactor}) where {T,Tfactor}
     # for integers
-    numerator = _numerator(t)
+    factor = _factor(t)
     exponent = _exponent(t)
-    divi = division(numerator,exponent)
+    divi = division(factor,exponent)
     time = t.duration
     tf(time,divi)
 end
 
 
-function Period(tuf::Tuple,numerator,exponent=-3)
-    duration = datenum_(tuf,numerator,exponent)
-    Period{typeof(duration),Val(numerator),Val(exponent)}(duration)
+function Period(tuf::Tuple,factor,exponent=-3)
+    duration = datenum_(tuf,factor,exponent)
+    Period{typeof(duration),Val(factor),Val(exponent)}(duration)
 end
 
-function Period(T::DataType,tuf::Tuple,numerator,exponent=-3)
-    duration = T(datenum_(tuf,numerator,exponent))
-    Period{typeof(duration),Val(numerator),Val(exponent)}(duration)
+function Period(T::DataType,tuf::Tuple,factor,exponent=-3)
+    duration = T(datenum_(tuf,factor,exponent))
+    Period{typeof(duration),Val(factor),Val(exponent)}(duration)
 end
 
 #@code_warntype tf(time,divi)
@@ -113,30 +110,30 @@ end
 
 @test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5),1000))[1:4] == (2,3,4,5)
 
-numerator = 1000
+factor = 1000
 
 #for tuf in (
 #    (2,3,4,5),
 tuf=    (2,3,4,5,6,7,8)
 #    )
-numerator = 1e-6
+factor = 1e-6
 exponent = -3
 
-p = Period(tuf,numerator)
+p = Period(tuf,factor)
 @test timetuplefrac(p)[1:length(tuf)] == tuf
 
 
-numerator = 1
+factor = 1
 exponent = -9
 
-p = Period(tuf,numerator,exponent)
+p = Period(tuf,factor,exponent)
 @test timetuplefrac(p)[1:length(tuf)] == tuf
 
 
 #end
 
 
-@btime datenum_($tuf,$numerator,0)
+@btime datenum_($tuf,$factor,0)
 
 #@btime tf($time,$divi)
 
@@ -154,36 +151,20 @@ function _timeunits(::Type{DT},units) where DT
 
     # make sure that plength is 64-bit on 32-bit platforms
     # plength is duration is *milliseconds*
-    plength =
-        if (tunit == "years") || (tunit == "year")
-            SOLAR_YEAR
-        elseif (tunit == "months") || (tunit == "month")
-            SOLAR_YEAR ÷ 12
-        elseif (tunit == "days") || (tunit == "day")
-            24*60*60*Int64(1000)
-        elseif (tunit == "hours") || (tunit == "hour")
-            60*60*Int64(1000)
-        elseif (tunit == "minutes") || (tunit == "minute")
-            60*Int64(1000)
-        elseif (tunit == "seconds") || (tunit == "second")
-            Int64(1000)
-        elseif (tunit == "milliseconds") || (tunit == "millisecond")
-            Int64(1)
-        elseif (tunit == "microseconds") || (tunit == "microsecond")
-            1//Int64(10)^3
-        elseif (tunit == "nanoseconds") || (tunit == "nanosecond")
-            1//Int64(10)^6
-        elseif (tunit == "picoseconds") || (tunit == "picosecond")
-            1//Int64(10)^9
-        elseif (tunit == "femtoseconds") || (tunit == "femtosecond")
-            1//Int64(10)^12
-        elseif (tunit == "attoseconds") || (tunit == "attosecond")
-            1//Int64(10)^15
-        else
-            error("unknown units \"$(tunit)\"")
+    if (tunit == "years") || (tunit == "year")
+         # SOLAR_YEAR is in ms
+        return t0, SOLAR_YEAR, -3
+    elseif (tunit == "months") || (tunit == "month")
+        return t0, SOLAR_YEAR ÷ 12, -3
+    else
+        for (name,factor,exponent) in TIME_DIVISION
+            if tunit == string(name,"s") || (tunit == string(name))
+                return t0, factor, exponent
+            end
         end
+    end
 
-    return t0,plength
+    error("unknown units \"$(tunit)\"")
 end
 
 
@@ -194,9 +175,8 @@ end
 _origintuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple} = unwrap(Torigintuple)
 
 function DateTime2(t,units::AbstractString)
-    origintuple, ratio = _timeunits(Tuple,units)
-    exponent = -3-round(Int64,log10(Base.denominator(ratio)))
-    instant = Period(t,Base.numerator(ratio),exponent)
+    origintuple, factor, exponent = _timeunits(Tuple,units)
+    instant = Period(t,factor,exponent)
     dt = DateTime2{typeof(instant),Val(origintuple)}(instant)
 end
 
@@ -213,16 +193,16 @@ function DateTime2(T::DataType,
     y,m,d,HMS... = _pad3(args)
     oy,om,od,oHMS... = _pad3(origin)
 
-    numerator, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
+    factor, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
 
     # time origin
     p = Period(T,
         (datenum(DateTimeStandard,y,m,d),HMS...),
-        numerator,
+        factor,
         exponent) -
             Period(T,
         (datenum(DateTimeStandard,oy,om,od),oHMS...),
-        numerator,
+        factor,
                    exponent)
 
     return DateTime2{typeof(p),Val(origin)}(p)
@@ -231,20 +211,20 @@ end
 DateTime2(y::Integer,args::Vararg{<:Number,N}; kwargs...) where N = DateTime2(Int64,y,args...; kwargs...)
 
 function datetuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple}
-    numerator = _numerator(dt.instant)
+    factor = _factor(dt.instant)
     exponent = _exponent(dt.instant)
     y,m,d,HMS... = _origintuple(dt)
 
     # time origin
     p = Period(
         (datenum(DateTimeStandard,y,m,d),HMS...),
-        numerator,
+        factor,
         exponent)
 
     # add duration to time origin
     p2 = Period(
         p.duration + dt.instant.duration,
-        numerator,
+        factor,
         exponent)
 
     # HMS contains hours, minutes, seconds and all sub-second units
@@ -256,12 +236,12 @@ end
 
 
 
-for (i,(name,numerator,exponent)) in enumerate(TIME_DIVISION)
+for (i,(name,factor,exponent)) in enumerate(TIME_DIVISION)
     function_name = Symbol(uppercasefirst(String(name)))
 
     @eval begin
         function $function_name(d::T) where T <: Number
-            Period{T,$(Val(numerator)),$(Val(exponent))}(d)
+            Period{T,$(Val(factor)),$(Val(exponent))}(d)
         end
 
         @inline function $function_name(dt::T) where T <: DateTime2
@@ -303,19 +283,20 @@ dt = DateTime2(1,"microseconds since 2000-01-01")
 
 
 
-function +(p1::Period{T,Tnumerator,Texponent},p2::Period{T,Tnumerator,Texponent}) where {T, Tnumerator, Texponent}
-    Period{T,Tnumerator,Texponent}(p1.duration + p2.duration)
+function +(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
+    Period{T,Tfactor,Texponent}(p1.duration + p2.duration)
 end
 
 function +(p1::Period{T1},p2::Period{T2}) where {T1, T2}
     T = promote_type(T1,T2)
 
-    if _numerator(p1) / 10^(-_exponent(p1)) < _numerator(p2) / 10^(-_exponent(p2))
+    # which is the smallest unit
+    if _factor(p1) / 10^(-_exponent(p1)) < _factor(p2) / 10^(-_exponent(p2))
 
         duration = T(p1.duration) +
-                       (T(p2.duration) * _numerator(p2) * 10^(-_exponent(p1))) ÷
-                           (10^(-_exponent(p2)) * _numerator(p1))
-        return Period(duration,_numerator(p1),_exponent(p1))
+                       (T(p2.duration) * _factor(p2) * 10^(_exponent(p2)-_exponent(p1))) ÷
+                       _factor(p1)
+        return Period(duration,_factor(p1),_exponent(p1))
     else
         return @inline p2 + p1
     end
@@ -325,8 +306,8 @@ end
     DateTime2{T,Torigintuple}(dt.instant + p)
 
 
-function -(p::Period{T,Tnumerator,Texponent}) where {T, Tnumerator, Texponent}
-    Period{T,Tnumerator,Texponent}(-p.duration)
+function -(p::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
+    Period{T,Tfactor,Texponent}(-p.duration)
 end
 
 -(p1::Period,p2::Period) = p1 + (-p2)
