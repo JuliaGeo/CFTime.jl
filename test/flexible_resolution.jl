@@ -8,7 +8,7 @@ import Dates
 import Dates: year,  month,  day, hour, minute, second, millisecond
 using Test
 using BenchmarkTools
-import Base: +, -, *
+import Base: +, -, *, zero, one, isless, rem, div, string, convert
 using Dates
 
 
@@ -51,6 +51,17 @@ Period(duration::Number,factor,exponent=-3) = Period{typeof(duration),Val(factor
 
 _factor(p::Period{T,factor,exponent}) where {T,factor,exponent} = unwrap(factor)
 _exponent(p::Period{T,factor,exponent}) where {T,factor,exponent} = unwrap(exponent)
+
+
+function Base.zero(p::Period{T,numerator,denominator}) where {T,numerator,denominator}
+    Period{T,numerator,denominator}(0)
+end
+
+function Base.one(p::Period{T,numerator,denominator}) where {T,numerator,denominator}
+    Period{T,numerator,denominator}(1)
+end
+
+
 
 # sadly Dates.CompoundPeriod allocates a vector
 #@btime Dates.CompoundPeriod(Dates.Day(1),Dates.Hour(1))
@@ -243,6 +254,10 @@ end
 +(dt::DateTime2{T,Torigintuple},p::T) where {T,Torigintuple} =
     DateTime2{T,Torigintuple}(dt.instant + p)
 
+function +(dt::DateTime2{T,Torigintuple},p::Period) where {T,Torigintuple}
+    p2 = dt.instant + p
+    DateTime2{typeof(p2),Torigintuple}(p2)
+end
 
 +(dt::DateTime2,p::Dates.TimePeriod) = dt + convert(Period,p)
 +(p1::Period,p2::Dates.TimePeriod) = p1 + convert(Period,p2)
@@ -253,6 +268,24 @@ function -(p::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
 end
 
 -(p1::Period,p2::Period) = p1 + (-p2)
+
+
+function _origin_period(dt::DateTime2)
+end
+
+# function -(dt1::DateTime2,dt2::DateTime2)
+#     y1,m1,d1,HMS1... = _origintuple(dt1)
+
+#     # time origin
+#     op1 = Period(
+#         (datenum(DateTimeStandard,y,m,d),HMS...),
+#         factor,
+#         exponent)
+
+#     p = dt2 - dt1
+#     p2 = dt.instant + p
+#     DateTime2{typeof(p2),Torigintuple}(p2)
+# end
 
 
 # TEST
@@ -349,9 +382,12 @@ dt = DateTime2(1,"microseconds since 2000-01-01")
 
 @test Dates.nanosecond(dt) == 0
 
-#@test Dates.nanosecond(dt + Dates.Nanosecond(1)) == 1
+@test Dates.nanosecond(dt + Dates.Nanosecond(1)) == 1
+@test Dates.nanosecond(dt + Dates.Nanosecond(1000)) == 0
 
-#dt + p1
+dt = DateTime2(0,"microseconds since 2000-01-01")
+@test Dates.microsecond(dt + Dates.Nanosecond(1000)) == 1
+
 
 
 
@@ -401,3 +437,24 @@ dt = DateTime2(Float32(24*60*60*1000),"milliseconds since 2000-01-01")
 
 #dt2 = dt + Millisecond(10);
 #dt2 = dt + Millisecond(10) +  Microsecond(20) + Nanosecond(30);
+
+dt1 = DateTime2(0,"microseconds since 2000-01-01")
+dt2 = DateTime2(10,"microseconds since 2000-01-01")
+
+
+# dt1 == dt2
+
+# dt1-dt2
+#=
+dr = dt1:Dates.Microsecond(2):dt2;
+#first(dr)
+#@which length(dr)
+length(dr)
+
+dt2 - dt1 
+
+(dt2 - dt1) % Microsecond(2)
+
+import Dates
+dr = Dates.DateTime(2000,1,1):Dates.Day(1):Dates.DateTime(2000,1,1)
+=#
