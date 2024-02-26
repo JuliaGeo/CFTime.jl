@@ -54,7 +54,6 @@ _exponent(p::Period{T,factor,exponent}) where {T,factor,exponent} = unwrap(expon
 
 # sadly Dates.CompoundPeriod allocates a vector
 #@btime Dates.CompoundPeriod(Dates.Day(1),Dates.Hour(1))
-
 #Dates.CompoundPeriod(Dates.Day(1),Attosecond(1))
 
 
@@ -72,12 +71,13 @@ end
 @inline tf(time,divi) = __tf((),time,divi...)
 
 # rescale the time units for the ratio factor/exponent
-@inline function division(factor,exponent)
-    (10^(-exponent) .* getindex.(TIME_DIVISION,2)) .÷ (10 .^ (.- getindex.(TIME_DIVISION,3)) .* factor)
+@inline function division(T,factor,exponent)
+    (T(10)^(-exponent) .* getindex.(TIME_DIVISION,2)) .÷ (T(10) .^ (.- getindex.(TIME_DIVISION,3)) .* factor)
 end
 
 @inline function datenum_(tuf::Tuple,factor,exponent)
-    divi = division(factor,exponent)
+    T =  promote_type(typeof.(tuf)...)
+    divi = division(T,factor,exponent)
     return sum(divi[1:length(tuf)] .* tuf)
 end
 
@@ -85,7 +85,7 @@ function timetuplefrac(t::Period{T,Tfactor}) where {T,Tfactor}
     # for integers
     factor = _factor(t)
     exponent = _exponent(t)
-    divi = division(factor,exponent)
+    divi = division(T,factor,exponent)
     time = t.duration
     tf(time,divi)
 end
@@ -100,48 +100,6 @@ function Period(T::DataType,tuf::Tuple,factor,exponent=-3)
     duration = T(datenum_(tuf,factor,exponent))
     Period{typeof(duration),Val(factor),Val(exponent)}(duration)
 end
-
-#@code_warntype tf(time,divi)
-
-
-
-@test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5)*1000,1))[1:4] == (2,3,4,5)
-
-
-@test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5),1000))[1:4] == (2,3,4,5)
-
-factor = 1000
-
-#for tuf in (
-#    (2,3,4,5),
-tuf=    (2,3,4,5,6,7,8)
-#    )
-factor = 1e-6
-exponent = -3
-
-p = Period(tuf,factor)
-@test timetuplefrac(p)[1:length(tuf)] == tuf
-
-
-factor = 1
-exponent = -9
-
-p = Period(tuf,factor,exponent)
-@test timetuplefrac(p)[1:length(tuf)] == tuf
-
-
-#end
-
-
-@btime datenum_($tuf,$factor,0)
-
-#@btime tf($time,$divi)
-
-
-#@code_warntype tf(time,divi)
-
-#@test tf(time,divi)[1:4] == (2,3,4,5)
-
 
 function _timeunits(::Type{DT},units) where DT
     tunit_mixedcase,starttime = strip.(split(units," since "))
@@ -250,38 +208,6 @@ for (i,(name,factor,exponent)) in enumerate(TIME_DIVISION)
     end
 end
 
-function same_tuple(t1,t2)
-    len = min(length(t1),length(t2))
-     (t1[1:len] == t2[1:len]) &&
-         all(==(0),t1[len+1:end]) &&
-         all(==(0),t2[len+1:end])
-end
-
-dt = DateTime2(1000,"milliseconds since 2000-01-01")
-@test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
-
-dt = DateTime2(1,"seconds since 2000-01-01")
-@test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
-
-dt = DateTime2(1,"seconds since 2000-01-01")
-@test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
-
-dt = DateTime2(10^9,"nanoseconds since 2000-01-01");
-@test same_tuple((2000, 1, 1, 0, 0, 1), datetuple(dt))
-
-dt = DateTime2(10^9,"nanoseconds since 2000-01-01T23:59:59")
-@test same_tuple((2000, 1, 2), datetuple(dt))
-@test Day(dt) == 2
-@test Second(dt) == 0
-@test Millisecond(dt) == 0
-@test Microsecond(dt) == 0
-
-
-dt = DateTime2(1,"microseconds since 2000-01-01")
-@test same_tuple((2000, 1, 1, 0, 0, 0, 0, 1),datetuple(dt))
-
-
-
 
 function +(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
     Period{T,Tfactor,Texponent}(p1.duration + p2.duration)
@@ -311,6 +237,83 @@ function -(p::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
 end
 
 -(p1::Period,p2::Period) = p1 + (-p2)
+
+
+# TEST
+
+
+function same_tuple(t1,t2)
+    len = min(length(t1),length(t2))
+     (t1[1:len] == t2[1:len]) &&
+         all(==(0),t1[len+1:end]) &&
+         all(==(0),t2[len+1:end])
+end
+
+
+
+@test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5)*1000,1))[1:4] == (2,3,4,5)
+
+@test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5),1000))[1:4] == (2,3,4,5)
+
+factor = 1000
+
+#for tuf in (
+#    (2,3,4,5),
+tuf=    (2,3,4,5,6,7,8)
+#    )
+factor = 1e-6
+exponent = -3
+
+p = Period(tuf,factor)
+@test timetuplefrac(p)[1:length(tuf)] == tuf
+
+
+factor = 1
+exponent = -9
+
+p = Period(tuf,factor,exponent)
+@test timetuplefrac(p)[1:length(tuf)] == tuf
+
+
+#end
+
+
+@btime datenum_($tuf,$factor,0)
+
+#@btime tf($time,$divi)
+
+
+#@code_warntype tf(time,divi)
+
+#@test tf(time,divi)[1:4] == (2,3,4,5)
+
+
+
+dt = DateTime2(1000,"milliseconds since 2000-01-01")
+@test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
+
+dt = DateTime2(1,"seconds since 2000-01-01")
+@test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
+
+dt = DateTime2(1,"seconds since 2000-01-01")
+@test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
+
+dt = DateTime2(10^9,"nanoseconds since 2000-01-01");
+@test same_tuple((2000, 1, 1, 0, 0, 1), datetuple(dt))
+
+dt = DateTime2(10^9,"nanoseconds since 2000-01-01T23:59:59")
+@test same_tuple((2000, 1, 2), datetuple(dt))
+@test Day(dt) == 2
+@test Second(dt) == 0
+@test Millisecond(dt) == 0
+@test Microsecond(dt) == 0
+
+
+dt = DateTime2(1,"microseconds since 2000-01-01")
+@test same_tuple((2000, 1, 1, 0, 0, 0, 0, 1),datetuple(dt))
+
+
+
 
 
 p1 = Microsecond(1)
@@ -359,7 +362,9 @@ dt = DateTime2(Float32(366*24*60*60*1000),"milliseconds since 2000-01-01")
 
 dt = DateTime2(Float32(24*60*60*1000),"milliseconds since 2000-01-01")
 
-Dates.hour(dt) < 24
+@test Dates.hour(dt) < 24
+@test Dates.minute(dt) < 60
+@test Dates.second(dt) < 60
 
 @which datetuple(dt)
 
