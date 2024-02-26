@@ -1,5 +1,5 @@
 using CFTime
-import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple, datenum
+import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple, datenum, AbstractCFDateTime
 import Dates
 import Dates: year,  month,  day, hour, minute, second, millisecond
 using Test
@@ -62,8 +62,9 @@ _denominator(p::Period{T,numerator,denominator}) where {T,numerator,denominator}
    if d1 == 0
        __tf((result...,0),0,dn...)
    else
-       p = fld(time, d1)
-       time2 = time - p*d1
+#       p = fld(time, d1)
+#       time2 = time - p*d1
+       p, time2 = divrem(time, d1)
        __tf((result...,p),time2,dn...)
     end
 end
@@ -141,7 +142,7 @@ p = Period(tuf,numerator,denominator)
 #@test tf(time,divi)[1:4] == (2,3,4,5)
 
 
-struct DateTime2{T,origintupe}
+struct DateTime2{T,origintupe} <: AbstractCFDateTime
     instant::T
 end
 
@@ -157,11 +158,11 @@ _pad3(a::Tuple{T1}) where T1 = (a[1],0,0)
 _pad3(a::Tuple{T1,T2})  where {T1,T2}  = (a[1],a[2],0)
 _pad3(a::Tuple) = a
 
-function DateTime2(
+function DateTime2(T::DataType,
     args...;
     origin = (1970, 1, 1),
-    unit = first(TIME_DIVISION[max(length(args),7)-2]),
-    T = Int64)
+    unit = first(TIME_DIVISION[max(length(args),7)-2]), # milliseconds or smaller
+    )
 
     y,m,d,HMS... = _pad3(args)
     oy,om,od,oHMS... = _pad3(origin)
@@ -181,6 +182,8 @@ function DateTime2(
     return DateTime2{typeof(p),Val(origin)}(p)
 end
 
+DateTime2(y::Integer,args::Vararg{<:Number,N}; kwargs...) where N = DateTime2(Int64,y,args...; kwargs...)
+
 function datetuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple}
     numerator = _numerator(dt.instant)
     denominator = _denominator(dt.instant)
@@ -197,7 +200,6 @@ function datetuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple}
         p.duration + dt.instant.duration,
         numerator,
         denominator)
-
 
     # HMS contains hours, minutes, seconds and all sub-second units
     days,HMS... = timetuplefrac(p2)
@@ -322,6 +324,30 @@ dt = DateTime2(2001,1,1)
 
 dt = DateTime2(2001,1,1 , 1,2,3,   100,200,300, unit = :nanosecond)
 @test same_tuple((2001, 1, 1, 1,2,3, 100,200,300), datetuple(dt))
+
+
+dt = DateTime2(Float32(366*24*60*60*1000),"milliseconds since 2000-01-01")
+@time datetuple(dt);
+
+
+dt = DateTime2(Float32(24*60*60*1000),"milliseconds since 2000-01-01")
+
+Dates.hour(dt) < 24
+
+@which datetuple(dt)
+
+p2 = Period{Float32, Val{1}(), Val{1}()}(4.453488f12)
+
+eps(p2.duration)/1000/60
+
+timetuplefrac(p2)
+
+
+# dt = DateTime2(Float64(24*60*60*1000),"milliseconds since 2000-01-01")
+# @time datetuple(dt);
+
+# dt = DateTime2(24*60*60*1000,"milliseconds since 2000-01-01")
+# @time datetuple(dt);
 
 
 #dt2 = dt + Millisecond(10);

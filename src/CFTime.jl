@@ -236,8 +236,18 @@ end
 
 
 function string(dt::T)  where T <: AbstractCFDateTime
-    y,mo,d,h,mi,s,ms = datetuple(dt)
-    return @sprintf("%04d-%02d-%02dT%02d:%02d:%02d",y,mo,d,h,mi,s)
+    y,mo,d,h,mi,s,subsec... = datetuple(dt)
+    io = IOBuffer()
+    @printf(io,"%04d-%02d-%02dT%02d:%02d:%02d",y,mo,d,h,mi,s)
+    if length(subsec) > 0
+        @printf(io,".")
+    end
+
+    for subsec_ in subsec
+        @printf(io,"%03d",subsec_)
+    end
+
+    return String(take!(io))
 end
 
 function show(io::IO,dt::T)  where T <: AbstractCFDateTime
@@ -245,16 +255,16 @@ function show(io::IO,dt::T)  where T <: AbstractCFDateTime
 end
 
 function +(dt::T,Δ::Dates.Year)  where T <: AbstractCFDateTime
-    y,mo,d,h,mi,s,ms = datetuple(dt)
-    return T(y+Dates.value(Δ), mo, d, h, mi, s, ms)
+    y,mo,d,h,mi,s,subsec... = datetuple(dt)
+    return T(y+Dates.value(Δ), mo, d, h, mi, s, subsec...)
 end
 
 function +(dt::T,Δ::Dates.Month)  where T <: AbstractCFDateTime
-    y,mo,d,h,mi,s,ms = datetuple(dt)
+    y,mo,d,h,mi,s,subsec... = datetuple(dt)
     mo = mo + Dates.value(Δ)
     mo2 = mod(mo - 1, 12) + 1
     y = y + (mo-mo2) ÷ 12
-    return T(y, mo2, d,h, mi, s, ms)
+    return T(y, mo2, d,h, mi, s, subsec...)
 end
 
 +(dt::T,Δ::RegTime)  where T <: AbstractCFDateTime = T(UTInstant(dt.instant.periods + Dates.Millisecond(Δ)))
