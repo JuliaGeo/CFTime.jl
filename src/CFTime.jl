@@ -338,6 +338,18 @@ Dates.second(dt::AbstractCFDateTime) = datetuple(dt)[6]
 Dates.millisecond(dt::AbstractCFDateTime) = datetuple(dt)[7]
 
 
+for (i,func) in enumerate((:microsecond,:nanosecond))
+    ituple = i+7
+
+    @eval function Dates.$func(dt::AbstractCFDateTime)
+        t = datetuple(dt)
+        if length(t) >= $ituple
+            return t[$ituple]
+        else
+            return 0
+        end
+    end
+end
 
 for func in (:year, :month, :day, :hour, :minute, :second, :millisecond)
     name = string(func)

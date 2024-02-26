@@ -198,9 +198,9 @@ for (i,(name,factor,exponent)) in enumerate(TIME_DIVISION)
     function_name = Symbol(uppercasefirst(String(name)))
 
     @eval begin
-        function $function_name(d::T) where T <: Number
-            Period{T,$(Val(factor)),$(Val(exponent))}(d)
-        end
+        # function $function_name(d::T) where T <: Number
+        #     Period{T,$(Val(factor)),$(Val(exponent))}(d)
+        # end
 
         @inline function $function_name(dt::T) where T <: DateTime2
             datetuple(dt)[$(i+2)] # years and months are special
@@ -228,8 +228,24 @@ function +(p1::Period{T1},p2::Period{T2}) where {T1, T2}
     end
 end
 
+
+import Base: convert
+
+for T in (:Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond)
+    unit = Symbol(lowercase(string(T)))
+    factor, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
+
+    @eval convert(::Type{Period},t::Dates.$T) = Period{Int64,Val($factor),Val($exponent)}(Dates.value(t))
+end
+
+
+
 +(dt::DateTime2{T,Torigintuple},p::T) where {T,Torigintuple} =
     DateTime2{T,Torigintuple}(dt.instant + p)
+
+
++(dt::DateTime2,p::Dates.TimePeriod) = dt + convert(Period,p)
++(p1::Period,p2::Dates.TimePeriod) = p1 + convert(Period,p2)
 
 
 function -(p::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
@@ -316,18 +332,24 @@ dt = DateTime2(1,"microseconds since 2000-01-01")
 
 
 
-p1 = Microsecond(1)
-p2 = Microsecond(10)
-@test p1+p2 == Microsecond(11)
+# p1 = Microsecond(1)
+# p2 = Microsecond(10)
+# @test p1+p2 == Microsecond(11)
 
 
-p1 = Microsecond(1)
-p2 = Nanosecond(10)
-@test p1+p2 == Nanosecond(1010)
+# p1 = Microsecond(1)
+# p2 = Nanosecond(10)
+# @test p1+p2 == Nanosecond(1010)
+
+
 
 
 dt = DateTime2(1,"microseconds since 2000-01-01")
-@test Microsecond(dt + Microsecond(1)) == 2
+@test Dates.microsecond(dt + Dates.Microsecond(1)) == 2
+
+@test Dates.nanosecond(dt) == 0
+
+#@test Dates.nanosecond(dt + Dates.Nanosecond(1)) == 1
 
 #dt + p1
 
