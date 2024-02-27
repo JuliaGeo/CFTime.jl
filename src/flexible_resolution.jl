@@ -138,7 +138,7 @@ for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond
 end
 
 import Dates: Millisecond
-Dates.Millisecond(p::CFTime.Period{Int64, Val{1}(), Val{-3}()}) = p.duration
+Dates.Millisecond(p::CFTime.Period{Int64, Val{1}(), Val{-3}()}) = Dates.Millisecond(p.duration)
 
 function ==(p1::Period,p2)
     return Dates.value(p1 - p2) == 0
@@ -174,6 +174,7 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
     @eval begin
         function $CFDateTime(T::DataType,
                              args...;
+#                             origin = (1858,11,17),
                              origin = (1970, 1, 1),
                              # milliseconds or smaller
                              unit = first(TIME_DIVISION[max(length(args),7)-2]),
@@ -184,19 +185,20 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
 
             factor, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
 
-            # time origin
             p = Period(
                 T,
                 (datenum($CFDateTime,y,m,d),HMS...),
                 factor,
-                exponent) -
-                    Period(
-                        T,
-                        (datenum($CFDateTime,oy,om,od),oHMS...),
-                        factor,
-                        exponent)
+                exponent)
 
-            return $CFDateTime{typeof(p),Val(origin)}(p)
+            # time origin
+            p0 = Period(
+                T,
+                (datenum($CFDateTime,oy,om,od),oHMS...),
+                factor,
+                exponent)
+
+            return $CFDateTime{typeof(p),Val(origin)}(p - p0)
         end
 
         function $CFDateTime(t,units::AbstractString)
@@ -284,10 +286,24 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
 
             return chop0((y, m, d, HMS...),7)
         end
+
     end
 end
 
 
+for CFDateTime in [:DateTimeStandard,
+                   :DateTimeJulian,
+                   :DateTimeProlepticGregorian,
+                   ]
+    @eval begin
+        function convert(::Type{DateTime}, dt::$CFDateTime)
+            Δ = (dt - $CFDateTime(1858,11,17)) + CFTime.DATETIME_OFFSET
+            ms = Dates.Millisecond(Δ)
+            ms += Dates.Millisecond(24*60*60*1000*datenum($CFDateTime,1858,11,17))
+            DateTime(UTInstant{Millisecond}(ms))
+        end
+    end
+end
 
 
 for (i,(name,factor,exponent)) in enumerate(TIME_DIVISION)

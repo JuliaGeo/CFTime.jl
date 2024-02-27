@@ -198,3 +198,17 @@ dt1 = DateTimeStandard(0,"microseconds since 2000-01-01")
 @which dt1 + Delta
 # 1.92 ns
 dts = @btime $dt1 + $Delta
+
+using Dates: UTInstant
+using CFTime: DateTimeProlepticGregorian, DateTimeJulian
+using CFTime: _origintuple
+
+
+@test convert(DateTime,DateTimeStandard(2001,2,3)) == DateTime(2001,2,3)
+@test convert(DateTime,DateTimeProlepticGregorian(2001,2,3)) == DateTime(2001,2,3)
+
+# https://en.wikipedia.org/w/index.php?title=Conversion_between_Julian_and_Gregorian_calendars&oldid=1194423852
+
+@test convert(DateTime,DateTimeJulian(500,2,28)) == DateTime(500,3,1)
+@test convert(DateTime,DateTimeJulian(1900,3,1)) == DateTime(1900,3,14)
+@test convert(DateTime,DateTimeJulian(2024,2,13)) == DateTime(2024,2,26)
