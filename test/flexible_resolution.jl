@@ -11,7 +11,7 @@ using BenchmarkTools
 import Base: +, -, *, zero, one, isless, rem, div, string, convert
 using Dates
 
-using CFTime: Period, DateTime2
+using CFTime: Period, DateTimeStandard
 
 
 # TEST
@@ -64,26 +64,26 @@ p = Period(tuf,factor,exponent)
 
 
 
-dt = DateTime2(1000,"milliseconds since 2000-01-01")
+dt = DateTimeStandard(1000,"milliseconds since 2000-01-01");
 @test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
 
-dt = DateTime2(1,"seconds since 2000-01-01")
+dt = DateTimeStandard(1,"seconds since 2000-01-01")
 @test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
 
-dt = DateTime2(1,"seconds since 2000-01-01")
+dt = DateTimeStandard(1,"seconds since 2000-01-01")
 @test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
 
-dt = DateTime2(10^9,"nanoseconds since 2000-01-01");
+dt = DateTimeStandard(10^9,"nanoseconds since 2000-01-01");
 @test same_tuple((2000, 1, 1, 0, 0, 1), datetuple(dt))
 
-dt = DateTime2(10^9,"nanoseconds since 2000-01-01T23:59:59")
+dt = DateTimeStandard(10^9,"nanoseconds since 2000-01-01T23:59:59")
 @test same_tuple((2000, 1, 2), datetuple(dt))
 @test Dates.day(dt) == 2
 @test Dates.second(dt) == 0
 @test Dates.millisecond(dt) == 0
 @test Dates.microsecond(dt) == 0
 
-dt = DateTime2(1,"microseconds since 2000-01-01")
+dt = DateTimeStandard(1,"microseconds since 2000-01-01")
 @test same_tuple((2000, 1, 1, 0, 0, 0, 0, 1),datetuple(dt))
 
 
@@ -102,7 +102,7 @@ dt = DateTime2(1,"microseconds since 2000-01-01")
 
 
 
-dt = DateTime2(1,"microseconds since 2000-01-01")
+dt = DateTimeStandard(1,"microseconds since 2000-01-01")
 @test Dates.microsecond(dt + Dates.Microsecond(1)) == 2
 
 @test Dates.nanosecond(dt) == 0
@@ -110,40 +110,40 @@ dt = DateTime2(1,"microseconds since 2000-01-01")
 @test Dates.nanosecond(dt + Dates.Nanosecond(1)) == 1
 @test Dates.nanosecond(dt + Dates.Nanosecond(1000)) == 0
 
-dt = DateTime2(0,"microseconds since 2000-01-01")
+dt = DateTimeStandard(0,"microseconds since 2000-01-01")
 @test Dates.microsecond(dt + Dates.Nanosecond(1000)) == 1
 
 
 
 
-dt = DateTime2(1,"milliseconds since 2000-01-01T23:59:59.999")
+dt = DateTimeStandard(1,"milliseconds since 2000-01-01T23:59:59.999")
 @test same_tuple((2000, 1, 2), datetuple(dt))
 
 
-dt = DateTime2(1,"microseconds since 2000-01-01T23:59:59.999999")
+dt = DateTimeStandard(1,"microseconds since 2000-01-01T23:59:59.999999")
 @test same_tuple((2000, 1, 2), datetuple(dt))
 
 
-dt = DateTime2(1,"microseconds since 2000-01-01T23:59:59.999999")
+dt = DateTimeStandard(1,"microseconds since 2000-01-01T23:59:59.999999")
 @test same_tuple((2000, 1, 2), datetuple(dt))
 
-dt = DateTime2(1,"nanoseconds since 2000-01-01T23:59:59.999999999")
+dt = DateTimeStandard(1,"nanoseconds since 2000-01-01T23:59:59.999999999")
 @test same_tuple((2000, 1, 2), datetuple(dt))
 
 
-dt = DateTime2(2001,1,1)
+dt = DateTimeStandard(2001,1,1)
 @test same_tuple((2001, 1, 1), datetuple(dt))
 
 
-dt = DateTime2(2001,1,1 , 1,2,3,   100,200,300, unit = :nanosecond)
+dt = DateTimeStandard(2001,1,1 , 1,2,3,   100,200,300, unit = :nanosecond)
 @test same_tuple((2001, 1, 1, 1,2,3, 100,200,300), datetuple(dt))
 
 
-dt = DateTime2(Float32(366*24*60*60*1000),"milliseconds since 2000-01-01")
+dt = DateTimeStandard(Float32(366*24*60*60*1000),"milliseconds since 2000-01-01")
 @time datetuple(dt);
 
 
-dt = DateTime2(Float32(24*60*60*1000),"milliseconds since 2000-01-01")
+dt = DateTimeStandard(Float32(24*60*60*1000),"milliseconds since 2000-01-01")
 
 @test Dates.hour(dt) < 24
 @test Dates.minute(dt) < 60
@@ -153,19 +153,19 @@ dt = DateTime2(Float32(24*60*60*1000),"milliseconds since 2000-01-01")
 
 
 
-# dt = DateTime2(Float64(24*60*60*1000),"milliseconds since 2000-01-01")
+# dt = DateTimeStandard(Float64(24*60*60*1000),"milliseconds since 2000-01-01")
 # @time datetuple(dt);
 
-# dt = DateTime2(24*60*60*1000,"milliseconds since 2000-01-01")
+# dt = DateTimeStandard(24*60*60*1000,"milliseconds since 2000-01-01")
 # @time datetuple(dt);
 
 
 #dt2 = dt + Millisecond(10);
 #dt2 = dt + Millisecond(10) +  Microsecond(20) + Nanosecond(30);
 
-dt1 = DateTime2(0,"microseconds since 2000-01-01")
-dt2 = DateTime2(10,"microseconds since 2000-01-01")
-dt3 = DateTime2(2,"days since 2000-01-01")
+dt1 = DateTimeStandard(0,"microseconds since 2000-01-01")
+dt2 = DateTimeStandard(10,"microseconds since 2000-01-01")
+dt3 = DateTimeStandard(2,"days since 2000-01-01")
 
 @test (dt2 - dt1) == Dates.Microsecond(10)
 

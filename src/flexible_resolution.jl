@@ -149,56 +149,25 @@ function isless(p1::Period,p2::Period)
     return Dates.value(p1 - p2) < 0
 end
 
-# methods with DateTime2 as first argument
+# methods with DateTimeStandard as first argument
 
 
-function isless(dt1::DateTime2,dt2::DateTime2)
+function isless(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
     return Dates.value(dt1 - dt2) < 0
 end
 
-Dates.value(p::DateTime2) = Dates.value(p.instant)
+Dates.value(p::AbstractCFDateTime) = Dates.value(p.instant)
 
-_origintuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple} = unwrap(Torigintuple)
+_origintuple(dt::AbstractCFDateTime{T,Torigintuple}) where {T,Torigintuple} = unwrap(Torigintuple)
 
-function DateTime2(t,units::AbstractString)
-    origintuple, factor, exponent = _timeunits(Tuple,units)
-    instant = Period(t,factor,exponent)
-    dt = DateTime2{typeof(instant),Val(origintuple)}(instant)
-end
 
 _pad3(a::Tuple{T1}) where T1 = (a[1],0,0)
 _pad3(a::Tuple{T1,T2})  where {T1,T2}  = (a[1],a[2],0)
 _pad3(a::Tuple) = a
 
 
-function DateTime2(T::DataType,
-    args...;
-    origin = (1970, 1, 1),
-    unit = first(TIME_DIVISION[max(length(args),7)-2]), # milliseconds or smaller
-    )
 
-    y,m,d,HMS... = _pad3(args)
-    oy,om,od,oHMS... = _pad3(origin)
-
-    factor, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
-
-    # time origin
-    p = Period(T,
-        (datenum(DateTimeStandard,y,m,d),HMS...),
-        factor,
-        exponent) -
-            Period(T,
-        (datenum(DateTimeStandard,oy,om,od),oHMS...),
-        factor,
-                   exponent)
-
-    return DateTime2{typeof(p),Val(origin)}(p)
-end
-
-DateTime2(y::Integer,args::Vararg{<:Number,N}; kwargs...) where N = DateTime2(Int64,y,args...; kwargs...)
-
-
-function _origin_period(dt::DateTime2)
+function _origin_period(dt::AbstractCFDateTime)
     factor = _factor(dt.instant)
     exponent = _exponent(dt.instant)
     y,m,d,HMS... = _origintuple(dt)
@@ -210,7 +179,7 @@ function _origin_period(dt::DateTime2)
         exponent)
 end
 
-function datetuple(dt::DateTime2{T,Torigintuple}) where {T,Torigintuple}
+function datetuple(dt::AbstractCFDateTime)
     factor = _factor(dt.instant)
     exponent = _exponent(dt.instant)
 
@@ -240,7 +209,7 @@ for (i,(name,factor,exponent)) in enumerate(TIME_DIVISION)
         #     Period{T,$(Val(factor)),$(Val(exponent))}(d)
         # end
 
-        @inline function $function_name(dt::T) where T <: DateTime2
+        @inline function $function_name(dt::T) where T <: AbstractCFDateTime
             datetuple(dt)[$(i+2)] # years and months are special
         end
     end
@@ -270,18 +239,18 @@ end
 
 
 
-+(dt::DateTime2{T,Torigintuple},p::T) where {T,Torigintuple} =
-    DateTime2{T,Torigintuple}(dt.instant + p)
++(dt::AbstractCFDateTime{T,Torigintuple},p::T) where {T,Torigintuple} =
+    AbstractCFDateTime{T,Torigintuple}(dt.instant + p)
 
-function +(dt::DateTime2{T,Torigintuple},p::Period) where {T,Torigintuple}
+function +(dt::AbstractCFDateTime{T,Torigintuple},p::Period) where {T,Torigintuple}
     p2 = dt.instant + p
-    DateTime2{typeof(p2),Torigintuple}(p2)
+    DateTimeStandard{typeof(p2),Torigintuple}(p2)
 end
 
-+(dt::DateTime2,p::Dates.TimePeriod) = dt + convert(Period,p)
++(dt::AbstractCFDateTime,p::Dates.TimePeriod) = dt + convert(Period,p)
 
 
 
-function -(dt1::DateTime2,dt2::DateTime2)
+function -(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
      (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
 end

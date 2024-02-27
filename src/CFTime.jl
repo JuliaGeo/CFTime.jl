@@ -169,71 +169,71 @@ function validargs(::Type{T},arg...) where T <: AbstractCFDateTime
 end
 
 
-for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
-                              (:DateTimeJulian,"julian"),
-                              (:DateTimeProlepticGregorian,"prolepticgregorian"),
-                              (:DateTimeAllLeap,"allleap"),
-                              (:DateTimeNoLeap,"noleap"),
-                              (:DateTime360Day,"360day")]
-    @eval begin
-        """
-    $($CFDateTime)(y, [m, d, h, mi, s, ms]) -> $($CFDateTime)
+# for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
+#                               (:DateTimeJulian,"julian"),
+#                               (:DateTimeProlepticGregorian,"prolepticgregorian"),
+#                               (:DateTimeAllLeap,"allleap"),
+#                               (:DateTimeNoLeap,"noleap"),
+#                               (:DateTime360Day,"360day")]
+#     @eval begin
+#         """
+#     $($CFDateTime)(y, [m, d, h, mi, s, ms]) -> $($CFDateTime)
 
-Construct a `$($CFDateTime)` type by year (`y`), month (`m`, default 1),
-day (`d`, default 1), hour (`h`, default 0), minute (`mi`, default 0),
-second (`s`, default 0), millisecond (`ms`, default 0).
-All arguments must be convertible to `Int64`.
-`$($CFDateTime)` is a subtype of `AbstractCFDateTime`.
+# Construct a `$($CFDateTime)` type by year (`y`), month (`m`, default 1),
+# day (`d`, default 1), hour (`h`, default 0), minute (`mi`, default 0),
+# second (`s`, default 0), millisecond (`ms`, default 0).
+# All arguments must be convertible to `Int64`.
+# `$($CFDateTime)` is a subtype of `AbstractCFDateTime`.
 
-The netCDF CF calendars are defined in [the CF Standard](http://cfconventions.org/cf-conventions/cf-conventions.html#calendar).
-This type implements the calendar defined as "$($calendar)".
-        """
-        function $CFDateTime(y::Int64, m::Int64=1, d::Int64=1,
-                             h::Int64=0, mi::Int64=0, s::Int64=0, ms::Int64=0)
+# The netCDF CF calendars are defined in [the CF Standard](http://cfconventions.org/cf-conventions/cf-conventions.html#calendar).
+# This type implements the calendar defined as "$($calendar)".
+#         """
+#         function $CFDateTime(y::Int64, m::Int64=1, d::Int64=1,
+#                              h::Int64=0, mi::Int64=0, s::Int64=0, ms::Int64=0)
 
-            days = datenum($CFDateTime,y,m,d)
-            totalms = datenumfrac(days,h,mi,s,ms)
-            return $CFDateTime(UTInstant(Millisecond(totalms)))
-        end
+#             days = datenum($CFDateTime,y,m,d)
+#             totalms = datenumfrac(days,h,mi,s,ms)
+#             return $CFDateTime(UTInstant(Millisecond(totalms)))
+#         end
 
-        # Fallback constructors
-        $CFDateTime(y::Number, m=1, d=1, h=0, mi=0, s=0, ms=0) = $CFDateTime(
-            Int64(y), Int64(m), Int64(d), Int64(h), Int64(mi), Int64(s),
-            Int64(ms))
+#         # Fallback constructors
+#         $CFDateTime(y::Number, m=1, d=1, h=0, mi=0, s=0, ms=0) = $CFDateTime(
+#             Int64(y), Int64(m), Int64(d), Int64(h), Int64(mi), Int64(s),
+#             Int64(ms))
 
-        if VERSION >= v"1.3-"
-            function $CFDateTime(y, m, d, h, mi, s, ms, ampm)
-                @assert ampm == Dates.TWENTYFOURHOUR
-                return $CFDateTime(y, m, d, h, mi, s, ms)
-            end
-        end
-        """
-    $($CFDateTime)(dt::AbstractString, format::AbstractString; locale="english") -> $($CFDateTime)
+#         if VERSION >= v"1.3-"
+#             function $CFDateTime(y, m, d, h, mi, s, ms, ampm)
+#                 @assert ampm == Dates.TWENTYFOURHOUR
+#                 return $CFDateTime(y, m, d, h, mi, s, ms)
+#             end
+#         end
+#         """
+#     $($CFDateTime)(dt::AbstractString, format::AbstractString; locale="english") -> $($CFDateTime)
 
-Construct a $($CFDateTime) by parsing the `dt` date time string following the
-pattern given in the `format` string.
+# Construct a $($CFDateTime) by parsing the `dt` date time string following the
+# pattern given in the `format` string.
 
-!!! note
-    This function is experimental and might
-    be removed in the future. It relies on some internal function of `Dates` for
-    parsing the `format`.
-"""
-        function $CFDateTime(dt::AbstractString, format::AbstractString; locale="english")
-            return parse($CFDateTime, dt, DateFormat(format, locale))
-        end
+# !!! note
+#     This function is experimental and might
+#     be removed in the future. It relies on some internal function of `Dates` for
+#     parsing the `format`.
+# """
+#         function $CFDateTime(dt::AbstractString, format::AbstractString; locale="english")
+#             return parse($CFDateTime, dt, DateFormat(format, locale))
+#         end
 
-        $CFDateTime(dt::AbstractString, format::DateFormat) =
-            parse($CFDateTime, dt, format)
+#         $CFDateTime(dt::AbstractString, format::DateFormat) =
+#             parse($CFDateTime, dt, format)
 
-    end
-end
+#     end
+# end
 
-function datetuple(dt::T) where T <: AbstractCFDateTime
-    time = Dates.value(dt.instant.periods)
-    days,h,mi,s,ms = timetuplefrac(time)
-    y, m, d = datetuple_ymd(T,days)
-    return y, m, d, h, mi, s, ms
-end
+# function datetuple(dt::T) where T <: AbstractCFDateTime
+#     time = Dates.value(dt.instant.periods)
+#     days,h,mi,s,ms = timetuplefrac(time)
+#     y, m, d = datetuple_ymd(T,days)
+#     return y, m, d, h, mi, s, ms
+# end
 
 
 
@@ -269,21 +269,21 @@ function +(dt::T,Δ::Dates.Month)  where T <: AbstractCFDateTime
     return T(y, mo2, d,h, mi, s, subsec...)
 end
 
-+(dt::T,Δ::RegTime)  where T <: AbstractCFDateTime = T(UTInstant(dt.instant.periods + Dates.Millisecond(Δ)))
+#+(dt::T,Δ::RegTime)  where T <: AbstractCFDateTime = T(UTInstant(dt.instant.periods + Dates.Millisecond(Δ)))
 
 #-(dt1::T,dt2::T)  where T <: AbstractCFDateTime = dt1.instant.periods - dt2.instant.periods
 
-isless(dt1::T,dt2::T) where T <: AbstractCFDateTime = dt1.instant.periods < dt2.instant.periods
+#isless(dt1::T,dt2::T) where T <: AbstractCFDateTime = dt1.instant.periods < dt2.instant.periods
 
 
--(dt1::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian},
-  dt2::DateTime) = DateTime(dt1) - DateTime(dt2)
+# -(dt1::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian},
+#   dt2::DateTime) = DateTime(dt1) - DateTime(dt2)
 
--(dt1::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian},
-  dt2::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian}) = DateTime(dt1) - DateTime(dt2)
+# -(dt1::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian},
+#   dt2::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian}) = DateTime(dt1) - DateTime(dt2)
 
--(dt1::DateTime,
-  dt2::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian}) = DateTime(dt1) - DateTime(dt2)
+# -(dt1::DateTime,
+#   dt2::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian}) = DateTime(dt1) - DateTime(dt2)
 
 
 
@@ -318,17 +318,17 @@ the types `DateTimeStandard`, `DateTimeProlepticGregorian` and `DateTime`.
 For dates before 1582-10-15, the year, month and days are the same for
 the types `DateTimeStandard` and `DateTimeJulian`.
 """
-function convert(::Type{T1}, dt::T2) where T1 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian} where T2 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian}
-    return T1(dt.instant)
-end
+# function convert(::Type{T1}, dt::T2) where T1 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian} where T2 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian}
+#     return T1(dt.instant)
+# end
 
-function convert(::Type{DateTime}, dt::T2) where T2 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian}
-    DateTime(UTInstant{Millisecond}(dt.instant.periods + DATETIME_OFFSET))
-end
+# function convert(::Type{DateTime}, dt::T2) where T2 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian}
+#     DateTime(UTInstant{Millisecond}(dt.instant.periods + DATETIME_OFFSET))
+# end
 
-function convert(::Type{T1}, dt::DateTime) where T1 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian}
-    T1(UTInstant{Millisecond}(dt.instant.periods - DATETIME_OFFSET))
-end
+# function convert(::Type{T1}, dt::DateTime) where T1 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian}
+#     T1(UTInstant{Millisecond}(dt.instant.periods - DATETIME_OFFSET))
+# end
 
 
 Dates.year(dt::AbstractCFDateTime) = datetuple(dt)[1]
