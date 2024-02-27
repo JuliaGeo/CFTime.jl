@@ -237,8 +237,18 @@ end
 
 
 
+function chop0(timetuple,minlen=0)
+    if length(timetuple) == minlen
+        return timetuple
+    elseif timetuple[end] == 0
+        return chop0(timetuple[1:end-1],minlen)
+    else
+        return timetuple
+    end
+end
+
 function string(dt::T)  where T <: AbstractCFDateTime
-    y,mo,d,h,mi,s,subsec... = datetuple(dt)
+    y,mo,d,h,mi,s,subsec... = chop0(datetuple(dt),6)
     io = IOBuffer()
     @printf(io,"%04d-%02d-%02dT%02d:%02d:%02d",y,mo,d,h,mi,s)
     if length(subsec) > 0
@@ -254,19 +264,6 @@ end
 
 function show(io::IO,dt::T)  where T <: AbstractCFDateTime
     write(io, string(typeof(dt)), "(",string(dt),")")
-end
-
-function +(dt::T,Δ::Dates.Year)  where T <: AbstractCFDateTime
-    y,mo,d,h,mi,s,subsec... = datetuple(dt)
-    return T(y+Dates.value(Δ), mo, d, h, mi, s, subsec...)
-end
-
-function +(dt::T,Δ::Dates.Month)  where T <: AbstractCFDateTime
-    y,mo,d,h,mi,s,subsec... = datetuple(dt)
-    mo = mo + Dates.value(Δ)
-    mo2 = mod(mo - 1, 12) + 1
-    y = y + (mo-mo2) ÷ 12
-    return T(y, mo2, d,h, mi, s, subsec...)
 end
 
 #+(dt::T,Δ::RegTime)  where T <: AbstractCFDateTime = T(UTInstant(dt.instant.periods + Dates.Millisecond(Δ)))
@@ -647,7 +644,7 @@ end
 # unused, should be removed
 timeencode(data,units,calendar = "standard") = data
 
-export timeencode, timedecode, datetuple
+export timeencode, timedecode, datetuple, timeunits
 
 
 # utility functions

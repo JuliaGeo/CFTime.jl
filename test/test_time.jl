@@ -1,6 +1,11 @@
+using Pkg
+
+Pkg.activate("CFTime-env",shared=true)
+
 using CFTime
 using Dates
 using Test
+
 
 # slow, but accurate and easy to understand (and possibly fix)
 include("reference_algorithm.jl")
@@ -204,7 +209,7 @@ end
 # https://web.archive.org/web/20180212214229/https://en.wikipedia.org/wiki/Julian_day
 
 # Modified JD
-@test CFTime.timedecode([58160.6875],"days since 1858-11-17","standard") ==
+@test CFTime.timedecode([58160.6875],"days since 1858-11-17","standard" )==
     [DateTime(2018,2,11,16,30,0)]
 
 # CNES JD

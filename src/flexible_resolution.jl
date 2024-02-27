@@ -120,8 +120,7 @@ end
 
 
 
-+(p1::Period,p2::Dates.TimePeriod) = p1 + convert(Period,p2)
-
++(p1::Period,p2::Union{Dates.TimePeriod,Dates.Day}) = p1 + convert(CFTime.Period,p2)
 
 function -(p::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
     Period{T,Tfactor,Texponent}(-p.duration)
@@ -130,14 +129,12 @@ end
 -(p1::Period,p2) = p1 + (-p2)
 
 
-import Base: convert
-
-for T in (:Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond)
+for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond)
     local factor, exponent, unit
     unit = Symbol(lowercase(string(T)))
     factor, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
 
-    @eval convert(::Type{Period},t::Dates.$T) = Period{Int64,Val($factor),Val($exponent)}(Dates.value(t))
+    @eval convert(::Type{CFTime.Period},t::Dates.$T) = Period{Int64,Val($factor),Val($exponent)}(Dates.value(t))
 end
 
 
@@ -188,12 +185,12 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
             # time origin
             p = Period(
                 T,
-                (datenum(DateTimeStandard,y,m,d),HMS...),
+                (datenum($CFDateTime,y,m,d),HMS...),
                 factor,
                 exponent) -
                     Period(
                         T,
-                        (datenum(DateTimeStandard,oy,om,od),oHMS...),
+                        (datenum($CFDateTime,oy,om,od),oHMS...),
                         factor,
                         exponent)
 
@@ -210,13 +207,49 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
 
 
         function $CFDateTime(p::Period,origintuple)
-            DateTimeStandard{typeof(p),Val(origintuple)}(p)
+            $CFDateTime{typeof(p),Val(origintuple)}(p)
         end
 
         function +(dt::$CFDateTime,p::Period)
             p2 = dt.instant + p
             $CFDateTime(p2,_origintuple(dt))
         end
+
+        function +(dt::$CFDateTime,Δ::Dates.Year)
+            factor = _factor(dt.instant)
+            exponent = _exponent(dt.instant)
+            y,mo,d,HMS... = datetuple(dt)
+            y2 = y + Dates.value(Δ)
+
+            T = eltype(dt.instant.duration)
+            p = Period(
+                T,
+                (datenum($CFDateTime,y2,mo,d),HMS...),
+                factor,
+                exponent)   -
+                    _origin_period(dt)
+            return $CFDateTime(p,_origintuple(dt))
+        end
+
+        function +(dt::$CFDateTime,Δ::Dates.Month)
+            factor = _factor(dt.instant)
+            exponent = _exponent(dt.instant)
+
+            y,mo,d,HMS... = datetuple(dt)
+            mo = mo + Dates.value(Δ)
+            mo2 = mod(mo - 1, 12) + 1
+            y = y + (mo-mo2) ÷ 12
+
+            T = eltype(dt.instant.duration)
+            p = Period(
+                T,
+                (datenum($CFDateTime,y,mo2,d),HMS...),
+                factor,
+                exponent)   -
+                _origin_period(dt)
+            return $CFDateTime(p,_origintuple(dt))
+        end
+
 
         function _origin_period(dt::$CFDateTime)
             factor = _factor(dt.instant)
@@ -247,7 +280,7 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
             days,HMS... = timetuplefrac(p2)
             y, m, d = datetuple_ymd($CFDateTime,days)
 
-            return (y, m, d, HMS...)
+            return chop0((y, m, d, HMS...),7)
         end
     end
 end
@@ -293,7 +326,7 @@ end
 #    AbstractCFDateTime{T,Torigintuple}(dt.instant + p)
 
 
-+(dt::AbstractCFDateTime,p::Dates.TimePeriod) = dt + convert(Period,p)
++(dt::AbstractCFDateTime,p::Union{Dates.TimePeriod,Dates.Day}) = dt + convert(CFTime.Period,p)
 
 
 
