@@ -173,6 +173,51 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                               (:DateTime360Day,"360day")]
 
     @eval begin
+        function $CFDateTime(T::DataType,
+                             args...;
+                             origin = (1970, 1, 1),
+                             # milliseconds or smaller
+                             unit = first(TIME_DIVISION[max(length(args),7)-2]),
+                             )
+
+            y,m,d,HMS... = _pad3(args)
+            oy,om,od,oHMS... = _pad3(origin)
+
+            factor, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
+
+            # time origin
+            p = Period(
+                T,
+                (datenum(DateTimeStandard,y,m,d),HMS...),
+                factor,
+                exponent) -
+                    Period(
+                        T,
+                        (datenum(DateTimeStandard,oy,om,od),oHMS...),
+                        factor,
+                        exponent)
+
+            return $CFDateTime{typeof(p),Val(origin)}(p)
+        end
+
+        function $CFDateTime(t,units::AbstractString)
+            origintuple, factor, exponent = _timeunits(Tuple,units)
+            instant = Period(t,factor,exponent)
+            dt = $CFDateTime{typeof(instant),Val(origintuple)}(instant)
+        end
+
+        $CFDateTime(y::Integer,args::Vararg{<:Number,N}; kwargs...) where N = $CFDateTime(Int64,y,args...; kwargs...)
+
+
+        function $CFDateTime(p::Period,origintuple)
+            DateTimeStandard{typeof(p),Val(origintuple)}(p)
+        end
+
+        function +(dt::$CFDateTime,p::Period)
+            p2 = dt.instant + p
+            $CFDateTime(p2,_origintuple(dt))
+        end
+
         function _origin_period(dt::$CFDateTime)
             factor = _factor(dt.instant)
             exponent = _exponent(dt.instant)
@@ -232,7 +277,7 @@ end
 function +(p1::Period{T1},p2::Period{T2}) where {T1, T2}
     T = promote_type(T1,T2)
 
-    # which is the smallest unit
+    # which is the smallest unit?
     if _factor(p1) / 10^(-_exponent(p1)) < _factor(p2) / 10^(-_exponent(p2))
 
         duration = T(p1.duration) +
@@ -244,12 +289,8 @@ function +(p1::Period{T1},p2::Period{T2}) where {T1, T2}
     end
 end
 
-
-
-
-
-+(dt::AbstractCFDateTime{T,Torigintuple},p::T) where {T,Torigintuple} =
-    AbstractCFDateTime{T,Torigintuple}(dt.instant + p)
+#+(dt::AbstractCFDateTime{T,Torigintuple},p::T) where {T,Torigintuple} =
+#    AbstractCFDateTime{T,Torigintuple}(dt.instant + p)
 
 
 +(dt::AbstractCFDateTime,p::Dates.TimePeriod) = dt + convert(Period,p)
