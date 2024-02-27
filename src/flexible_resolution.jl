@@ -55,9 +55,7 @@ Dates.value(p::Period) = p.duration
    if d1 == 0
        __tf((result...,0),0,dn...)
    else
-#       p = fld(time, d1)
-#       time2 = time - p*d1
-       p, time2 = divrem(time, d1)
+       p, time2 = divrem(time, d1, RoundDown)
        __tf((result...,p),time2,dn...)
     end
 end
@@ -297,6 +295,7 @@ for CFDateTime in [:DateTimeStandard,
                    ]
     @eval begin
         function convert(::Type{DateTime}, dt::$CFDateTime)
+            # TODO maintain origin and resolution in $CFDateTime(1858,11,17)
             Δ = (dt - $CFDateTime(1858,11,17)) + CFTime.DATETIME_OFFSET
             ms = Dates.Millisecond(Δ)
             ms += Dates.Millisecond(24*60*60*1000*datenum($CFDateTime,1858,11,17))

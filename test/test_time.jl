@@ -284,7 +284,7 @@ Out[13]: cftime.DatetimeJulian(1582, 10, 5, 0, 0, 0, 0, -1, 1)
 
 
 dt = CFTime.reinterpret(DateTimeStandard, DateTimeJulian(1900,2,28))
-@test typeof(dt) == DateTimeStandard
+@test typeof(dt) <: DateTimeStandard
 @test CFTime.datetuple(dt) == (1900,2,28,0, 0, 0, 0)
 
 dt = CFTime.reinterpret(DateTime, DateTimeNoLeap(1900,2,28))
