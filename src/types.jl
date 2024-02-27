@@ -66,5 +66,10 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
         end
 
         $CFDateTime(y::Integer,args::Vararg{<:Number,N}; kwargs...) where N = $CFDateTime(Int64,y,args...; kwargs...)
+
+
+        function $CFDateTime(p::Period,origintuple)
+            DateTimeStandard{typeof(p),Val(origintuple)}(p)
+        end
     end
 end

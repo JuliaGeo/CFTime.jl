@@ -189,3 +189,12 @@ dr = dt1:Dates.Microsecond(2):dt2;
 @test length(dr) == 6
 
 #(dt2 - dt1) % Microsecond(2)
+
+
+
+Delta = convert(Period,Dates.Nanosecond(10_000))
+
+dt1 = DateTimeStandard(0,"microseconds since 2000-01-01")
+@which dt1 + Delta
+# 1.92 ns
+dts = @btime $dt1 + $Delta

@@ -242,9 +242,17 @@ end
 +(dt::AbstractCFDateTime{T,Torigintuple},p::T) where {T,Torigintuple} =
     AbstractCFDateTime{T,Torigintuple}(dt.instant + p)
 
-function +(dt::AbstractCFDateTime{T,Torigintuple},p::Period) where {T,Torigintuple}
+# function +(dt::AbstractCFDateTime{T,Torigintuple},p::Period) where {T,Torigintuple}
+#     p2 = dt.instant + p
+#     DateTimeStandard{typeof(p2),Torigintuple}(p2)
+# end
+
+
+function +(dt::T,p::Period) where T <: AbstractCFDateTime
     p2 = dt.instant + p
-    DateTimeStandard{typeof(p2),Torigintuple}(p2)
+    origintuple = _origintuple(dt)
+#    DateTimeStandard{typeof(p2),Torigintuple}(p2)
+    DateTimeStandard(p2,origintuple)
 end
 
 +(dt::AbstractCFDateTime,p::Dates.TimePeriod) = dt + convert(Period,p)
