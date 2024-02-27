@@ -3,7 +3,7 @@ using Pkg
 Pkg.activate("CFTime-env",shared=true)
 
 using CFTime
-import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple, datenum, AbstractCFDateTime, parseDT
+import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple, datenum, AbstractCFDateTime, parseDT, datenum_
 import Dates
 import Dates: value, year,  month,  day, hour, minute, second, millisecond, microsecond, nanosecond
 using Test
@@ -78,11 +78,10 @@ dt = DateTime2(10^9,"nanoseconds since 2000-01-01");
 
 dt = DateTime2(10^9,"nanoseconds since 2000-01-01T23:59:59")
 @test same_tuple((2000, 1, 2), datetuple(dt))
-@test Day(dt) == 2
-@test Second(dt) == 0
-@test Millisecond(dt) == 0
-@test Microsecond(dt) == 0
-
+@test Dates.day(dt) == 2
+@test Dates.second(dt) == 0
+@test Dates.millisecond(dt) == 0
+@test Dates.microsecond(dt) == 0
 
 dt = DateTime2(1,"microseconds since 2000-01-01")
 @test same_tuple((2000, 1, 1, 0, 0, 0, 0, 1),datetuple(dt))
