@@ -149,7 +149,7 @@ function isless(p1::Period,p2::Period)
     return Dates.value(p1 - p2) < 0
 end
 
-# methods with DateTimeStandard as first argument
+# methods with AbstractCFDateTime as first argument
 
 
 function isless(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
@@ -165,39 +165,48 @@ _pad3(a::Tuple{T1}) where T1 = (a[1],0,0)
 _pad3(a::Tuple{T1,T2})  where {T1,T2}  = (a[1],a[2],0)
 _pad3(a::Tuple) = a
 
+for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
+                              (:DateTimeJulian,"julian"),
+                              (:DateTimeProlepticGregorian,"prolepticgregorian"),
+                              (:DateTimeAllLeap,"allleap"),
+                              (:DateTimeNoLeap,"noleap"),
+                              (:DateTime360Day,"360day")]
 
+    @eval begin
+        function _origin_period(dt::$CFDateTime)
+            factor = _factor(dt.instant)
+            exponent = _exponent(dt.instant)
+            y,m,d,HMS... = _origintuple(dt)
 
-function _origin_period(dt::AbstractCFDateTime)
-    factor = _factor(dt.instant)
-    exponent = _exponent(dt.instant)
-    y,m,d,HMS... = _origintuple(dt)
+            # time origin
+            return Period(
+                (datenum($CFDateTime,y,m,d),HMS...),
+                factor,
+                exponent)
+        end
 
-    # time origin
-    return Period(
-        (datenum(DateTimeStandard,y,m,d),HMS...),
-        factor,
-        exponent)
+        function datetuple(dt::$CFDateTime)
+            factor = _factor(dt.instant)
+            exponent = _exponent(dt.instant)
+
+            # time origin
+            p = _origin_period(dt)
+
+            # add duration to time origin
+            p2 = Period(
+                p.duration + dt.instant.duration,
+                factor,
+                exponent)
+
+            # HMS contains hours, minutes, seconds and all sub-second units
+            days,HMS... = timetuplefrac(p2)
+            y, m, d = datetuple_ymd($CFDateTime,days)
+
+            return (y, m, d, HMS...)
+        end
+    end
 end
 
-function datetuple(dt::AbstractCFDateTime)
-    factor = _factor(dt.instant)
-    exponent = _exponent(dt.instant)
-
-    # time origin
-    p = _origin_period(dt)
-
-    # add duration to time origin
-    p2 = Period(
-        p.duration + dt.instant.duration,
-        factor,
-        exponent)
-
-    # HMS contains hours, minutes, seconds and all sub-second units
-    days,HMS... = timetuplefrac(p2)
-    y, m, d = datetuple_ymd(DateTimeStandard,days)
-
-    return (y, m, d, HMS...)
-end
 
 
 
@@ -242,18 +251,6 @@ end
 +(dt::AbstractCFDateTime{T,Torigintuple},p::T) where {T,Torigintuple} =
     AbstractCFDateTime{T,Torigintuple}(dt.instant + p)
 
-# function +(dt::AbstractCFDateTime{T,Torigintuple},p::Period) where {T,Torigintuple}
-#     p2 = dt.instant + p
-#     DateTimeStandard{typeof(p2),Torigintuple}(p2)
-# end
-
-
-function +(dt::T,p::Period) where T <: AbstractCFDateTime
-    p2 = dt.instant + p
-    origintuple = _origintuple(dt)
-#    DateTimeStandard{typeof(p2),Torigintuple}(p2)
-    DateTimeStandard(p2,origintuple)
-end
 
 +(dt::AbstractCFDateTime,p::Dates.TimePeriod) = dt + convert(Period,p)
 

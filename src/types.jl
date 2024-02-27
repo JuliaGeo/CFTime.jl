@@ -71,5 +71,11 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
         function $CFDateTime(p::Period,origintuple)
             DateTimeStandard{typeof(p),Val(origintuple)}(p)
         end
+
+        function +(dt::$CFDateTime,p::Period)
+            p2 = dt.instant + p
+            $CFDateTime(p2,_origintuple(dt))
+        end
+
     end
 end
