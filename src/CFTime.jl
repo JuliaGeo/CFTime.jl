@@ -319,9 +319,9 @@ the types `DateTimeStandard` and `DateTimeJulian`.
 #     return T1(dt.instant)
 # end
 
-# function convert(::Type{DateTime}, dt::T2) where T2 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian}
-#     DateTime(UTInstant{Millisecond}(dt.instant.periods + DATETIME_OFFSET))
-# end
+function convert(::Type{DateTime}, dt::T2) where T2 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian}
+    DateTime(UTInstant{Millisecond}(dt.instant.periods + DATETIME_OFFSET))
+end
 
 # function convert(::Type{T1}, dt::DateTime) where T1 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian}
 #     T1(UTInstant{Millisecond}(dt.instant.periods - DATETIME_OFFSET))

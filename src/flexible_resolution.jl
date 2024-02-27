@@ -137,6 +137,8 @@ for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond
     @eval convert(::Type{CFTime.Period},t::Dates.$T) = Period{Int64,Val($factor),Val($exponent)}(Dates.value(t))
 end
 
+import Dates: Millisecond
+Dates.Millisecond(p::CFTime.Period{Int64, Val{1}(), Val{-3}()}) = p.duration
 
 function ==(p1::Period,p2)
     return Dates.value(p1 - p2) == 0
