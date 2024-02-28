@@ -30,9 +30,14 @@ unwrap(::Val{x}) where x = x
 
 Period(duration::Number,factor,exponent=-3) = Period{typeof(duration),Val(factor),Val(exponent)}(duration)
 
+_type(p::Period{T,factor,exponent}) where {T,factor,exponent} = T
 _factor(p::Period{T,factor,exponent}) where {T,factor,exponent} = unwrap(factor)
 _exponent(p::Period{T,factor,exponent}) where {T,factor,exponent} = unwrap(exponent)
 
+
+_type(::Type{Period{T,factor,exponent}}) where {T,factor,exponent} = T
+_factor(::Type{Period{T,factor,exponent}}) where {T,factor,exponent} = unwrap(factor)
+_exponent(::Type{Period{T,factor,exponent}}) where {T,factor,exponent} = unwrap(exponent)
 
 function Base.zero(p::Period{T,numerator,denominator}) where {T,numerator,denominator}
     Period{T,numerator,denominator}(0)
@@ -173,6 +178,33 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                               (:DateTime360Day,"360day")]
 
     @eval begin
+        function $CFDateTime{T,Torigintuple}(args::Vararg{<:Integer,N}) where {T,Torigintuple,N}
+
+            DT = $CFDateTime
+            y,m,d,HMS... = _pad3(args)
+            oy,om,od,oHMS... = _pad3(unwrap(Torigintuple))
+
+            factor = _factor(T)
+            exponent = _exponent(T)
+            Ti = _type(T)
+
+            p = Period(
+                Ti,
+                (datenum(DT,y,m,d),HMS...),
+                factor,
+                exponent)
+
+            # time origin
+            p0 = Period(
+                Ti,
+                (datenum(DT,oy,om,od),oHMS...),
+                factor,
+                exponent)
+
+            Δ = p - p0
+            return DT{T,Torigintuple}(Δ)
+        end
+
         function $CFDateTime(T::DataType,
                              args...;
 #                             origin = (1858,11,17),
@@ -199,7 +231,8 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                 factor,
                 exponent)
 
-            return $CFDateTime{typeof(p),Val(origin)}(p - p0)
+            Δ = p - p0
+            return $CFDateTime{typeof(Δ),Val(origin)}(Δ)
         end
 
         function $CFDateTime(t,units::AbstractString)
@@ -208,7 +241,7 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
             dt = $CFDateTime{typeof(instant),Val(origintuple)}(instant)
         end
 
-        $CFDateTime(y::Integer,args::Vararg{<:Number,N}; kwargs...) where N = $CFDateTime(Int64,y,args...; kwargs...)
+        $CFDateTime(y::Integer,args::Vararg{<:Integer,N}; kwargs...) where N = $CFDateTime(Int64,y,args...; kwargs...)
 
 
         function $CFDateTime(p::Period,origintuple)

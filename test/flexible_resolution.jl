@@ -13,7 +13,6 @@ using Dates
 
 using CFTime: Period, DateTimeStandard
 
-
 # TEST
 
 
@@ -238,6 +237,7 @@ using CFTime: DATETIME_OFFSET, _origin_period, _origintuple, _hasyear0
 
 for T1 in [DateTimeProlepticGregorian,DateTimeJulian,DateTimeStandard,DateTime]
     for T2 in [DateTimeProlepticGregorian,DateTimeJulian,DateTimeStandard,DateTime]
+        local dt1, dt2
         # verify that durations (even accross 1582-10-15) are maintained
         # after convert
         dt1 = [T1(2000,01,03), T1(-100,2,20)]
@@ -256,6 +256,18 @@ daysinmonth(DateTimeStandard,1582,10)
 daysinmonth(dt)
 
 DT = DateTimeStandard
-t = DT(y,m,1)
+import CFTime: DateTimeStandard, _pad3, unwrap, _factor, _exponent, _type
+
+
+
+#function DateTimeStandard{Period{Int64, Val{1}(), Val{-3}()}, Val{(1970, 1, 1)}()}(y::Int64, m::Int64, d::Int64)
+
 
 @test daysinmonth(DateTimeStandard(1582,10,1)) == 21
+
+dt = DateTimeStandard(1582,10,1)
+
+T = typeof(dt.instant)
+Torigintuple = Val{(1970, 1, 1)}()
+
+args = (1582,10,1)
