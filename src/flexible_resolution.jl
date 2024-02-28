@@ -205,34 +205,17 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
             return DT{T,Torigintuple}(Δ)
         end
 
-        function $CFDateTime(T::DataType,
+        function $CFDateTime(Ti::DataType,
                              args...;
 #                             origin = (1858,11,17),
                              origin = (1970, 1, 1),
                              # milliseconds or smaller
                              unit = first(TIME_DIVISION[max(length(args),7)-2]),
                              )
-
-            y,m,d,HMS... = _pad3(args)
-            oy,om,od,oHMS... = _pad3(origin)
-
+            DT = $CFDateTime
             factor, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
-
-            p = Period(
-                T,
-                (datenum($CFDateTime,y,m,d),HMS...),
-                factor,
-                exponent)
-
-            # time origin
-            p0 = Period(
-                T,
-                (datenum($CFDateTime,oy,om,od),oHMS...),
-                factor,
-                exponent)
-
-            Δ = p - p0
-            return $CFDateTime{typeof(Δ),Val(origin)}(Δ)
+            T = Period{Ti,Val(factor), Val(exponent)}
+            return DT{T,Val(origin)}(args...)
         end
 
         function $CFDateTime(t,units::AbstractString)
