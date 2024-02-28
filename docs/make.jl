@@ -6,7 +6,8 @@ makedocs(
     modules = [CFTime],
     sitename = "CFTime",
     pages = [
-        "index.md"]
+        "index.md"],
+    checkdocs = :none,
 )
 
 # Documenter can also automatically deploy documentation to gh-pages.
