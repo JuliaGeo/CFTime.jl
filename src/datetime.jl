@@ -63,10 +63,10 @@ This type implements the calendar defined as "$($calendar)".
 #                             origin = (1858,11,17),
                              origin = (1900, 1, 1),
                              # milliseconds or smaller
-                             unit = first(TIME_DIVISION[max(length(args),7)-2]),
+                             units = first(TIME_DIVISION[max(length(args),7)-2]),
                              )
             DT = $CFDateTime
-            factor, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
+            factor, exponent = filter(td -> td[1] == units,TIME_DIVISION)[1][2:end]
             T = Period{Ti,Val(factor), Val(exponent)}
             return DT{T,Val(origin)}(args...)
         end

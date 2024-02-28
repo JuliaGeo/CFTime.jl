@@ -134,7 +134,7 @@ dt = DateTimeStandard(2001,1,1)
 @test same_tuple((2001, 1, 1), datetuple(dt))
 
 
-dt = DateTimeStandard(2001,1,1 , 1,2,3,   100,200,300, unit = :nanosecond)
+dt = DateTimeStandard(2001,1,1 , 1,2,3,   100,200,300, units = :nanosecond)
 @test same_tuple((2001, 1, 1, 1,2,3, 100,200,300), datetuple(dt))
 
 
