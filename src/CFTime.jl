@@ -794,7 +794,10 @@ function __init__()
                        DateTimeAllLeap,
                        DateTimeNoLeap,
                        DateTime360Day]
-        Dates.CONVERSION_TRANSLATIONS[CFDateTime] = Dates.CONVERSION_TRANSLATIONS[DateTime]
+        Dates.CONVERSION_TRANSLATIONS[CFDateTime] = (
+            Dates.Year, Dates.Month, Dates.Day,
+            Dates.Hour, Dates.Minute, Dates.Second,
+            Dates.Millisecond)
     end
 end
 

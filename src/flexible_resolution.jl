@@ -231,6 +231,24 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
             $CFDateTime{typeof(p),Val(origintuple)}(p)
         end
 
+        """
+    $($CFDateTime)(dt::AbstractString, format::AbstractString; locale="english") -> $($CFDateTime)
+
+Construct a $($CFDateTime) by parsing the `dt` date time string following the
+pattern given in the `format` string.
+
+!!! note
+    This function is experimental and might
+    be removed in the future. It relies on some internal function of `Dates` for
+    parsing the `format`.
+"""
+        function $CFDateTime(dt::AbstractString, format::AbstractString; locale="english")
+            return parse($CFDateTime, dt, DateFormat(format, locale))
+        end
+
+        $CFDateTime(dt::AbstractString, format::DateFormat) =
+            parse($CFDateTime, dt, format)
+
         function +(dt::$CFDateTime,p::Period)
             p2 = dt.instant + p
             $CFDateTime(p2,_origintuple(dt))
@@ -395,6 +413,14 @@ end
 
 function -(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
      (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
+end
+
+function -(dt1::AbstractCFDateTime,dt2::DateTime)
+    dt1 - convert(DateTimeProlepticGregorian,dt2)
+end
+
+function -(dt1::DateTime,dt2::AbstractCFDateTime)
+    convert(DateTimeProlepticGregorian,dt1) - dt2
 end
 
 

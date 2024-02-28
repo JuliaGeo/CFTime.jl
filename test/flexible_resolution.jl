@@ -271,3 +271,7 @@ T = typeof(dt.instant)
 Torigintuple = Val{(1970, 1, 1)}()
 
 args = (1582,10,1)
+
+parse(DateTimeNoLeap,"1999-12-05", dateformat"yyyy-mm-dd")
+
+@test parse(DateTimeNoLeap,"1999-12-05", dateformat"yyyy-mm-dd") == DateTimeNoLeap(1999,12,05)
