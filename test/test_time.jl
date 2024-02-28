@@ -304,6 +304,7 @@ datetuple(dt::DateTime) = (Dates.year(dt),Dates.month(dt),Dates.day(dt),
 
 for T1 in [DateTimeProlepticGregorian,DateTimeStandard,DateTime]
     for T2 in [DateTimeProlepticGregorian,DateTimeStandard,DateTime]
+        local dt1, dt2
         # datetuple should not change after 1582-10-15
         # for Gregorian Calendars
         dt1 = T1(2000,01,03)
@@ -316,6 +317,7 @@ end
 
 for T1 in [DateTimeStandard,DateTimeJulian]
     for T2 in [DateTimeStandard,DateTimeJulian]
+        local dt1, dt2
         # datetuple should not change before 1582-10-15
         # for Julian Calendars
         dt1 = T1(200,01,03)
@@ -327,6 +329,7 @@ end
 
 for T1 in [DateTimeProlepticGregorian,DateTimeJulian,DateTimeStandard,DateTime]
     for T2 in [DateTimeProlepticGregorian,DateTimeJulian,DateTimeStandard,DateTime]
+        local dt1, dt2
         # verify that durations (even accross 1582-10-15) are maintained
         # after convert
         dt1 = [T1(2000,01,03), T1(-100,2,20)]
