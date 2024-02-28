@@ -6,7 +6,7 @@ const RegTime = Union{Dates.Millisecond,Dates.Second,Dates.Minute,Dates.Hour,Dat
 
 
 """
-Period wraps a number of type T.
+Period wraps a number duration of type T where
 
 duration * factor * 10^exponent
 
@@ -24,10 +24,6 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                               (:DateTimeNoLeap,"noleap"),
                               (:DateTime360Day,"360day")]
     @eval begin
-        # struct $CFDateTime <: AbstractCFDateTime
-        #     instant::UTInstant{Millisecond}
-        #     $CFDateTime(instant::UTInstant{Millisecond}) = new(instant)
-        # end
         struct $CFDateTime{T,Torigintuple} <: AbstractCFDateTime{T,Torigintuple}
             instant::T
         end

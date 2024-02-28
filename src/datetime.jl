@@ -1,30 +1,12 @@
-
-
-#
-# The base unit is currently millisecond for compatability with the Julia
-# Dates.DateTime type.
-#
+# contructor of AbstractCFDateTime and methods with AbstractCFDateTime as
+# first or main argument
 
 
 unwrap(::Val{x}) where x = x
 
-
-
-# methods with AbstractCFDateTime as first argument
-
-
-function isless(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
-    return Dates.value(dt1 - dt2) < 0
-end
-
 Dates.value(p::AbstractCFDateTime) = Dates.value(p.instant)
 
 _origintuple(dt::AbstractCFDateTime{T,Torigintuple}) where {T,Torigintuple} = unwrap(Torigintuple)
-
-
-_pad3(a::Tuple{T1}) where T1 = (a[1],0,0)
-_pad3(a::Tuple{T1,T2})  where {T1,T2}  = (a[1],a[2],0)
-_pad3(a::Tuple) = a
 
 for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                               (:DateTimeJulian,"julian"),
@@ -194,64 +176,6 @@ pattern given in the `format` string.
 end
 
 
-for CFDateTime in [:DateTimeStandard,
-                   :DateTimeJulian,
-                   :DateTimeProlepticGregorian,
-                   ]
-    @eval begin
-        function convert(::Type{DateTime}, dt::$CFDateTime)
-            origin = _origin_period(dt)
-            ms = Dates.Millisecond(dt.instant + origin + DATETIME_OFFSET)
-            return DateTime(UTInstant{Millisecond}(ms))
-        end
-
-        function convert(::Type{$CFDateTime}, dt::DateTime)
-            T = $CFDateTime
-
-            origin = DateTime(UTInstant{Millisecond}(Millisecond(0)))
-            y, mdHMS... = (Dates.year(origin),Dates.month(origin),Dates.day(origin))
-            if !_hasyear0(T) && y <= 0
-                origintuple = (y-1, mdHMS...)
-            end
-
-            p = convert(Period,dt.instant.periods)
-            dt_greg = DateTimeProlepticGregorian{typeof(p),Val(origintuple)}(p)
-            return convert(T,dt_greg)
-        end
-
-
-        # need to convert the time origin because not all origins are valid in
-        # all calendars
-        function convert(::Type{$CFDateTime}, dt::Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian})
-
-            T = $CFDateTime
-            days,HMS... = timetuplefrac(_origin_period(dt).duration)
-            y, m, d = datetuple_ymd(T,days)
-
-            origintuple = (y,m,d,HMS...)
-            return T{typeof(dt.instant),Val(origintuple)}(dt.instant)
-        end
-
-
-    end
-end
-
-
-for (i,(name,factor,exponent)) in enumerate(TIME_DIVISION)
-    function_name = Symbol(uppercasefirst(String(name)))
-
-    @eval begin
-        # function $function_name(d::T) where T <: Number
-        #     Period{T,$(Val(factor)),$(Val(exponent))}(d)
-        # end
-
-        @inline function $function_name(dt::T) where T <: AbstractCFDateTime
-            datetuple(dt)[$(i+2)] # years and months are special
-        end
-    end
-end
-
-
 function +(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
     Period{T,Tfactor,Texponent}(p1.duration + p2.duration)
 end
@@ -271,13 +195,8 @@ function +(p1::Period{T1},p2::Period{T2}) where {T1, T2}
     end
 end
 
-#+(dt::AbstractCFDateTime{T,Torigintuple},p::T) where {T,Torigintuple} =
-#    AbstractCFDateTime{T,Torigintuple}(dt.instant + p)
-
 
 +(dt::AbstractCFDateTime,p::Union{Dates.TimePeriod,Dates.Day}) = dt + convert(CFTime.Period,p)
-
-
 
 function -(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
      (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
@@ -291,7 +210,47 @@ function -(dt1::DateTime,dt2::AbstractCFDateTime)
     convert(DateTimeProlepticGregorian,dt1) - dt2
 end
 
+-(dt::AbstractCFDateTime,Δ::Period) = dt + (-Δ)
+-(dt::AbstractCFDateTime,Δ) = dt + (-Δ)
 
 function ==(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
     return Dates.value(dt1 - dt2) == 0
+end
+
+function isless(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
+    return Dates.value(dt1 - dt2) < 0
+end
+
+
+_pad3(a::Tuple{T1}) where T1 = (a[1],0,0)
+_pad3(a::Tuple{T1,T2})  where {T1,T2}  = (a[1],a[2],0)
+_pad3(a::Tuple) = a
+
+function chop0(timetuple,minlen=0)
+    if length(timetuple) == minlen
+        return timetuple
+    elseif timetuple[end] == 0
+        return chop0(timetuple[1:end-1],minlen)
+    else
+        return timetuple
+    end
+end
+
+function string(dt::T)  where T <: AbstractCFDateTime
+    y,mo,d,h,mi,s,subsec... = chop0(datetuple(dt),6)
+    io = IOBuffer()
+    @printf(io,"%04d-%02d-%02dT%02d:%02d:%02d",y,mo,d,h,mi,s)
+    if length(subsec) > 0
+        @printf(io,".")
+    end
+
+    for subsec_ in subsec
+        @printf(io,"%03d",subsec_)
+    end
+
+    return String(take!(io))
+end
+
+function show(io::IO,dt::T)  where T <: AbstractCFDateTime
+    write(io, string(typeof(dt)), "(",string(dt),")")
 end
