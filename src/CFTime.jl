@@ -18,10 +18,37 @@ module CFTime
 using Printf
 using Dates
 import Dates: UTInstant, Millisecond
-import Dates: year,  month,  day, hour, minute, second, millisecond
-import Dates: daysinmonth, daysinyear, yearmonthday, yearmonth
-import Dates: monthday, len, dayofyear, firstdayofyear
-import Dates: Millisecond
+import Dates:
+    year,
+    month,
+    day,
+    hour,
+    minute,
+    second,
+    millisecond,
+    microsecond,
+    nanosecond
+
+import Dates:
+    Year,
+    Month,
+    Day,
+    Hour,
+    Minute,
+    Second,
+    Millisecond,
+    Microsecond,
+    Nanosecond
+
+import Dates:
+    dayofyear,
+    daysinmonth,
+    daysinyear,
+    firstdayofyear,
+    len,
+    monthday,
+    yearmonth,
+    yearmonthday
 
 import Base: +, -, isless, string, show, convert, reinterpret, ==
 

@@ -59,6 +59,15 @@ CFTime.hour(dt::AbstractCFDateTime)
 CFTime.minute(dt::AbstractCFDateTime)
 CFTime.second(dt::AbstractCFDateTime)
 CFTime.millisecond(dt::AbstractCFDateTime)
+CFTime.microsecond(dt::AbstractCFDateTime)
+CFTime.nanosecond(dt::AbstractCFDateTime)
+CFTime.picosecond(dt::AbstractCFDateTime)
+CFTime.femtosecond(dt::AbstractCFDateTime)
+CFTime.attosecond(dt::AbstractCFDateTime)
+CFTime.zeptosecond(dt::AbstractCFDateTime)
+CFTime.yoctosecond(dt::AbstractCFDateTime)
+CFTime.rontosecond(dt::AbstractCFDateTime)
+CFTime.quectosecond(dt::AbstractCFDateTime)
 ```
 
 ## Query Functions

@@ -275,3 +275,65 @@ args = (1582,10,1)
 parse(DateTimeNoLeap,"1999-12-05", dateformat"yyyy-mm-dd")
 
 @test parse(DateTimeNoLeap,"1999-12-05", dateformat"yyyy-mm-dd") == DateTimeNoLeap(1999,12,05)
+
+dt = DateTimeStandard(1,"nanoseconds since 2000-01-01T23:59:59.999999999")
+@test same_tuple((2000, 1, 2), datetuple(dt))
+
+tt = (
+    2000,# year
+    1,   # month
+    2,   # day
+    3,   # hour
+    4,   # minute
+    5,   # second
+    6,   # millisecond
+    7,   # microsecond
+    8,   # nanosecond
+    9,   # picosecond
+    10,   # femtosecond
+    11,   # attosecond
+    12,   # zeptosecond
+    13,   # yoctosecond
+    14,   # rontosecond
+    15,   # quectosecond
+)
+
+dt = DateTimeStandard(Int128,tt[1:15]...)
+
+
+dt = DateTimeStandard(Int128,tt[1:15]...)
+@test CFTime.rontosecond(dt) == 14
+#@test CFTime.quectosecond(dt) == 14
+
+
+dt = DateTimeStandard(BigInt,tt...)
+@test CFTime.rontosecond(dt) == 14
+@test CFTime.quectosecond(dt) == 15
+
+CFTime.nanosecond(dt) == 8
+
+dt = DateTimeStandard(Int64,tt[1:9]...)
+
+@show datetuple(dt)
+
+
+tt = (
+    1900,# year
+    1,  # month
+    2,   # day
+    0,   # hour
+    0,   # minute
+    0,   # second
+    0,   # millisecond
+    0,   # microsecond
+    0,   # nanosecond
+    0,   # picosecond
+    0,   # femtosecond
+    0,   # attosecond
+    0,   # zeptosecond
+    0,   # yoctosecond
+    0,   # rontosecond
+    0,   # quectosecond
+)
+
+dt = DateTimeStandard(Int128,tt[1:10]...)

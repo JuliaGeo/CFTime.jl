@@ -44,6 +44,8 @@ const TIME_DIVISION = (
     (:attosecond,         1,    -18),
     (:zeptosecond,        1,    -21),
     (:yoctosecond,        1,    -24),
-    (:ronto,              1,    -27),
-    (:quecto,             1,    -30),
+    (:rontosecond,        1,    -27),
+    (:quectosecond,       1,    -30),
 )
+
+TIME_NAMES = (:year, :month, first.(TIME_DIVISION)...)

@@ -19,12 +19,12 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
         function $CFDateTime{T,Torigintuple}(args::Vararg{<:Integer,N}) where {T,Torigintuple,N}
 
             DT = $CFDateTime
-            y,m,d,HMS... = _pad3(args)
-            oy,om,od,oHMS... = _pad3(unwrap(Torigintuple))
-
             factor = _factor(T)
             exponent = _exponent(T)
             Ti = _type(T)
+
+            y,m,d,HMS... = Ti.(_pad3(args))
+            oy,om,od,oHMS... = Ti.(_pad3(unwrap(Torigintuple)))
 
             p = Period(
                 Ti,
@@ -32,14 +32,17 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                 factor,
                 exponent)
 
+            @debug p
             # time origin
             p0 = Period(
                 Ti,
                 (datenum(DT,oy,om,od),oHMS...),
                 factor,
                 exponent)
+            @debug p0
 
             Δ = p - p0
+            @debug Δ
             return DT{T,Torigintuple}(Δ)
         end
 
@@ -140,13 +143,15 @@ pattern given in the `format` string.
         end
 
 
-        function _origin_period(dt::$CFDateTime)
+        function _origin_period(dt::$CFDateTime{T,Torigintuple}) where {T,Torigintuple}
             factor = _factor(dt.instant)
             exponent = _exponent(dt.instant)
-            y,m,d,HMS... = _origintuple(dt)
+            Ti = _type(T)
+            y,m,d,HMS... = Ti.(_origintuple(dt))
 
             # time origin
             return Period(
+                Ti,
                 (datenum($CFDateTime,y,m,d),HMS...),
                 factor,
                 exponent)
@@ -159,9 +164,13 @@ pattern given in the `format` string.
             # time origin
             p = _origin_period(dt)
 
+            total_duration = p.duration + dt.instant.duration
+            @debug "origin period" p dt.instant.duration total_duration
+            @debug "origin period" p typeof(dt.instant.duration) typeof(total_duration)
+
             # add duration to time origin
             p2 = Period(
-                p.duration + dt.instant.duration,
+                total_duration,
                 factor,
                 exponent)
 
