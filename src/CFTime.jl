@@ -359,6 +359,7 @@ for func in (:year, :month, :day, :hour, :minute, :second, :millisecond)
 end
 
 
+-(dt::AbstractCFDateTime,Δ::Period) = dt + (-Δ)
 -(dt::AbstractCFDateTime,Δ) = dt + (-Δ)
 
 function parseDT(::Type{Tuple},str)

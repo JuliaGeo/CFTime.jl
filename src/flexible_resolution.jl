@@ -119,12 +119,15 @@ end
 
 
 +(p1::Period,p2::Union{Dates.TimePeriod,Dates.Day}) = p1 + convert(CFTime.Period,p2)
++(p1::Union{Dates.TimePeriod,Dates.Day},p2::Period) = p2 + p1
 
 function -(p::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
     Period{T,Tfactor,Texponent}(-p.duration)
 end
 
+-(p1::Period,p2::Period) = p1 + (-p2)
 -(p1::Period,p2) = p1 + (-p2)
+-(p1,p2::Period) = p1 + (-p2)
 
 
 for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond)
@@ -138,9 +141,9 @@ end
 import Dates: Millisecond
 Dates.Millisecond(p::CFTime.Period{Int64, Val{1}(), Val{-3}()}) = Dates.Millisecond(p.duration)
 
-function ==(p1::Period,p2)
-    return Dates.value(p1 - p2) == 0
-end
+==(p1::Period,p2::Period) = Dates.value(p1 - p2) == 0
+==(p1::Period,p2) = Dates.value(p1 - p2) == 0
+==(p1,p2::Period) = Dates.value(p1 - p2) == 0
 
 function isless(p1::Period,p2::Period)
     return Dates.value(p1 - p2) < 0

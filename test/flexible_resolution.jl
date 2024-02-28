@@ -232,3 +232,30 @@ using CFTime: _origintuple
     (-4713, 1, 1, 12, 0, 0, 0)
 
 using CFTime: DATETIME_OFFSET, _origin_period, _origintuple, _hasyear0
+
+
+
+
+for T1 in [DateTimeProlepticGregorian,DateTimeJulian,DateTimeStandard,DateTime]
+    for T2 in [DateTimeProlepticGregorian,DateTimeJulian,DateTimeStandard,DateTime]
+        # verify that durations (even accross 1582-10-15) are maintained
+        # after convert
+        dt1 = [T1(2000,01,03), T1(-100,2,20)]
+        dt2 = convert.(T2,dt1)
+        @test dt1[2]-dt1[1] == dt2[2]-dt2[1]
+    end
+end
+
+
+
+daysinmonth(DateTimeAllLeap,2001,2)
+
+dt = DateTimeStandard(1582,10,1)
+daysinmonth(DateTimeStandard,1582,10)
+
+daysinmonth(dt)
+
+DT = DateTimeStandard
+t = DT(y,m,1)
+
+@test daysinmonth(DateTimeStandard(1582,10,1)) == 21
