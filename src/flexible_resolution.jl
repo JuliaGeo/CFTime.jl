@@ -220,7 +220,7 @@ This type implements the calendar defined as "$($calendar)".
         function $CFDateTime(Ti::DataType,
                              args...;
 #                             origin = (1858,11,17),
-                             origin = (1970, 1, 1),
+                             origin = (1900, 1, 1),
                              # milliseconds or smaller
                              unit = first(TIME_DIVISION[max(length(args),7)-2]),
                              )
