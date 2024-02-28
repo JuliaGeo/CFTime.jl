@@ -214,38 +214,21 @@ using CFTime: _origintuple
 @test convert(DateTime,DateTimeJulian(2024,2,13)) == DateTime(2024,2,26)
 
 
+@test DateTimeJulian(500,2,28) == convert(DateTimeJulian,DateTimeProlepticGregorian(500,3,1))
+
+#@test DateTimeJulian(500,2,28) == convert(DateTimeJulian,DateTime(500,3,1))
+@test DateTimeJulian(1900,3,1) == convert(DateTimeJulian,DateTimeProlepticGregorian(1900,3,14))
+@test DateTimeJulian(2024,2,13) == convert(DateTimeJulian,DateTimeProlepticGregorian(2024,2,26))
+
+
+@test DateTimeJulian(2024,2,13) == convert(DateTimeJulian,DateTime(2024,2,26))
+
+
+@test DateTimeJulian(2024,2,13) == DateTimeProlepticGregorian(2024,2,26)
+
+
 
 @test CFTime.datetuple(CFTime.timedecode(0,"days since -4713-01-01T12:00:00","julian", prefer_datetime = false)) ==
     (-4713, 1, 1, 12, 0, 0, 0)
 
-
-
-
-
-#for T1 in [DateTimeProlepticGregorian,DateTimeStandard,DateTime]
-#    for T2 in [DateTimeProlepticGregorian,DateTimeStandard,DateTime]
-
-
-import Base: convert
-function convert(::Type{DateTimeStandard}, dt::DateTimeProlepticGregorian)
-    T2 = DateTimeStandard
-
-    # TODO maintain origin and resolution
-    T2(_origintuple(dt)...) + dt.instant
-end
-
-
-T1 = DateTimeProlepticGregorian
-T2 = DateTimeStandard
-
-# datetuple should not change after 1582-10-15
-# for Gregorian Calendars
-dt1 = T1(2000,01,03)
-
-
-# TODO maintain origin and resolution
-
-T2(_origintuple(dt1)...) + dt1.instant
-
-dt2 = convert(T2,dt1)
-@test CFTime.datetuple(dt1) == CFTime.datetuple(dt2)
+using CFTime: DATETIME_OFFSET, _origin_period, _origintuple, _hasyear0

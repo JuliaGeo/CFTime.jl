@@ -295,12 +295,39 @@ for CFDateTime in [:DateTimeStandard,
                    ]
     @eval begin
         function convert(::Type{DateTime}, dt::$CFDateTime)
-            # TODO maintain origin and resolution in $CFDateTime(1858,11,17)
-            Δ = (dt - $CFDateTime(1858,11,17)) + CFTime.DATETIME_OFFSET
-            ms = Dates.Millisecond(Δ)
-            ms += Dates.Millisecond(24*60*60*1000*datenum($CFDateTime,1858,11,17))
-            DateTime(UTInstant{Millisecond}(ms))
+            origin = _origin_period(dt)
+            ms = Dates.Millisecond(dt.instant + origin + DATETIME_OFFSET)
+            return DateTime(UTInstant{Millisecond}(ms))
         end
+
+        function convert(::Type{$CFDateTime}, dt::DateTime)
+            T = $CFDateTime
+
+            origin = DateTime(UTInstant{Millisecond}(Millisecond(0)))
+            y, mdHMS... = (Dates.year(origin),Dates.month(origin),Dates.day(origin))
+            if !_hasyear0(T) && y <= 0
+                origintuple = (y-1, mdHMS...)
+            end
+
+            p = convert(Period,dt.instant.periods)
+            dt_greg = DateTimeProlepticGregorian{typeof(p),Val(origintuple)}(p)
+            return convert(T,dt_greg)
+        end
+
+
+        # need to convert the time origin because not all origins are valid in
+        # all calendars
+        function convert(::Type{$CFDateTime}, dt::Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian})
+
+            T = $CFDateTime
+            days,HMS... = timetuplefrac(_origin_period(dt).duration)
+            y, m, d = datetuple_ymd(T,days)
+
+            origintuple = (y,m,d,HMS...)
+            return T{typeof(dt.instant),Val(origintuple)}(dt.instant)
+        end
+
+
     end
 end
 
@@ -349,4 +376,9 @@ end
 
 function -(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
      (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
+end
+
+
+function ==(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
+    return Dates.value(dt1 - dt2) == 0
 end
