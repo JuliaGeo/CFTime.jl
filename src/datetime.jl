@@ -198,7 +198,7 @@ function +(p1::Period{T1},p2::Period{T2}) where {T1, T2}
                        _factor(p1)
         return Period(duration,_factor(p1),_exponent(p1))
     else
-        return @inline p2 + p1
+        return p2 + p1
     end
 end
 
