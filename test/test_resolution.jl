@@ -189,6 +189,8 @@ using CFTime: _origintuple
 
 @test convert(DateTime,DateTimeStandard(2001,2,3)) == DateTime(2001,2,3)
 @test convert(DateTime,DateTimeProlepticGregorian(2001,2,3)) == DateTime(2001,2,3)
+@test convert(DateTime,DateTimeStandard(2024)) == DateTime(2024)
+@test convert(DateTime,DateTimeStandard(2024,2)) == DateTime(2024,2)
 
 # https://en.wikipedia.org/w/index.php?title=Conversion_between_Julian_and_Gregorian_calendars&oldid=1194423852
 

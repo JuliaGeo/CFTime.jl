@@ -23,8 +23,8 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
             exponent = _exponent(T)
             Ti = _type(T)
 
-            y,m,d,HMS... = Ti.(_pad3(args))
-            oy,om,od,oHMS... = Ti.(_pad3(unwrap(Torigintuple)))
+            y,m,d,HMS... = Ti.(pad_ymd(args))
+            oy,om,od,oHMS... = Ti.(pad_ymd(unwrap(Torigintuple)))
 
             p = Period(
                 Ti,
@@ -229,10 +229,9 @@ function isless(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
 end
 
 
-# FIXME pad by 1?
-_pad3(a::Tuple{T1}) where T1 = (a[1],0,0)
-_pad3(a::Tuple{T1,T2})  where {T1,T2}  = (a[1],a[2],0)
-_pad3(a::Tuple) = a
+pad_ymd(a::Tuple{T1}) where T1 = (a[1],1,1)
+pad_ymd(a::Tuple{T1,T2})  where {T1,T2}  = (a[1],a[2],1)
+pad_ymd(a::Tuple) = a
 
 function chop0(timetuple,minlen=0)
     if length(timetuple) == minlen
