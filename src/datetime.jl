@@ -144,10 +144,15 @@ pattern given in the `format` string.
 
 
         function _origin_period(dt::$CFDateTime{T,Torigintuple}) where {T,Torigintuple}
-            factor = _factor(dt.instant)
-            exponent = _exponent(dt.instant)
             Ti = _type(T)
             y,m,d,HMS... = Ti.(_origintuple(dt))
+
+            # factor and exponent can be different for the origin
+            # in particular, there can be more resolution, for example
+            # the unit "days since 2024-02-29 12:44:36"
+
+            # -2: skip year and month
+            _,factor,exponent = TIME_DIVISION[length(_origintuple(dt))-2]
 
             # time origin
             return Period(
@@ -164,15 +169,8 @@ pattern given in the `format` string.
             # time origin
             p = _origin_period(dt)
 
-            total_duration = p.duration + dt.instant.duration
-            @debug "origin period" p dt.instant.duration total_duration
-            @debug "origin period" p typeof(dt.instant.duration) typeof(total_duration)
-
             # add duration to time origin
-            p2 = Period(
-                total_duration,
-                factor,
-                exponent)
+            p2 = p + dt.instant
 
             # HMS contains hours, minutes, seconds and all sub-second units
             days,HMS... = timetuplefrac(p2)
@@ -193,7 +191,7 @@ function +(p1::Period{T1},p2::Period{T2}) where {T1, T2}
     T = promote_type(T1,T2)
 
     # which is the smallest unit?
-    if _factor(p1) / 10^(-_exponent(p1)) < _factor(p2) / 10^(-_exponent(p2))
+    if _factor(p1) / 10^(-_exponent(p1)) <= _factor(p2) / 10^(-_exponent(p2))
 
         duration = T(p1.duration) +
                        (T(p2.duration) * _factor(p2) * 10^(_exponent(p2)-_exponent(p1))) ÷
@@ -231,6 +229,7 @@ function isless(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
 end
 
 
+# FIXME pad by 1?
 _pad3(a::Tuple{T1}) where T1 = (a[1],0,0)
 _pad3(a::Tuple{T1,T2})  where {T1,T2}  = (a[1],a[2],0)
 _pad3(a::Tuple) = a

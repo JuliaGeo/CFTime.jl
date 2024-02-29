@@ -335,30 +335,31 @@ function timeunits(units, calendar = "standard")
     return timeunits(DT,units)
 end
 
-function timedecode(::Type{DT},data::AbstractArray{Float32,N},units) where {DT,N}
-    # convert to Float64
-    return timedecode(DT,Float64.(data),units)
+# convert to Float64
+_better_than_Float32(data::Float32) = Float64.(data)
+_better_than_Float32(data) = data
+
+
+function timedecode(::Type{DT},data,units) where DT <: AbstractCFDateTime
+    _convert(DTP,DDT,x) = DTP(DDT(x))
+    _convert(DTP,DDT,x::Missing) = missing
+
+    T = nonmissingtype(eltype(data))
+    origintuple, factor, exponent = _timeunits(Tuple,units)
+    DDT = Period{T,Val(factor),Val(exponent)}
+    DTP = DT{DDT,Val(origintuple)}
+
+    return @. _convert(DTP,DDT,_better_than_Float32(data))
 end
 
-_convert(x,t0,plength) = t0 + Dates.Millisecond(round(Int64,plength * x))
-_convert(x::Missing,t0,plength) = missing
 
- function timedecode(::Type{DT},data,units) where DT
-    t0,plength = timeunits(DT,units)
-    return _convert.(data,t0,plength)
- end
+function timedecode(::Type{DateTime},data,units)
+    _convert(x,t0,plength) = t0 + Dates.Millisecond(round(Int64,plength * x))
+    _convert(x::Missing,t0,plength) = missing
 
-
-# _convert(DTP,DDT,x) = DTP(DDT(x))
-# _convert(DTP,DDT,x::Missing) = missing
-
-# function timedecode(::Type{DT},data,units) where DT
-#     origintuple, factor, exponent = _timeunits(Tuple,units)
-#     DDT = Period{eltype(data),Val(factor),Val(exponent)}
-#     DTP = DT{DDT,Val(origintuple)}
-
-#     return _convert.(DTP,DDT,data)
-# end
+    t0,plength = timeunits(DateTime,units)
+    return @. _convert(_better_than_Float32(data),t0,plength)
+end
 
 
 """
@@ -506,10 +507,10 @@ for CFDateTime in [:DateTimeStandard,
         function convert(::Type{$CFDateTime}, dt::Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian})
 
             T = $CFDateTime
-            days,HMS... = timetuplefrac(_origin_period(dt).duration)
+            days,HMS... = timetuplefrac(_origin_period(dt))
             y, m, d = datetuple_ymd(T,days)
 
-            origintuple = (y,m,d,HMS...)
+            origintuple = chop0((y,m,d,HMS...),3)
             return T{typeof(dt.instant),Val(origintuple)}(dt.instant)
         end
 

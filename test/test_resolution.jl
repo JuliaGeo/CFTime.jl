@@ -1,4 +1,6 @@
-#using Pkg; Pkg.activate("CFTime-env",shared=true)
+#=
+using Pkg; Pkg.activate("CFTime-env",shared=true)
+=#
 
 using CFTime
 import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple, datenum, AbstractCFDateTime, parseDT, datenum_
@@ -208,33 +210,6 @@ using CFTime: _origintuple
 @test DateTimeJulian(2024,2,13) == DateTimeProlepticGregorian(2024,2,26)
 
 
-@test CFTime.datetuple(CFTime.timedecode(0,"days since -4713-01-01T12:00:00","julian", prefer_datetime = false)) ==
-    (-4713, 1, 1, 12, 0, 0, 0)
-
-data = 0
-units = "days since -4713-01-01T12:00:00"
-calendar = "julian"
-using CFTime: timetype, timedecode
-DT = timetype(calendar)
-dt = timedecode(DT,data,units)
-
-
-using CFTime: _timeunits
-    origintuple, factor, exponent = _timeunits(Tuple,units)
-    DDT = Period{eltype(data),Val(factor),Val(exponent)}
-    DTP = DT{DDT,Val(origintuple)}
-
-
-aa = DTP(DDT(0))
-typeof(aa)
-@test aa.instant.duration == 0
-@test_broken CFTime.hour(aa) == 12
-
-using CFTime: DATETIME_OFFSET, _origin_period, _origintuple, _hasyear0
-
-
-
-
 for T1 in [DateTimeProlepticGregorian,DateTimeJulian,DateTimeStandard,DateTime]
     for T2 in [DateTimeProlepticGregorian,DateTimeJulian,DateTimeStandard,DateTime]
         local dt1, dt2
@@ -340,3 +315,18 @@ if :quectosecond in CFTime.TIME_NAMES
 
     dt = DateTimeStandard(Int128,tt[1:10]...)
 end
+
+using CFTime: DATETIME_OFFSET, _origin_period, _origintuple, _hasyear0
+using CFTime: timetype, timedecode, _origin_period, _factor, _exponent
+using CFTime: _timeunits, chop0
+
+@test CFTime.datetuple(CFTime.timedecode(0,"days since -4713-01-01T12:00:00","julian", prefer_datetime = false)) ==
+    (-4713, 1, 1, 12, 0, 0, 0)
+
+data = 0
+units = "days since -4713-01-01T12:00:00"
+calendar = "julian"
+DT = timetype(calendar)
+dt = timedecode(DT,data,units)
+@test dt.instant.duration == 0
+@test CFTime.hour(dt) == 12

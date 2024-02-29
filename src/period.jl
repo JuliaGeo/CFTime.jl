@@ -85,7 +85,9 @@ for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond
     @eval convert(::Type{CFTime.Period},t::Dates.$T) = Period{Int64,Val($factor),Val($exponent)}(Dates.value(t))
 end
 
-Dates.Millisecond(p::CFTime.Period{Int64, Val{1}(), Val{-3}()}) = Dates.Millisecond(p.duration)
+# Can throw an InexactError
+Dates.Millisecond(p::CFTime.Period{T, Val{1}(), Val{-3}()}) where T =
+    Dates.Millisecond(Int64(p.duration))
 
 ==(p1::Period,p2::Period) = Dates.value(p1 - p2) == 0
 ==(p1::Period,p2) = Dates.value(p1 - p2) == 0
