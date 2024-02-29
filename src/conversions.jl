@@ -340,16 +340,25 @@ function timedecode(::Type{DT},data::AbstractArray{Float32,N},units) where {DT,N
     return timedecode(DT,Float64.(data),units)
 end
 
-_convert(DTP,DDT,x) = DTP(DDT(x))
-_convert(DTP,DDT,x::Missing) = missing
+_convert(x,t0,plength) = t0 + Dates.Millisecond(round(Int64,plength * x))
+_convert(x::Missing,t0,plength) = missing
 
-function timedecode(::Type{DT},data,units) where DT
-    origintuple, factor, exponent = _timeunits(Tuple,units)
-    DDT = Period{eltype(data),Val(factor),Val(exponent)}
-    DTP = DT{DDT,Val(origintuple)}
+ function timedecode(::Type{DT},data,units) where DT
+    t0,plength = timeunits(DT,units)
+    return _convert.(data,t0,plength)
+ end
 
-    return _convert.(DTP,DDT,data)
-end
+
+# _convert(DTP,DDT,x) = DTP(DDT(x))
+# _convert(DTP,DDT,x::Missing) = missing
+
+# function timedecode(::Type{DT},data,units) where DT
+#     origintuple, factor, exponent = _timeunits(Tuple,units)
+#     DDT = Period{eltype(data),Val(factor),Val(exponent)}
+#     DTP = DT{DDT,Val(origintuple)}
+
+#     return _convert.(DTP,DDT,data)
+# end
 
 
 """
