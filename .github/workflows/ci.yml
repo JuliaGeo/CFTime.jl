@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - flexible-resolution
     tags: '*'
 jobs:
   test:
