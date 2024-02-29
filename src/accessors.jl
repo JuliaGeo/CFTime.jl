@@ -1,4 +1,4 @@
-# year upto quectosecond
+# year upto attosecond
 
 for (i,func) in enumerate(TIME_NAMES)
     modname = (i <= 9 ? "Dates" : "CFTime")

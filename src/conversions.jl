@@ -89,24 +89,6 @@ function validargs(::Type{T},arg...) where T <: AbstractCFDateTime
 end
 
 
-#+(dt::T,Δ::RegTime)  where T <: AbstractCFDateTime = T(UTInstant(dt.instant.periods + Dates.Millisecond(Δ)))
-
-#-(dt1::T,dt2::T)  where T <: AbstractCFDateTime = dt1.instant.periods - dt2.instant.periods
-
-#isless(dt1::T,dt2::T) where T <: AbstractCFDateTime = dt1.instant.periods < dt2.instant.periods
-
-
-# -(dt1::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian},
-#   dt2::DateTime) = DateTime(dt1) - DateTime(dt2)
-
-# -(dt1::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian},
-#   dt2::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian}) = DateTime(dt1) - DateTime(dt2)
-
-# -(dt1::DateTime,
-#   dt2::Union{DateTimeStandard,DateTimeJulian,DateTimeProlepticGregorian}) = DateTime(dt1) - DateTime(dt2)
-
-
-
 """
     dt2 = reinterpret(::Type{T}, dt)
 
