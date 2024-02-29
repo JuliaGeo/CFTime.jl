@@ -449,6 +449,20 @@ for CFDateTime in [:DateTimeStandard,
                    :DateTimeProlepticGregorian,
                    ]
     @eval begin
+"""
+    dt2 = convert(::Type{T}, dt)
+
+Convert a DateTime of type `DateTimeStandard`, `DateTimeProlepticGregorian`,
+`DateTimeJulian` or `DateTime` into the type `T` which can also be either
+`DateTimeStandard`, `DateTimeProlepticGregorian`, `DateTimeJulian` or `DateTime`.
+
+Conversion is done such that duration (difference of DateTime types) are
+preserved. For dates on and after 1582-10-15, the year, month and days are the same for
+the types `DateTimeStandard`, `DateTimeProlepticGregorian` and `DateTime`.
+
+For dates before 1582-10-15, the year, month and days are the same for
+the types `DateTimeStandard` and `DateTimeJulian`.
+"""
         function convert(::Type{DateTime}, dt::$CFDateTime)
 
             if _exponent(dt.instant) < -3
