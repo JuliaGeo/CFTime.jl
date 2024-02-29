@@ -236,41 +236,15 @@ end
 
 # deprecated, but exported
 function timeunits(::Type{DT},units) where DT
-    tunit_mixedcase,starttime = strip.(split(units," since "))
-    tunit = lowercase(tunit_mixedcase)
+    t0, factor, exponent = _timeunits(DT,units)
 
-    t0 = parseDT(DT,starttime)
+    exponent = exponent + 3
 
-    # make sure that plength is 64-bit on 32-bit platforms
-    # plength is duration is *milliseconds*
-    plength =
-        if (tunit == "years") || (tunit == "year")
-            SOLAR_YEAR
-        elseif (tunit == "months") || (tunit == "month")
-            SOLAR_YEAR ÷ 12
-        elseif (tunit == "days") || (tunit == "day")
-            24*60*60*Int64(1000)
-        elseif (tunit == "hours") || (tunit == "hour")
-            60*60*Int64(1000)
-        elseif (tunit == "minutes") || (tunit == "minute")
-            60*Int64(1000)
-        elseif (tunit == "seconds") || (tunit == "second")
-            Int64(1000)
-        elseif (tunit == "milliseconds") || (tunit == "millisecond")
-            Int64(1)
-        elseif (tunit == "microseconds") || (tunit == "microsecond")
-            1//Int64(10)^3
-        elseif (tunit == "nanoseconds") || (tunit == "nanosecond")
-            1//Int64(10)^6
-        elseif (tunit == "picoseconds") || (tunit == "picosecond")
-            1//Int64(10)^9
-        elseif (tunit == "femtoseconds") || (tunit == "femtosecond")
-            1//Int64(10)^12
-        elseif (tunit == "attoseconds") || (tunit == "attosecond")
-            1//Int64(10)^15
-        else
-            error("unknown units \"$(tunit)\"")
-        end
+    if exponent >= 0
+        plength = factor * Int64(10)^exponent
+    else
+        plength = factor // Int64(10)^(-exponent)
+    end
 
     return t0,plength
 end
@@ -363,7 +337,7 @@ end
 
 
 """
-    dt = timedecode(data,units,calendar = "standard", prefer_datetime = true)
+    dt = timedecode(data,units,calendar = "standard"; prefer_datetime = true)
 
 Decode the time information in data as given by the units `units` according to
 the specified calendar. Valid values for `calendar` are
