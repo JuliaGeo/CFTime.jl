@@ -211,6 +211,25 @@ using CFTime: _origintuple
 @test CFTime.datetuple(CFTime.timedecode(0,"days since -4713-01-01T12:00:00","julian", prefer_datetime = false)) ==
     (-4713, 1, 1, 12, 0, 0, 0)
 
+data = 0
+units = "days since -4713-01-01T12:00:00"
+calendar = "julian"
+using CFTime: timetype, timedecode
+DT = timetype(calendar)
+dt = timedecode(DT,data,units)
+
+
+using CFTime: _timeunits
+    origintuple, factor, exponent = _timeunits(Tuple,units)
+    DDT = Period{eltype(data),Val(factor),Val(exponent)}
+    DTP = DT{DDT,Val(origintuple)}
+
+
+aa = DTP(DDT(0))
+typeof(aa)
+@test aa.instant.duration == 0
+@test_broken CFTime.hour(aa) == 12
+
 using CFTime: DATETIME_OFFSET, _origin_period, _origintuple, _hasyear0
 
 
