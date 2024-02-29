@@ -410,8 +410,9 @@ function timedecode(data,units,calendar = "standard"; prefer_datetime = true)
     dt = timedecode(DT,data,units)
 
     if (prefer_datetime &&
-        (DT in [DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian]) &&
-        _exponent(eltype(dt.instant)) >= -3)
+        (DT in [DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian])
+        #&& _exponent(eltype(dt.instant)) >= -3
+        )
 
         datetime_convert(dt) = convert(DateTime,dt)
         datetime_convert(dt::Missing) = missing

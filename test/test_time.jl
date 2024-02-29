@@ -1,11 +1,8 @@
-using Pkg
-
-Pkg.activate("CFTime-env",shared=true)
+#using Pkg; Pkg.activate("CFTime-env",shared=true)
 
 using CFTime
 using Dates
 using Test
-
 
 # slow, but accurate and easy to understand (and possibly fix)
 include("reference_algorithm.jl")

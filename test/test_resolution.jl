@@ -1,13 +1,10 @@
-using Pkg
-
-Pkg.activate("CFTime-env",shared=true)
+#using Pkg; Pkg.activate("CFTime-env",shared=true)
 
 using CFTime
 import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple, datenum, AbstractCFDateTime, parseDT, datenum_
 import Dates
 import Dates: value, year,  month,  day, hour, minute, second, millisecond, microsecond, nanosecond
 using Test
-using BenchmarkTools
 import Base: +, -, *, zero, one, isless, rem, div, string, convert
 using Dates
 
@@ -50,18 +47,6 @@ p = Period(tuf,factor,exponent)
 
 
 #end
-
-
-@btime datenum_($tuf,$factor,0)
-
-#@btime tf($time,$divi)
-
-
-#@code_warntype tf(time,divi)
-
-#@test tf(time,divi)[1:4] == (2,3,4,5)
-
-
 
 dt = DateTimeStandard(1000,"milliseconds since 2000-01-01");
 @test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
@@ -148,7 +133,7 @@ dt = DateTimeStandard(Float32(24*60*60*1000),"milliseconds since 2000-01-01")
 @test Dates.minute(dt) < 60
 @test Dates.second(dt) < 60
 
-@which datetuple(dt)
+#@which datetuple(dt)
 
 
 
@@ -188,15 +173,12 @@ dr = dt1:Dates.Microsecond(2):dt2;
 @test length(dr) == 6
 
 #(dt2 - dt1) % Microsecond(2)
-
-
-
 Delta = convert(Period,Dates.Nanosecond(10_000))
 
 dt1 = DateTimeStandard(0,"microseconds since 2000-01-01")
-@which dt1 + Delta
+#@which dt1 + Delta
 # 1.92 ns
-dts = @btime $dt1 + $Delta
+#dts = @btime $dt1 + $Delta
 
 using Dates: UTInstant
 using CFTime: DateTimeProlepticGregorian, DateTimeJulian
