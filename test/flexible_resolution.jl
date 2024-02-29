@@ -18,9 +18,9 @@ using CFTime: Period, DateTimeStandard
 
 function same_tuple(t1,t2)
     len = min(length(t1),length(t2))
-     (t1[1:len] == t2[1:len]) &&
-         all(==(0),t1[len+1:end]) &&
-         all(==(0),t2[len+1:end])
+    (t1[1:len] == t2[1:len]) &&
+        all(==(0),t1[len+1:end]) &&
+        all(==(0),t2[len+1:end])
 end
 
 
@@ -297,42 +297,45 @@ tt = (
     15,   # quectosecond
 )
 
-dt = DateTimeStandard(Int128,tt[1:15]...)
+
+dt = DateTimeStandard(Int128,tt[1:12]...)
+@test CFTime.attosecond(dt) == 11
+
+if :quectosecond in CFTime.TIME_NAMES
+    dt = DateTimeStandard(Int128,tt[1:15]...)
+    @test CFTime.rontosecond(dt) == 14
+    @test CFTime.quectosecond(dt) == 15
 
 
-dt = DateTimeStandard(Int128,tt[1:15]...)
-@test CFTime.rontosecond(dt) == 14
-#@test CFTime.quectosecond(dt) == 14
+    dt = DateTimeStandard(BigInt,tt...)
+    @test CFTime.rontosecond(dt) == 14
+    @test CFTime.quectosecond(dt) == 15
+
+    CFTime.nanosecond(dt) == 8
+
+    dt = DateTimeStandard(Int64,tt[1:9]...)
+
+    @show datetuple(dt)
 
 
-dt = DateTimeStandard(BigInt,tt...)
-@test CFTime.rontosecond(dt) == 14
-@test CFTime.quectosecond(dt) == 15
+    tt = (
+        1900,# year
+        1,  # month
+        2,   # day
+        0,   # hour
+        0,   # minute
+        0,   # second
+        0,   # millisecond
+        0,   # microsecond
+        0,   # nanosecond
+        0,   # picosecond
+        0,   # femtosecond
+        0,   # attosecond
+        0,   # zeptosecond
+        0,   # yoctosecond
+        0,   # rontosecond
+        0,   # quectosecond
+    )
 
-CFTime.nanosecond(dt) == 8
-
-dt = DateTimeStandard(Int64,tt[1:9]...)
-
-@show datetuple(dt)
-
-
-tt = (
-    1900,# year
-    1,  # month
-    2,   # day
-    0,   # hour
-    0,   # minute
-    0,   # second
-    0,   # millisecond
-    0,   # microsecond
-    0,   # nanosecond
-    0,   # picosecond
-    0,   # femtosecond
-    0,   # attosecond
-    0,   # zeptosecond
-    0,   # yoctosecond
-    0,   # rontosecond
-    0,   # quectosecond
-)
-
-dt = DateTimeStandard(Int128,tt[1:10]...)
+    dt = DateTimeStandard(Int128,tt[1:10]...)
+end
