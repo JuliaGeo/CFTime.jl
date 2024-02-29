@@ -37,15 +37,15 @@ const TIME_DIVISION = (
     (:minute,            60,      0),
     (:second,             1,      0),
     (:millisecond,        1,     -3),
-    (:microsecond,        1,     -6),
-    (:nanosecond,         1,     -9),
-    (:picosecond,         1,    -12),
-    (:femtosecond,        1,    -15),
-    (:attosecond,         1,    -18),
-    (:zeptosecond,        1,    -21),
-    (:yoctosecond,        1,    -24),
-    (:rontosecond,        1,    -27),
-    (:quectosecond,       1,    -30),
+    (:microsecond,        1,     -6), # time of first call for datetuple
+    (:nanosecond,         1,     -9), # 1.27 seconds
+    (:picosecond,         1,    -12), # 1.52 seconds
+    (:femtosecond,        1,    -15),  # 2.07 seconds
+    (:attosecond,         1,    -18), # 3.11 seconds
+#    (:zeptosecond,        1,    -21), # 5.35 seconds
+#    (:yoctosecond,        1,    -24), # 10.36 seconds
+#    (:rontosecond,        1,    -27), # 23.88 seconds
+#    (:quectosecond,       1,    -30), # 60.37 seconds
 )
 
 TIME_NAMES = (:year, :month, first.(TIME_DIVISION)...)

@@ -177,7 +177,7 @@ pattern given in the `format` string.
             # HMS contains hours, minutes, seconds and all sub-second units
             days,HMS... = timetuplefrac(p2)
             y, m, d = datetuple_ymd($CFDateTime,days)
-
+            @debug "hours minutes seconds" HMS
             return chop0((y, m, d, HMS...),7)
         end
 

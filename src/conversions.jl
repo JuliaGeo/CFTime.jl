@@ -362,7 +362,8 @@ the specified calendar. Valid values for `calendar` are
 
 If `prefer_datetime` is `true` (default), dates are
 converted to the `DateTime` type (for the calendars
-"standard", "gregorian", "proleptic_gregorian" and "julian"). Such conversion is
+"standard", "gregorian", "proleptic_gregorian" and "julian")
+unless the time unit is expressed in microseconds or smaller. Such conversion is
 not possible for the other calendars.
 
 | Calendar            | Type (prefer_datetime=true) | Type (prefer_datetime=false) |
@@ -399,8 +400,9 @@ function timedecode(data,units,calendar = "standard"; prefer_datetime = true)
     DT = timetype(calendar)
     dt = timedecode(DT,data,units)
 
-    if prefer_datetime &&
-        (DT in [DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian])
+    if (prefer_datetime &&
+        (DT in [DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian]) &&
+        _exponent(eltype(dt.instant)) >= -3)
 
         datetime_convert(dt) = convert(DateTime,dt)
         datetime_convert(dt::Missing) = missing
@@ -463,6 +465,12 @@ for CFDateTime in [:DateTimeStandard,
                    ]
     @eval begin
         function convert(::Type{DateTime}, dt::$CFDateTime)
+
+            if _exponent(dt.instant) < -3
+                @warn "CFTime Datetime with a base units of 10^($(_exponent(dt.instant))) seconds cannot be Dates.DateTime"
+                throw(InexactError(:convert,DateTime,dt))
+            end
+
             origin = _origin_period(dt)
             ms = Dates.Millisecond(dt.instant + origin + DATETIME_OFFSET)
             return DateTime(UTInstant{Millisecond}(ms))
