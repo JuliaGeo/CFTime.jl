@@ -1,7 +1,8 @@
 #using Pkg; Pkg.activate("CFTime-env",shared=true)
 
 using CFTime
-using Dates
+import Dates
+using Dates: DateTime, Day, @dateformat_str
 using Test
 
 # slow, but accurate and easy to understand (and possibly fix)
