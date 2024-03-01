@@ -16,8 +16,8 @@ The following types are supported `DateTime`,
 module CFTime
 
 using Printf
-using Dates
-import Dates: UTInstant, Millisecond
+import Dates
+import Dates: UTInstant, Millisecond, DateTime, DateFormat
 import Dates:
     year,
     month,
@@ -50,7 +50,7 @@ import Dates:
     yearmonth,
     yearmonthday
 
-import Base: +, -, isless, string, show, convert, reinterpret, ==
+import Base: +, -, isless, string, show, convert, reinterpret, ==, promote_rule
 
 include("constants.jl")
 include("types.jl")

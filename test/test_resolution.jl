@@ -5,11 +5,9 @@ using Pkg; Pkg.activate("CFTime-env",shared=true)
 using CFTime
 import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple, datenum, AbstractCFDateTime, parseDT, datenum_
 import Dates
-import Dates: value, year,  month,  day, hour, minute, second, millisecond, microsecond, nanosecond
+import Dates: value, year,  month,  day, hour, minute, second, millisecond, microsecond, nanosecond, DateTime, @dateformat_str
 using Test
 import Base: +, -, *, zero, one, isless, rem, div, string, convert
-using Dates
-
 using CFTime: Period, DateTimeStandard
 
 # TEST
@@ -30,10 +28,7 @@ end
 
 factor = 1000
 
-#for tuf in (
-#    (2,3,4,5),
 tuf=    (2,3,4,5,6,7,8)
-#    )
 factor = 1e-6
 exponent = -3
 
@@ -47,8 +42,16 @@ exponent = -9
 p = Period(tuf,factor,exponent)
 @test timetuplefrac(p)[1:length(tuf)] == tuf
 
+# test promotion rules
 
-#end
+p1 = CFTime.Period(1,:second)
+p2 = CFTime.Period(1000,:millisecond)
+
+@test promote_type(typeof(p1),typeof(p2)) == typeof(p2)
+
+pp1,pp2 = promote(p1,p2)
+@test pp1 === pp2
+
 
 dt = DateTimeStandard(1000,"milliseconds since 2000-01-01");
 @test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))

@@ -5,6 +5,11 @@
 
 Period(duration::Number,factor,exponent=-3) = Period{typeof(duration),Val(factor),Val(exponent)}(duration)
 
+function Period(duration::Number,units::Union{Symbol,AbstractString})
+    factor, exponent = filter(td -> td[1] == Symbol(units),TIME_DIVISION)[1][2:end]
+    return Period(duration,factor,exponent)
+end
+
 _type(p::Period{T,factor,exponent}) where {T,factor,exponent} = T
 _factor(p::Period{T,factor,exponent}) where {T,factor,exponent} = unwrap(factor)
 _exponent(p::Period{T,factor,exponent}) where {T,factor,exponent} = unwrap(exponent)
@@ -67,6 +72,44 @@ function Period(T::DataType,tuf::Tuple,factor,exponent=-3)
     Period{typeof(duration),Val(factor),Val(exponent)}(duration)
 end
 
+function promote_rule(::Type{Period{T1,Tfactor1,Texponent1}},
+                      ::Type{Period{T2,Tfactor2,Texponent2}}) where
+    {T1,Tfactor1,Texponent1,T2,Tfactor2,Texponent2}
+
+    factor1 = unwrap(Tfactor1)
+    factor2 = unwrap(Tfactor2)
+    exponent1 = unwrap(Texponent1)
+    exponent2 = unwrap(Texponent2)
+    T = promote_type(T1,T2)
+
+    # which is the smallest unit?
+    if factor1 / 10^(-exponent1) <= factor2 / 10^(-exponent2)
+        return Period{T,Tfactor1,Texponent1}
+    else
+        return Period{T,Tfactor2,Texponent2}
+    end
+end
+
+function convert(::Type{Period{T1,Tfactor1,Texponent1}},
+                 p::Period{T2,Tfactor2,Texponent2}) where
+    {T1,Tfactor1,Texponent1,T2,Tfactor2,Texponent2}
+
+    factor1 = unwrap(Tfactor1)
+    factor2 = unwrap(Tfactor2)
+    exponent1 = unwrap(Texponent1)
+    exponent2 = unwrap(Texponent2)
+
+    duration = (T1(p.duration) * factor2 * 10^(exponent2-exponent1)) ÷
+        factor1
+
+    return Period{T1,Tfactor1,Texponent1}(duration)
+end
+
+function +(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
+    Period{T,Tfactor,Texponent}(p1.duration + p2.duration)
+end
+
++(p1::Period,p2::Period) = +(promote(p1,p2)...)
 +(p1::Period,p2::Union{Dates.TimePeriod,Dates.Day}) = p1 + convert(CFTime.Period,p2)
 +(p1::Union{Dates.TimePeriod,Dates.Day},p2::Period) = p2 + p1
 

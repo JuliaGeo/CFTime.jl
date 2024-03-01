@@ -66,7 +66,7 @@ This type implements the calendar defined as "$($calendar)".
                              units = first(TIME_DIVISION[max(length(args),7)-2]),
                              )
             DT = $CFDateTime
-            factor, exponent = filter(td -> td[1] == units,TIME_DIVISION)[1][2:end]
+            factor, exponent = filter(td -> td[1] == Symbol(units),TIME_DIVISION)[1][2:end]
             T = Period{Ti,Val(factor), Val(exponent)}
             return DT{T,Val(origin)}(args...)
         end
@@ -181,27 +181,6 @@ pattern given in the `format` string.
 
     end
 end
-
-
-function +(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
-    Period{T,Tfactor,Texponent}(p1.duration + p2.duration)
-end
-
-function +(p1::Period{T1},p2::Period{T2}) where {T1, T2}
-    T = promote_type(T1,T2)
-
-    # which is the smallest unit?
-    if _factor(p1) / 10^(-_exponent(p1)) <= _factor(p2) / 10^(-_exponent(p2))
-
-        duration = T(p1.duration) +
-                       (T(p2.duration) * _factor(p2) * 10^(_exponent(p2)-_exponent(p1))) ÷
-                       _factor(p1)
-        return Period(duration,_factor(p1),_exponent(p1))
-    else
-        return p2 + p1
-    end
-end
-
 
 +(dt::AbstractCFDateTime,p::Union{Dates.TimePeriod,Dates.Day}) = dt + convert(CFTime.Period,p)
 
