@@ -71,7 +71,7 @@ This type implements the calendar defined as "$($calendar)".
             return DT{T,Val(origin)}(args...)
         end
 
-        function $CFDateTime(t,units::AbstractString)
+        function $CFDateTime(t::Union{Number,Tuple},units::AbstractString)
             origintuple, factor, exponent = _timeunits(Tuple,units)
             instant = Period(t,factor,exponent)
             dt = $CFDateTime{typeof(instant),Val(origintuple)}(instant)
@@ -80,7 +80,7 @@ This type implements the calendar defined as "$($calendar)".
         $CFDateTime(y::Integer,args::Vararg{<:Integer,N}; kwargs...) where N = $CFDateTime(Int64,y,args...; kwargs...)
 
 
-        function $CFDateTime(p::Period,origintuple)
+        function $CFDateTime(p::Period,origintuple::Tuple)
             $CFDateTime{typeof(p),Val(origintuple)}(p)
         end
 
@@ -218,6 +218,7 @@ function -(dt1::DateTime,dt2::AbstractCFDateTime)
 end
 
 -(dt::AbstractCFDateTime,Δ::Period) = dt + (-Δ)
+-(dt::AbstractCFDateTime,Δ::Dates.CompoundPeriod) = dt + (-Δ)
 -(dt::AbstractCFDateTime,Δ) = dt + (-Δ)
 
 function ==(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
@@ -261,3 +262,7 @@ end
 function show(io::IO,dt::T)  where T <: AbstractCFDateTime
     write(io, string(typeof(dt)), "(",string(dt),")")
 end
+
+
+# Missing support
+(-)(x::AbstractCFDateTime, y::Missing) = missing

@@ -233,7 +233,7 @@ daysinmonth(DateTimeStandard,1582,10)
 daysinmonth(dt)
 
 DT = DateTimeStandard
-import CFTime: DateTimeStandard, _pad3, unwrap, _factor, _exponent, _type
+import CFTime: DateTimeStandard, unwrap, _factor, _exponent, _type
 
 
 

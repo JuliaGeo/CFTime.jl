@@ -96,3 +96,8 @@ Dates.Millisecond(p::CFTime.Period{T, Val{1}(), Val{-3}()}) where T =
 function isless(p1::Period,p2::Period)
     return Dates.value(p1 - p2) < 0
 end
+
+
+# Missing support
+(==)(x::Period, y::Missing) = missing
+(==)(x::Missing, y::Period) = missing
