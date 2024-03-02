@@ -303,7 +303,7 @@ function timedecode(::Type{DT},data,units) where DT <: AbstractCFDateTime
     T = nonmissingtype(eltype(data))
     origintuple, factor, exponent = _timeunits(Tuple,units)
     DDT = Period{T,Val(factor),Val(exponent)}
-    DTP = DT{DDT,Val(origintuple)}
+    DTP = DT{DDT,Val(chop0(origintuple,3))}
 
     return @. _convert(DTP,DDT,_better_than_Float32(data))
 end

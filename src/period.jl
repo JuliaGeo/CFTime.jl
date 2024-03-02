@@ -99,8 +99,12 @@ function convert(::Type{Period{T1,Tfactor1,Texponent1}},
     exponent1 = unwrap(Texponent1)
     exponent2 = unwrap(Texponent2)
 
-    duration = (T1(p.duration) * factor2 * 10^(exponent2-exponent1)) ÷
-        factor1
+    duration =
+        if T1 <: AbstractFloat
+            (T1(p.duration) * factor2 * 10^(exponent2-exponent1)) / factor1
+        else
+            (T1(p.duration) * factor2 * 10^(exponent2-exponent1)) ÷ factor1
+        end
 
     return Period{T1,Tfactor1,Texponent1}(duration)
 end
@@ -135,6 +139,7 @@ Dates.Millisecond(p::CFTime.Period{T, Val{1}(), Val{-3}()}) where T =
 ==(p1::Period,p2::Period) = Dates.value(p1 - p2) == 0
 ==(p1::Period,p2) = Dates.value(p1 - p2) == 0
 ==(p1,p2::Period) = Dates.value(p1 - p2) == 0
+
 
 function isless(p1::Period,p2::Period)
     return Dates.value(p1 - p2) < 0

@@ -168,10 +168,8 @@ pattern given in the `format` string.
 
             # time origin
             p = _origin_period(dt)
-
             # add duration to time origin
             p2 = p + dt.instant
-
             # HMS contains hours, minutes, seconds and all sub-second units
             days,HMS... = timetuplefrac(p2)
             y, m, d = datetuple_ymd($CFDateTime,days)

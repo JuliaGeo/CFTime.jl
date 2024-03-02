@@ -52,6 +52,7 @@ p2 = CFTime.Period(1000,:millisecond)
 pp1,pp2 = promote(p1,p2)
 @test pp1 === pp2
 
+@test_broken pp1,pp2 = promote(p1,Dates.Day(1))
 
 dt = DateTimeStandard(1000,"milliseconds since 2000-01-01");
 @test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
@@ -157,8 +158,6 @@ dt2 = DateTimeStandard(10,"microseconds since 2000-01-01")
 dt3 = DateTimeStandard(2,"days since 2000-01-01")
 
 @test (dt2 - dt1) == Dates.Microsecond(10)
-
-
 @test (dt2 - dt1) == Dates.Nanosecond(10_000)
 
 @test dt1 < dt2
@@ -335,3 +334,6 @@ DT = timetype(calendar)
 dt = timedecode(DT,data,units)
 @test dt.instant.duration == 0
 @test CFTime.hour(dt) == 12
+
+
+
