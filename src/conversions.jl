@@ -459,7 +459,7 @@ the types `DateTimeStandard` and `DateTimeJulian`.
         function convert(::Type{DateTime}, dt::$CFDateTime)
 
             if _exponent(dt.instant) < -3
-                @warn "CFTime Datetime with a base units of 10^($(_exponent(dt.instant))) seconds cannot be Dates.DateTime"
+                @warn "CFTime Datetime with a base units of 10^($(_exponent(dt.instant))) seconds cannot be converted to Dates.DateTime"
                 throw(InexactError(:convert,DateTime,dt))
             end
 
