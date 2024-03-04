@@ -1,6 +1,10 @@
 module Reference
 
-import CFTime: isleap, DateTimeJulian, DateTimeProlepticGregorian
+import CFTime:
+    DateTimeJulian,
+    DateTimeProlepticGregorian,
+    _hasyear0,
+    isleap
 
 # Adapted
 # from https://github.com/Unidata/cftime/blob/dc75368cd02bbcd1352dbecfef10404a58683f94/src/cftime/_cftime.pyx
@@ -83,7 +87,7 @@ end
 end
 
 function datetuple_ymd(::Type{DateTimeProlepticGregorian},Z)
-    has_year_zero = false
+    has_year_zero = _hasyear0(DateTimeProlepticGregorian)
     julian_gregorian_mixed = false
     return datetuple_ymd(DateTimeProlepticGregorian, Z, julian_gregorian_mixed, has_year_zero)
 end

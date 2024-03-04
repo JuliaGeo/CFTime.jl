@@ -473,7 +473,8 @@ the types `DateTimeStandard` and `DateTimeJulian`.
 
             origin = DateTime(UTInstant{Millisecond}(Millisecond(0)))
             y, mdHMS... = (Dates.year(origin),Dates.month(origin),Dates.day(origin))
-            if !_hasyear0(T) && y <= 0
+
+            if !_hasyear0(DateTimeProlepticGregorian) && y <= 0
                 origintuple = (y-1, mdHMS...)
             else
                 origintuple = (y, mdHMS...)

@@ -1,5 +1,3 @@
-#using Pkg; Pkg.activate("CFTime-env",shared=true)
-
 using CFTime
 import Dates
 using Dates: DateTime, Day, @dateformat_str
@@ -240,7 +238,12 @@ end
 @test CFTime.timedecode(DateTime,2_451_545,"days since -4713-11-24T12:00:00") ==
     DateTime(2000,01,01,12,00,00)
 
-@test CFTime.timedecode(DateTimeProlepticGregorian,2_451_545,"days since -4714-11-24T12:00:00") ==
+if CFTime._hasyear0(CFTime.DateTimeProlepticGregorian)
+    units = "days since -4713-11-24T12:00:00"
+else
+    units = "days since -4714-11-24T12:00:00"
+end
+@test CFTime.timedecode(DateTimeProlepticGregorian,2_451_545,units) ==
     DateTimeProlepticGregorian(2000,01,01,12,00,00)
 
 
