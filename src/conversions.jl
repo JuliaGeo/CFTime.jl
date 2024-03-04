@@ -99,11 +99,22 @@ year, month, day, minute, second and millisecond.
 The conversion might fail if a particular date does not exist in the
 target calendar.
 """
-function reinterpret(::Type{T1}, dt::T2) where T1 <: Union{AbstractCFDateTime,DateTime} where T2 <: Union{AbstractCFDateTime,DateTime}
+function reinterpret(::Type{T1}, dt::T2) where T1 <: AbstractCFDateTime where T2 <: Union{AbstractCFDateTime,DateTime}
    return T1(
        Dates.year(dt),Dates.month(dt),Dates.day(dt),
        Dates.hour(dt),Dates.minute(dt),Dates.second(dt),
        Dates.millisecond(dt))
+end
+
+function reinterpret(::Type{DateTime}, dt::T2) where T2 <: AbstractCFDateTime
+   return DateTime(
+       Dates.year(dt),Dates.month(dt),Dates.day(dt),
+       Dates.hour(dt),Dates.minute(dt),Dates.second(dt),
+       Dates.millisecond(dt))
+end
+
+function reinterpret(::Type{T1}, dt::T2) where T1 <: AbstractCFDateTime where T2 <: AbstractCFDateTime
+   return T1(datetuple(dt)...)
 end
 
 """

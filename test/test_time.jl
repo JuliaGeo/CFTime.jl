@@ -291,6 +291,12 @@ dt = CFTime.reinterpret(DateTime, DateTimeNoLeap(1900,2,28))
 @test Dates.month(dt) == 2
 @test Dates.day(dt) == 28
 
+dt = CFTime.reinterpret(DateTimeNoLeap, DateTime(1900,2,28))
+@test typeof(dt) <: DateTimeNoLeap
+@test Dates.year(dt) == 1900
+@test Dates.month(dt) == 2
+@test Dates.day(dt) == 28
+
 # check ordering
 
 @test DateTimeStandard(2000,01,01) < DateTimeStandard(2000,01,02)

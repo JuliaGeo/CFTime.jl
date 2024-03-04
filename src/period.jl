@@ -129,7 +129,9 @@ end
 
 for op in (:+,:-,:(==))
     @eval begin
-        $op(p1::Union{Period,Dates.Period},p2::Union{Period,Dates.Period}) = $op(promote(p1,p2)...)
+        $op(p1::Period,p2::Period) = $op(promote(p1,p2)...)
+        $op(p1::Period,p2::Dates.Period) = $op(promote(p1,p2)...)
+        $op(p1::Dates.Period,p2::Period) = $op(promote(p1,p2)...)
     end
 end
 
