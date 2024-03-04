@@ -115,21 +115,28 @@ function convert(::Type{Period{T,Tfactor,Texponent}},t::Union{Dates.Day,Dates.Ti
     convert(Period{T,Tfactor,Texponent},p)
 end
 
-function +(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
-    Period{T,Tfactor,Texponent}(p1.duration + p2.duration)
+function ==(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
+    return p1.duration == p2.duration
 end
 
-+(p1::Period,p2::Period) = +(promote(p1,p2)...)
-+(p1::Period,p2::Union{Dates.TimePeriod,Dates.Day}) = p1 + convert(CFTime.Period,p2)
-+(p1::Union{Dates.TimePeriod,Dates.Day},p2::Period) = p2 + p1
+for op in (:+,:-)
+    @eval begin
+        function $op(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
+            Period{T,Tfactor,Texponent}($op(p1.duration,p2.duration))
+        end
+    end
+end
+
+for op in (:+,:-,:(==))
+    @eval begin
+        $op(p1::Union{Period,Dates.Period},p2::Union{Period,Dates.Period}) = $op(promote(p1,p2)...)
+    end
+end
 
 function -(p::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
     Period{T,Tfactor,Texponent}(-p.duration)
 end
 
--(p1::Period,p2::Period) = p1 + (-p2)
--(p1::Period,p2) = p1 + (-p2)
--(p1,p2::Period) = p1 + (-p2)
 
 for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond)
     unit = Symbol(lowercase(string(T)))
@@ -151,11 +158,6 @@ end
 # Can throw an InexactError
 Dates.Millisecond(p::CFTime.Period{T, Val{1}(), Val{-3}()}) where T =
     Dates.Millisecond(Int64(p.duration))
-
-==(p1::Period,p2::Period) = Dates.value(p1 - p2) == 0
-==(p1::Period,p2) = Dates.value(p1 - p2) == 0
-==(p1,p2::Period) = Dates.value(p1 - p2) == 0
-
 
 function isless(p1::Period,p2::Period)
     return Dates.value(p1 - p2) < 0
