@@ -18,7 +18,10 @@ end
 end
 
 
-@inline _hasyear0(::Type{T}) where T = false
+# https://web.archive.org/web/20240304171516/https://unidata.github.io/cftime/api.html
+# https://github.com/cf-convention/cf-conventions/issues/298
+@inline _hasyear0(::Type{T}) where T <: Union{DateTimeJulian,DateTimeStandard} = false
+@inline _hasyear0(::Type{T}) where T <: AbstractCFDateTime = true
 
 
 """

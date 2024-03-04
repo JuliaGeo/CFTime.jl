@@ -475,6 +475,8 @@ the types `DateTimeStandard` and `DateTimeJulian`.
             y, mdHMS... = (Dates.year(origin),Dates.month(origin),Dates.day(origin))
             if !_hasyear0(T) && y <= 0
                 origintuple = (y-1, mdHMS...)
+            else
+                origintuple = (y, mdHMS...)
             end
 
             p = convert(Period,dt.instant.periods)

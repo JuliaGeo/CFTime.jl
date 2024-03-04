@@ -305,7 +305,7 @@ dt = CFTime.reinterpret(DateTimeNoLeap, DateTime(1900,2,28))
 @test DateTimeStandard(2000,01,03) > DateTimeStandard(2000,01,02)
 @test DateTimeStandard(2000,01,03) ≥ DateTimeStandard(2000,01,01)
 
-import CFTime.CFTime: datetuple
+import CFTime: datetuple
 datetuple(dt::DateTime) = (Dates.year(dt),Dates.month(dt),Dates.day(dt),
                            Dates.hour(dt),Dates.minute(dt),Dates.second(dt),
                            Dates.millisecond(dt))
