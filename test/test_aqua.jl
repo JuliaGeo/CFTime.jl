@@ -1,4 +1,7 @@
 import Aqua
 using CFTime
 
-Aqua.test_all(CFTime)
+
+if VERSION >= v"1.10"
+    Aqua.test_all(CFTime)
+end
