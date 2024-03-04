@@ -90,6 +90,7 @@ function promote_rule(::Type{Period{T1,Tfactor1,Texponent1}},
     end
 end
 
+
 function convert(::Type{Period{T1,Tfactor1,Texponent1}},
                  p::Period{T2,Tfactor2,Texponent2}) where
     {T1,Tfactor1,Texponent1,T2,Tfactor2,Texponent2}
@@ -107,6 +108,11 @@ function convert(::Type{Period{T1,Tfactor1,Texponent1}},
         end
 
     return Period{T1,Tfactor1,Texponent1}(duration)
+end
+
+function convert(::Type{Period{T,Tfactor,Texponent}},t::Union{Dates.Day,Dates.TimePeriod}) where {T,Tfactor,Texponent}
+    p = convert(Period,t)
+    convert(Period{T,Tfactor,Texponent},p)
 end
 
 function +(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
@@ -129,7 +135,17 @@ for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond
     unit = Symbol(lowercase(string(T)))
     factor, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
 
-    @eval convert(::Type{CFTime.Period},t::Dates.$T) = Period{Int64,Val($factor),Val($exponent)}(Dates.value(t))
+    @eval begin
+        convert(::Type{CFTime.Period},t::Dates.$T) =
+            Period{Int64,Val($factor),Val($exponent)}(Dates.value(t))
+
+        function promote_rule(::Type{Period{T,Tfactor,Texponent}},
+                      ::Type{Dates.$T}) where {T,Tfactor,Texponent}
+            return promote_type(
+                Period{T,Tfactor,Texponent},
+                Period{Int64,Val($factor),Val($exponent)})
+        end
+    end
 end
 
 # Can throw an InexactError

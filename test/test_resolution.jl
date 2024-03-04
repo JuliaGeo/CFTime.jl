@@ -52,7 +52,18 @@ p2 = CFTime.Period(1000,:millisecond)
 pp1,pp2 = promote(p1,p2)
 @test pp1 === pp2
 
-@test_broken pp1,pp2 = promote(p1,Dates.Day(1))
+
+pp1,pp2 = promote(p1,Dates.Day(1))
+@test pp1 == p1
+@test pp2 == Dates.Day(1)
+@test typeof(pp2) == typeof(pp1)
+
+
+pp1,pp2 = promote(p1,Dates.Hour(1))
+@test pp1 == p1
+@test pp2 == Dates.Hour(1)
+@test typeof(pp2) == typeof(pp1)
+
 
 dt = DateTimeStandard(1000,"milliseconds since 2000-01-01");
 @test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
