@@ -34,7 +34,7 @@ julia> daysinmonth(DateTimeAllLeap,2001,2)
 ```
 
 """
-function daysinmonth(::Type{DT},y,m) where DT <: Union{DateTime, AbstractCFDateTime}
+function daysinmonth(::Type{DT},y,m) where DT <: AbstractCFDateTime
     t = DT(y,m,1)
     return Dates.value((t + Dates.Month(1)) - t) ÷ (24*60*60*1000)
 end
@@ -67,7 +67,7 @@ julia> daysinyear(DateTimeAllLeap,2001,2)
 ```
 
 """
-function daysinyear(::Type{DT},y) where DT <: Union{DateTime, AbstractCFDateTime}
+function daysinyear(::Type{DT},y) where DT <: AbstractCFDateTime
     t = DT(y,1,1)
     return Dates.value((t + Dates.Year(1)) - t) ÷ (24*60*60*1000)
 end
