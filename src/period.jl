@@ -96,6 +96,16 @@ function promote_rule(::Type{Period{T1,Tfactor1,Texponent1}},
     end
 end
 
+for Tfactor1 in (SOLAR_YEAR, SOLAR_YEAR ÷ 12)
+    @eval function promote_rule(::Type{Period{T1,Val($Tfactor1), Val(-3)}},
+                                ::Type{Period{T2,Tfactor2,Texponent2}}) where
+        {T1,T2,Tfactor2,Texponent2}
+        return promote_rule(
+            Period{T1,Val(1), Val(-3)},
+            Period{T2,Tfactor2,Texponent2})
+    end
+end
+
 
 function convert(::Type{Period{T1,Tfactor1,Texponent1}},
                  p::Period{T2,Tfactor2,Texponent2}) where

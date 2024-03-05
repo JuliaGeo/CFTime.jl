@@ -33,3 +33,13 @@ dt = CFTime.timedecode(-1,"days since 0001-01-01",prefer_datetime = false)
 @test dt == DateTimeStandard(-1,12,31)
 @test CFTime.year(dt) == -1
 @test CFTime.month(dt) == 12
+
+# test a dummy calendar with no year 0 and regular month length
+struct DummyDataTime{T,Torigintuple} <: CFTime.AbstractCFDateTime{T,Torigintuple}
+end
+import CFTime: _cum_month_length, _hasyear0
+_cum_month_length(::Type{DummyDataTime}) = (0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360)
+_hasyear0(::Type{DummyDataTime}) = false
+
+Z = datenum(DummyDataTime, -1, 1, 1)
+@test datetuple_ymd(DummyDataTime,Z) == (-1,1,1)

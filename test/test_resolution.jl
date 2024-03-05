@@ -328,5 +328,8 @@ end
 @test CFTime.datetuple(CFTime.timedecode(0,"days since -4713-01-01T12:00:00","julian", prefer_datetime = false)) ==
     (-4713, 1, 1, 12, 0, 0, 0)
 
+dt = CFTime.timedecode([0,1],"years since 2000-01-01T00:00:00", prefer_datetime = false)
+@test Dates.value(Dates.Millisecond(dt[2] - dt[1])) == CFTime.SOLAR_YEAR
 
-
+dt = CFTime.timedecode([0,1],"months since 2000-01-01T00:00:00", prefer_datetime = false)
+@test Dates.value(Dates.Millisecond(dt[2] - dt[1])) == CFTime.SOLAR_YEAR ÷ 12
