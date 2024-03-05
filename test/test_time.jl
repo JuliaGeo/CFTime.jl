@@ -521,3 +521,8 @@ end
     timedecode([0,missing], "seconds since 2000-01-01 00:00:00", "proleptic_gregorian"),
     [DateTime(2000,1,1), missing]
 )
+
+@test isequal(
+    timeencode([DateTime(2000,1,1), missing], "seconds since 2000-01-01 00:00:00", "proleptic_gregorian"),
+    [0.0,missing]
+)
