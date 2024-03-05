@@ -259,6 +259,9 @@ dt = DateTimeStandard(1,"nanoseconds since 1999-12-31T23:59:59.999999999")
 @test CFTime.month(dt) == 1
 @test CFTime.day(dt) == 1
 
+@test CFTime.Year(dt) == Dates.Year(2000)
+@test CFTime.Day(dt) == Dates.Day(1)
+
 tt = (
     2000,# year
     1,   # month
