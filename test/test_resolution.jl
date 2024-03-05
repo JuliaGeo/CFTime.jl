@@ -1,17 +1,30 @@
-#=
-using Pkg; Pkg.activate("CFTime-env",shared=true)
-=#
-
 using CFTime
-import CFTime: timetuplefrac, datetuple_ymd, timeunits, datetuple, datenum, AbstractCFDateTime, parseDT, datenum_
+import CFTime:
+    AbstractCFDateTime,
+    DateTimeStandard,
+    Period,
+    datenum,
+    datenum_,
+    datetuple,
+    datetuple_ymd,
+    parseDT,
+    timetuplefrac,
+    timeunits
 import Dates
-import Dates: value, year,  month,  day, hour, minute, second, millisecond, microsecond, nanosecond, DateTime, @dateformat_str
+import Dates:
+    @dateformat_str,
+    DateTime,
+    day,
+    hour,
+    microsecond,
+    millisecond,
+    minute,
+    month,
+    nanosecond,
+    second,
+    value,
+    year
 using Test
-import Base: +, -, *, zero, one, isless, rem, div, string, convert
-using CFTime: Period, DateTimeStandard
-
-# TEST
-
 
 function same_tuple(t1,t2)
     len = min(length(t1),length(t2))
@@ -20,15 +33,10 @@ function same_tuple(t1,t2)
         all(==(0),t2[len+1:end])
 end
 
-
-
 @test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5)*1000,1))[1:4] == (2,3,4,5)
-
 @test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5),1000))[1:4] == (2,3,4,5)
 
-factor = 1000
-
-tuf=    (2,3,4,5,6,7,8)
+tuf= (2,3,4,5,6,7,8)
 factor = 1e-6
 exponent = -3
 
@@ -65,6 +73,26 @@ pp1,pp2 = promote(p1,Dates.Hour(1))
 @test typeof(pp2) == typeof(pp1)
 
 
+# missing
+
+p = CFTime.Period(1,:second)
+@test ismissing(p == missing)
+@test ismissing(missing == p)
+
+# arithmetic
+
+p1 = CFTime.Period(1,:microsecond)
+p2 = CFTime.Period(10,:microsecond)
+@test p1+p2 == CFTime.Period(11,:microsecond)
+
+
+p1 = CFTime.Period(1,:microsecond)
+p2 = CFTime.Period(10,:nanosecond)
+@test p1+p2 == CFTime.Period(1010,:nanosecond)
+
+
+# decode dates
+
 dt = DateTimeStandard(1000,"milliseconds since 2000-01-01");
 @test same_tuple((2000, 1, 1, 0, 0, 1),datetuple(dt))
 
@@ -87,22 +115,7 @@ dt = DateTimeStandard(10^9,"nanoseconds since 2000-01-01T23:59:59")
 dt = DateTimeStandard(1,"microseconds since 2000-01-01")
 @test same_tuple((2000, 1, 1, 0, 0, 0, 0, 1),datetuple(dt))
 
-
-
-
-
-# p1 = Microsecond(1)
-# p2 = Microsecond(10)
-# @test p1+p2 == Microsecond(11)
-
-
-# p1 = Microsecond(1)
-# p2 = Nanosecond(10)
-# @test p1+p2 == Nanosecond(1010)
-
-
-
-
+# arithmetic with datetime and periods
 dt = DateTimeStandard(1,"microseconds since 2000-01-01")
 @test Dates.microsecond(dt + Dates.Microsecond(1)) == 2
 
@@ -114,16 +127,11 @@ dt = DateTimeStandard(1,"microseconds since 2000-01-01")
 dt = DateTimeStandard(0,"microseconds since 2000-01-01")
 @test Dates.microsecond(dt + Dates.Nanosecond(1000)) == 1
 
-
-
-
 dt = DateTimeStandard(1,"milliseconds since 2000-01-01T23:59:59.999")
 @test same_tuple((2000, 1, 2), datetuple(dt))
 
-
 dt = DateTimeStandard(1,"microseconds since 2000-01-01T23:59:59.999999")
 @test same_tuple((2000, 1, 2), datetuple(dt))
-
 
 dt = DateTimeStandard(1,"microseconds since 2000-01-01T23:59:59.999999")
 @test same_tuple((2000, 1, 2), datetuple(dt))
@@ -131,43 +139,32 @@ dt = DateTimeStandard(1,"microseconds since 2000-01-01T23:59:59.999999")
 dt = DateTimeStandard(1,"nanoseconds since 2000-01-01T23:59:59.999999999")
 @test same_tuple((2000, 1, 2), datetuple(dt))
 
-
 dt = DateTimeStandard(2001,1,1)
 @test same_tuple((2001, 1, 1), datetuple(dt))
-
 
 dt = DateTimeStandard(2001,1,1 , 1,2,3,   100,200,300, units = :nanosecond)
 @test same_tuple((2001, 1, 1, 1,2,3, 100,200,300), datetuple(dt))
 
 
-dt = DateTimeStandard(Float32(366*24*60*60*1000),"milliseconds since 2000-01-01")
-@time datetuple(dt);
-
-
+# loss of precission
 dt = DateTimeStandard(Float32(24*60*60*1000),"milliseconds since 2000-01-01")
-
 @test Dates.hour(dt) < 24
 @test Dates.minute(dt) < 60
 @test Dates.second(dt) < 60
 
-#@which datetuple(dt)
+
+dt = DateTimeStandard(Float64(24*60*60*1000),"milliseconds since 2000-01-01")
+@test same_tuple(datetuple(dt),(2000,1,2))
 
 
+dt = DateTimeStandard(0,"milliseconds since 2000-01-01")
+dt2 = dt + Dates.Millisecond(10) +  Dates.Microsecond(20) + Dates.Nanosecond(30);
+@test same_tuple(datetuple(dt2),(2000,1,1,0,0,0,10,20,30))
 
-# dt = DateTimeStandard(Float64(24*60*60*1000),"milliseconds since 2000-01-01")
-# @time datetuple(dt);
-
-# dt = DateTimeStandard(24*60*60*1000,"milliseconds since 2000-01-01")
-# @time datetuple(dt);
-
-
-#dt2 = dt + Millisecond(10);
-#dt2 = dt + Millisecond(10) +  Microsecond(20) + Nanosecond(30);
 
 dt1 = DateTimeStandard(0,"microseconds since 2000-01-01")
 dt2 = DateTimeStandard(10,"microseconds since 2000-01-01")
 dt3 = DateTimeStandard(2,"days since 2000-01-01")
-
 @test (dt2 - dt1) == Dates.Microsecond(10)
 @test (dt2 - dt1) == Dates.Nanosecond(10_000)
 
@@ -175,29 +172,20 @@ dt3 = DateTimeStandard(2,"days since 2000-01-01")
 @test dt1 < dt3
 @test dt3 > dt1
 
-#@btime $dt2 - $dt1
-
-
 @test !(dt1 == dt2)
 
-# dt1-dt2
+# ranges
 dr = dt1:Dates.Microsecond(2):dt2;
 
 @test dr[1] == dt1
 @test dr[2] - dr[1] == Dates.Microsecond(2)
 @test length(dr) == 6
 
-#(dt2 - dt1) % Microsecond(2)
+#(dt2 - dt1) % Dates.Microsecond(2)
 Delta = convert(Period,Dates.Nanosecond(10_000))
+@test Delta == Period(10_000,:nanosecond)
 
-dt1 = DateTimeStandard(0,"microseconds since 2000-01-01")
-#@which dt1 + Delta
-# 1.92 ns
-#dts = @btime $dt1 + $Delta
 
-using Dates: UTInstant
-using CFTime: DateTimeProlepticGregorian, DateTimeJulian
-using CFTime: _origintuple
 
 
 @test convert(DateTime,DateTimeStandard(2001,2,3)) == DateTime(2001,2,3)
@@ -214,7 +202,7 @@ using CFTime: _origintuple
 
 @test DateTimeJulian(500,2,28) == convert(DateTimeJulian,DateTimeProlepticGregorian(500,3,1))
 
-#@test DateTimeJulian(500,2,28) == convert(DateTimeJulian,DateTime(500,3,1))
+@test DateTimeJulian(500,2,28) == convert(DateTimeJulian,DateTime(500,3,1))
 @test DateTimeJulian(1900,3,1) == convert(DateTimeJulian,DateTimeProlepticGregorian(1900,3,14))
 @test DateTimeJulian(2024,2,13) == convert(DateTimeJulian,DateTimeProlepticGregorian(2024,2,26))
 
@@ -331,20 +319,9 @@ if :quectosecond in CFTime.TIME_NAMES
     dt = DateTimeStandard(Int128,tt[1:10]...)
 end
 
-using CFTime: DATETIME_OFFSET, _origin_period, _origintuple, _hasyear0
-using CFTime: timetype, timedecode, _origin_period, _factor, _exponent
-using CFTime: _timeunits, chop0
 
 @test CFTime.datetuple(CFTime.timedecode(0,"days since -4713-01-01T12:00:00","julian", prefer_datetime = false)) ==
     (-4713, 1, 1, 12, 0, 0, 0)
-
-data = 0
-units = "days since -4713-01-01T12:00:00"
-calendar = "julian"
-DT = timetype(calendar)
-dt = timedecode(DT,data,units)
-@test dt.instant.duration == 0
-@test CFTime.hour(dt) == 12
 
 
 

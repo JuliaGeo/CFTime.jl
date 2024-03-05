@@ -36,7 +36,7 @@ Dates.value(p::Period) = p.duration
        __tf((result...,0),0,dn...)
    else
        p, time2 = divrem(time, d1, RoundDown)
-       __tf((result...,p),time2,dn...)
+       __tf((result...,Int64(p)),time2,dn...)
     end
 end
 @inline tf(time,divi) = __tf((),time,divi...)
