@@ -1,3 +1,4 @@
+
 # contructor of AbstractCFDateTime and methods with AbstractCFDateTime as
 # first or main argument
 
@@ -16,7 +17,7 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                               (:DateTime360Day,"360day")]
 
     @eval begin
-        function $CFDateTime{T,Torigintuple}(args::Vararg{<:Integer,N}) where {T,Torigintuple,N}
+        function $CFDateTime{T,Torigintuple}(args::Vararg{Integer,N}) where {T,Torigintuple,N}
 
             DT = $CFDateTime
             factor = _factor(T)
@@ -77,7 +78,7 @@ This type implements the calendar defined as "$($calendar)".
             dt = $CFDateTime{typeof(instant),Val(origintuple)}(instant)
         end
 
-        $CFDateTime(y::Integer,args::Vararg{<:Integer,N}; kwargs...) where N = $CFDateTime(Int64,y,args...; kwargs...)
+        $CFDateTime(y::Integer,args::Vararg{Integer,N}; kwargs...) where N = $CFDateTime(Int64,y,args...; kwargs...)
 
 
         function $CFDateTime(p::Period,origintuple::Tuple)
