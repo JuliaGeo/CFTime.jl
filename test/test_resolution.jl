@@ -36,20 +36,15 @@ end
 @test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5)*1000,1))[1:4] == (2,3,4,5)
 @test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5),1000))[1:4] == (2,3,4,5)
 
-tuf= (2,3,4,5,6,7,8)
-factor = 1e-6
-exponent = -3
-
-p = Period(tuf,factor)
-@test timetuplefrac(p)[1:length(tuf)] == tuf
-
-
+tuf = (2,3,4,5,6,7,8) # day, hour, minute, seconds, ...
 factor = 1
 exponent = -9
-
 p = Period(tuf,factor,exponent)
 @test timetuplefrac(p)[1:length(tuf)] == tuf
 
+@test CFTime._type(p) == CFTime._type(typeof(p))
+
+@test one(p) == Period(1,factor,exponent)
 # test promotion rules
 
 p1 = CFTime.Period(1,:second)
@@ -181,6 +176,10 @@ dr = dt1:Dates.Microsecond(2):dt2;
 @test dr[2] - dr[1] == Dates.Microsecond(2)
 @test length(dr) == 6
 
+@test_throws ArgumentError dt1:Dates.Microsecond(0):dt2
+@test_throws ArgumentError Dates.len(dt1,dt2,CFTime.Period(0,:nanosecond))
+
+
 #(dt2 - dt1) % Dates.Microsecond(2)
 Delta = convert(Period,Dates.Nanosecond(10_000))
 @test Delta == Period(10_000,:nanosecond)
@@ -254,8 +253,11 @@ parse(DateTimeNoLeap,"1999-12-05", dateformat"yyyy-mm-dd")
 
 @test parse(DateTimeNoLeap,"1999-12-05", dateformat"yyyy-mm-dd") == DateTimeNoLeap(1999,12,05)
 
-dt = DateTimeStandard(1,"nanoseconds since 2000-01-01T23:59:59.999999999")
-@test same_tuple((2000, 1, 2), datetuple(dt))
+dt = DateTimeStandard(1,"nanoseconds since 1999-12-31T23:59:59.999999999")
+@test same_tuple((2000, 1, 1), datetuple(dt))
+@test CFTime.year(dt) == 2000
+@test CFTime.month(dt) == 1
+@test CFTime.day(dt) == 1
 
 tt = (
     2000,# year

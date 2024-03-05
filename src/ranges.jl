@@ -5,7 +5,7 @@ end
 
 function Dates.len(first::T, last::T, step) where T <: AbstractCFDateTime
     if Dates.value(step) == 0
-        error("the step should not be zero")
+        throw(ArgumentError("the step should not be zero"))
     end
     len = 0
     next = first+step
