@@ -161,7 +161,7 @@ for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond
     factor, exponent = filter(td -> td[1] == unit,TIME_DIVISION)[1][2:end]
 
     @eval begin
-        convert(::Type{CFTime.Period},t::Dates.$T) =
+        convert(::Type{Period},t::Dates.$T) =
             Period{Int64,Val($factor),Val($exponent)}(Dates.value(t))
 
         function promote_rule(::Type{Period{T,Tfactor,Texponent}},
@@ -173,8 +173,34 @@ for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond
     end
 end
 
+function Base.show(io::IO,p::Period)
+    exp = _exponent(p)
+    fact = _factor(p)
+
+    time_divisions = (
+        (:solar_year,  SOLAR_YEAR,      -3),
+        (:solar_month, SOLAR_YEAR ÷ 12, -3),
+        TIME_DIVISION...)
+
+    for (name,factor,exponent) in time_divisions
+        if (fact == factor) && (exp == exponent)
+            print(io,"$(p.duration) $name")
+            if p.duration != 1
+                print(io,"s")
+            end
+            return
+        end
+    end
+    print(io,"$(p.duration * fact) ")
+    if exp != 0
+        print(io,"× 10^($(exp)) ")
+    end
+    print(io,"s")
+end
+
+
 # Can throw an InexactError
-Dates.Millisecond(p::CFTime.Period{T, Val{1}(), Val{-3}()}) where T =
+Dates.Millisecond(p::Period{T, Val{1}(), Val{-3}()}) where T =
     Dates.Millisecond(Int64(p.duration))
 
 function isless(p1::Period,p2::Period)

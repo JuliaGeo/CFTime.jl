@@ -47,8 +47,8 @@ p = Period(tuf,factor,exponent)
 @test one(p) == Period(1,factor,exponent)
 # test promotion rules
 
-p1 = CFTime.Period(1,:second)
-p2 = CFTime.Period(1000,:millisecond)
+p1 = Period(1,:second)
+p2 = Period(1000,:millisecond)
 
 @test promote_type(typeof(p1),typeof(p2)) == typeof(p2)
 
@@ -70,7 +70,7 @@ pp1,pp2 = promote(p1,Dates.Hour(1))
 
 # missing
 
-p = CFTime.Period(1,:second)
+p = Period(1,:second)
 @test ismissing(p == missing)
 @test ismissing(missing == p)
 @test ismissing(DateTimeStandard(2000,1,1) + missing)
@@ -78,15 +78,27 @@ p = CFTime.Period(1,:second)
 
 # arithmetic
 
-p1 = CFTime.Period(1,:microsecond)
-p2 = CFTime.Period(10,:microsecond)
-@test p1+p2 == CFTime.Period(11,:microsecond)
+p1 = Period(1,:microsecond)
+p2 = Period(10,:microsecond)
+@test p1+p2 == Period(11,:microsecond)
 
 
-p1 = CFTime.Period(1,:microsecond)
-p2 = CFTime.Period(10,:nanosecond)
-@test p1+p2 == CFTime.Period(1010,:nanosecond)
+p1 = Period(1,:microsecond)
+p2 = Period(10,:nanosecond)
+@test p1+p2 == Period(1010,:nanosecond)
 
+# show and string
+p1 = Period(1,:second)
+io = IOBuffer()
+show(io,p1)
+str = String(take!(io))
+@test occursin("1 second",str)
+@test occursin("1 second",string(p1))
+
+# unknown Period
+p1 = Period(1000,1,-21) # 1000 zeptosecond = 1 attosecond
+@test p1 == Period(1,:attosecond)
+@test occursin("-21",string(p1))
 
 # decode dates
 
@@ -181,7 +193,7 @@ dr = dt1:Dates.Microsecond(2):dt2;
 @test length(dr) == 6
 
 @test_throws ArgumentError dt1:Dates.Microsecond(0):dt2
-@test_throws ArgumentError Dates.len(dt1,dt2,CFTime.Period(0,:nanosecond))
+@test_throws ArgumentError Dates.len(dt1,dt2,Period(0,:nanosecond))
 
 
 #(dt2 - dt1) % Dates.Microsecond(2)

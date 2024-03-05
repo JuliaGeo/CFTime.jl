@@ -74,7 +74,6 @@ end
     # counting down
     @inbounds while delta_days < 0
         if (year == 1582) && (month == 10) && (day > 14) && (day + delta_days < 15)
-            #@show n_invalid_dates
             delta_days -= n_invalid_dates    # skip over invalid dates
         end
 
@@ -100,7 +99,6 @@ end
 
     @inbounds while delta_days > 0
         if (year == 1582) && (month == 10) && (day < 5) && (day + delta_days > 4)
-            #@show n_invalid_dates
             delta_days += n_invalid_dates    # skip over invalid dates
         end
 
