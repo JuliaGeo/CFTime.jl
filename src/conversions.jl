@@ -1,31 +1,3 @@
-
-"""
-    days,h,mi,s,ms = timetuplefrac(time::Number)
-
-Return the number of whole days, hours (`h`), minutes (`mi`), seconds (`s`) and
-millisecods (`ms`) from `time` expressed in milliseconds.
-"""
-function timetuplefrac(time::Number)
-    # time can be negative, use fld instead of ÷
-    days = fld(Int64(time), (24*60*60*1000))
-    ms = Int64(time) - days * (24*60*60*1000)
-
-    h = ms ÷ (60*60*1000)
-    ms = ms - h * (60*60*1000)
-
-    mi = ms ÷ (60*1000)
-    ms = ms - mi * (60*1000)
-
-    s = ms ÷ 1000
-    ms = ms - s * 1000
-    return (days,h,mi,s,ms)
-end
-
-function datenumfrac(days,h,mi,s,ms)
-    ms = 60*60*1000 * h +  60*1000 * mi + 1000*s + ms
-    return (24*60*60*1000) * Int64(days) + ms
-end
-
 function datenum(::Type{T}, y, m, d) where T <: AbstractCFDateTime
     cm = _cum_month_length(T)
     # turn year equal to -1 (1 BC) into year = 0
