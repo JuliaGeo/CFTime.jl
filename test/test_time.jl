@@ -525,6 +525,18 @@ end
 )
 
 @test isequal(
+    timedecode(DateTime,[0,missing], "seconds since 2000-01-01 00:00:00"),
+    [DateTime(2000,1,1), missing]
+)
+
+@test isequal(
     timeencode([DateTime(2000,1,1), missing], "seconds since 2000-01-01 00:00:00", "proleptic_gregorian"),
     [0.0,missing]
 )
+
+@test timeencode(DateTime(2000,1,2), "days since 2000-01-01 00:00:00") == 1
+
+
+timedecode(0, "seconds since 2000-01-01 00:00:00", "proleptic_gregorian"),
+
+@test_logs (:warn,r".*converted.*") @test_throws InexactError convert(DateTime,DateTimeStandard(2000,1,1,0,0,0,0,1,units = :microsecond))

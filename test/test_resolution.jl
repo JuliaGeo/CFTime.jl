@@ -225,31 +225,14 @@ end
 
 
 
-daysinmonth(DateTimeAllLeap,2001,2)
-
-dt = DateTimeStandard(1582,10,1)
-daysinmonth(DateTimeStandard,1582,10)
-
-daysinmonth(dt)
-
-DT = DateTimeStandard
-import CFTime: DateTimeStandard, unwrap, _factor, _exponent, _type
+@test daysinmonth(DateTimeAllLeap,2001,2) == 29
+@test daysinmonth(DateTimeStandard,1582,10) == 21
 
 
-
-#function DateTimeStandard{Period{Int64, Val{1}(), Val{-3}()}, Val{(1970, 1, 1)}()}(y::Int64, m::Int64, d::Int64)
-
+Delta = Dates.Year(1) + Dates.Day(1)
+@test DateTimeStandard(2000,1,1) + Delta == DateTimeStandard(2001,1,2)
 
 @test daysinmonth(DateTimeStandard(1582,10,1)) == 21
-
-dt = DateTimeStandard(1582,10,1)
-
-T = typeof(dt.instant)
-Torigintuple = Val{(1970, 1, 1)}()
-
-args = (1582,10,1)
-
-parse(DateTimeNoLeap,"1999-12-05", dateformat"yyyy-mm-dd")
 
 @test parse(DateTimeNoLeap,"1999-12-05", dateformat"yyyy-mm-dd") == DateTimeNoLeap(1999,12,05)
 
@@ -333,3 +316,6 @@ dt = CFTime.timedecode([0,1],"years since 2000-01-01T00:00:00", prefer_datetime 
 
 dt = CFTime.timedecode([0,1],"months since 2000-01-01T00:00:00", prefer_datetime = false)
 @test Dates.value(Dates.Millisecond(dt[2] - dt[1])) == CFTime.SOLAR_YEAR ÷ 12
+
+dt = CFTime.timedecode(1,"days since 2000-01-01T00:00:00", prefer_datetime = false)
+@test Dates.value(dt) == dt.instant.duration
