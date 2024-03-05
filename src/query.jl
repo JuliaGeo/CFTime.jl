@@ -1,23 +1,5 @@
 # query functions
 
-@inline isleap(::Type{DateTimeAllLeap},year,has_year_zero) = true
-@inline isleap(::Type{DateTimeNoLeap},year,has_year_zero) = false
-
-@inline function isleap(::Type{DateTimeProlepticGregorian},year,has_year_zero)
-    if (year < 0) && !has_year_zero
-        year = year + 1
-    end
-    return (year % 400 == 0) || ((year % 4 == 0) && (year % 100 !== 0))
-end
-
-@inline function isleap(::Type{DateTimeJulian},year,has_year_zero)
-    if (year < 0) && !has_year_zero
-        year = year + 1
-    end
-    return year % 4 == 0
-end
-
-
 # https://web.archive.org/web/20240304171516/https://unidata.github.io/cftime/api.html
 # https://github.com/cf-convention/cf-conventions/issues/298
 @inline _hasyear0(::Type{T}) where T <: Union{DateTimeJulian,DateTimeStandard} = false

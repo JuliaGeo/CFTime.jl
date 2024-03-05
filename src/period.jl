@@ -52,6 +52,12 @@ end
     return sum(divi[1:length(tuf)] .* tuf)
 end
 
+"""
+    days,h,mi,s,ms,... = timetuplefrac(t::Period)
+
+Return a tuple with the number of whole days, hours (`h`), minutes (`mi`),
+seconds (`s`) and millisecods (`ms`),... from the time period `t`.
+"""
 function timetuplefrac(t::Period{T,Tfactor}) where {T,Tfactor}
     # for integers
     factor = _factor(t)

@@ -484,15 +484,17 @@ for T in [DateTimeStandard, DateTimeJulian, DateTimeProlepticGregorian,
 end
 
 
+# comparision with reference algorithm
+#Δ = 1
+Δ = 1000
 
-Z = CFTime.datenum(DateTimeProlepticGregorian,-1000,1,1):CFTime.datenum(DateTimeProlepticGregorian,4000,1,1)
-
-Z = CFTime.datenum(DateTimeProlepticGregorian,-1000,1,1):100:CFTime.datenum(DateTimeProlepticGregorian,4000,1,1)
-
-MYMD = CFTime.datetuple_ymd.(DateTimeProlepticGregorian,Z);
-RYMD = Reference.datetuple_ymd.(DateTimeProlepticGregorian,Z);
-
-@test MYMD == RYMD
+for T in [DateTimeStandard, DateTimeJulian, DateTimeProlepticGregorian,
+          DateTimeAllLeap, DateTimeNoLeap, DateTime360Day]
+    Z = CFTime.datenum(T,-1000,1,1):Δ:CFTime.datenum(T,4000,1,1)
+    MYMD = CFTime.datetuple_ymd.(T,Z);
+    RYMD = Reference.datetuple_ymd.(T,Z);
+    @test MYMD == RYMD
+end
 
 #=
 for dt = DateTime(-1000,1,1):Day(100):DateTime(2300,3,1)
