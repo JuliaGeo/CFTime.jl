@@ -73,6 +73,8 @@ pp1,pp2 = promote(p1,Dates.Hour(1))
 p = CFTime.Period(1,:second)
 @test ismissing(p == missing)
 @test ismissing(missing == p)
+@test ismissing(DateTimeStandard(2000,1,1) + missing)
+@test ismissing(missing + DateTimeStandard(2000,1,1))
 
 # arithmetic
 
@@ -140,6 +142,8 @@ dt = DateTimeStandard(2001,1,1)
 dt = DateTimeStandard(2001,1,1 , 1,2,3,   100,200,300, units = :nanosecond)
 @test same_tuple((2001, 1, 1, 1,2,3, 100,200,300), datetuple(dt))
 
+dt = DateTimeStandard(0,"microseconds since 2000-01-01T23:59:59.999999")
+@test string(dt) == "2000-01-01T23:59:59.999999"
 
 # loss of precission
 dt = DateTimeStandard(Float32(24*60*60*1000),"milliseconds since 2000-01-01")
@@ -231,6 +235,7 @@ end
 
 Delta = Dates.Year(1) + Dates.Day(1)
 @test DateTimeStandard(2000,1,1) + Delta == DateTimeStandard(2001,1,2)
+@test DateTimeStandard(2001,1,2) - Delta == DateTimeStandard(2000,1,1)
 
 @test daysinmonth(DateTimeStandard(1582,10,1)) == 21
 
