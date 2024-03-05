@@ -145,6 +145,9 @@ pattern given in the `format` string.
 
         function _origin_period(dt::$CFDateTime{T,Torigintuple}) where {T,Torigintuple}
             Ti = _type(T)
+            if Ti <: AbstractFloat
+                Ti = Int64
+            end
             y,m,d,HMS... = Ti.(_origintuple(dt))
 
             # factor and exponent can be different for the origin
