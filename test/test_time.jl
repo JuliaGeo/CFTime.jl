@@ -537,6 +537,4 @@ end
 @test timeencode(DateTime(2000,1,2), "days since 2000-01-01 00:00:00") == 1
 
 
-timedecode(0, "seconds since 2000-01-01 00:00:00", "proleptic_gregorian"),
-
-@test_logs (:warn,r".*converted.*") @test_throws InexactError convert(DateTime,DateTimeStandard(2000,1,1,0,0,0,0,1,units = :microsecond))
+@test_logs (:warn,r".*cannot.*") @test_throws InexactError convert(DateTime,DateTimeStandard(2000,1,1,0,0,0,0,1,units = :microsecond))

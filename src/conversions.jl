@@ -71,7 +71,7 @@ year, month, day, minute, second and millisecond.
 The conversion might fail if a particular date does not exist in the
 target calendar.
 """
-function reinterpret(::Type{T1}, dt::T2) where T1 <: AbstractCFDateTime where T2 <: Union{AbstractCFDateTime,DateTime}
+function reinterpret(::Type{T1}, dt::DateTime) where T1 <: AbstractCFDateTime
    return T1(
        Dates.year(dt),Dates.month(dt),Dates.day(dt),
        Dates.hour(dt),Dates.minute(dt),Dates.second(dt),
@@ -88,30 +88,6 @@ end
 function reinterpret(::Type{T1}, dt::T2) where T1 <: AbstractCFDateTime where T2 <: AbstractCFDateTime
    return T1(datetuple(dt)...)
 end
-
-"""
-    dt2 = convert(::Type{T}, dt)
-
-Convert a DateTime of type `DateTimeStandard`, `DateTimeProlepticGregorian`,
-`DateTimeJulian` or `DateTime` into the type `T` which can also be either
-`DateTimeStandard`, `DateTimeProlepticGregorian`, `DateTimeJulian` or `DateTime`.
-
-Conversion is done such that duration (difference of DateTime types) are
-preserved. For dates on and after 1582-10-15, the year, month and days are the same for
-the types `DateTimeStandard`, `DateTimeProlepticGregorian` and `DateTime`.
-
-For dates before 1582-10-15, the year, month and days are the same for
-the types `DateTimeStandard` and `DateTimeJulian`.
-"""
-# function convert(::Type{T1}, dt::T2) where T1 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian} where T2 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian}
-#     return T1(dt.instant)
-# end
-
-
-# function convert(::Type{T1}, dt::DateTime) where T1 <: Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian}
-#     T1(UTInstant{Millisecond}(dt.instant.periods - DATETIME_OFFSET))
-# end
-
 
 function parseDT(::Type{Tuple},str)
     str = replace(str,"T" => " ")
@@ -346,16 +322,26 @@ dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00","360_day")
 
 """
 function timedecode(data,units,calendar = "standard"; prefer_datetime = true)
+    function datetime_convert(dt::AbstractCFDateTime{Period{T,Tfactor,Texponent}}) where
+        {T,Tfactor,Texponent}
+
+        if unwrap(Texponent) >= -3
+            # milliseconds, seconds, ...
+            convert(DateTime,dt)
+        else
+            # do not convert microseconds or smaller
+            dt
+        end
+    end
+    datetime_convert(dt::Missing) = missing
+
+
     DT = timetype(calendar)
     dt = timedecode(DT,data,units)
 
     if (prefer_datetime &&
-        (DT in [DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian])
-        #&& _exponent(eltype(dt.instant)) >= -3
-        )
+        (DT in [DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian]))
 
-        datetime_convert(dt) = convert(DateTime,dt)
-        datetime_convert(dt::Missing) = missing
         return datetime_convert.(dt)
     else
         return dt
