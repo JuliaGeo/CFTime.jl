@@ -44,7 +44,7 @@ CFTime.timeencode(dt,"days since 2000-01-01 00:00:00")
 # "360 day" calendar
 
 dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00",DateTime360Day)
-# 4-element Array{DateTime360Day,1}:
+# 4-element Array of DateTime360Day
 #  DateTime360Day(2000-01-01T00:00:00)
 #  DateTime360Day(2000-01-02T00:00:00)
 #  DateTime360Day(2000-01-03T00:00:00)
