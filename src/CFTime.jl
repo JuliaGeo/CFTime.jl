@@ -50,7 +50,8 @@ import Dates:
     yearmonth,
     yearmonthday
 
-import Base: +, -, isless, string, show, convert, reinterpret, ==, promote_rule
+import Base: +, -, isless, string, show, convert, reinterpret, ==, promote_rule,
+    round
 
 include("constants.jl")
 include("types.jl")
