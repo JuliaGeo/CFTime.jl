@@ -105,3 +105,44 @@ DateTimeStandard(2000,01,01) < DateTimeStandard(2000,01,02)
 
 Time ranges can be constructed using a start date, end date and a time increment, for example: `DateTimeStandard(2000,1,1):Dates.Day(1):DateTimeStandard(2000,12,31)`
 
+
+## Rounding
+
+
+```julia
+using CFTime: DateTimeStandard
+using Dates: DateTime
+dt = DateTimeStandard(24*60*60*1000*1000 + 123,"microsecond since 2000-01-01")
+round(DateTime,dt)
+# output
+
+2000-01-02T00:00:00
+```
+
+
+
+```julia
+using Dates: DateTime, Second
+using CFTime: DateTimeStandard
+
+dt = DateTimeStandard(24*60*60,"second since 2000-01-01")
+
+floor(dt+Second(9),Second(10)) == dt
+# output
+
+true
+
+ceil(dt+Second(9),Second(10)) == dt + Second(10)
+# output
+
+true
+
+round(dt+Second(9),Second(10)) == dt + Second(10)
+# output
+
+true
+```
+
+                                                                    
+
+
