@@ -135,7 +135,7 @@ function ==(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) whe
     return p1.duration == p2.duration
 end
 
-for op in (:+,:-)
+for op in (:+,:-,:mod)
     @eval begin
         function $op(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
             Period{T,Tfactor,Texponent}($op(p1.duration,p2.duration))
@@ -143,7 +143,7 @@ for op in (:+,:-)
     end
 end
 
-for op in (:+,:-,:(==))
+for op in (:+,:-,:mod,:(==))
     @eval begin
         $op(p1::Period,p2::Period) = $op(promote(p1,p2)...)
         $op(p1::Period,p2::Dates.Period) = $op(promote(p1,p2)...)
@@ -205,12 +205,6 @@ Dates.Millisecond(p::Period{T, Val{1}(), Val{-3}()}) where T =
 
 function isless(p1::Period,p2::Period)
     return Dates.value(p1 - p2) < 0
-end
-
-function Base.mod(x::Period,y::Period)
-    x,y = promote(x,y)
-    T = typeof(x)
-    return T(mod(Dates.value(x),Dates.value(y)))
 end
 
 # Missing support
