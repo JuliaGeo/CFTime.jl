@@ -207,6 +207,11 @@ function isless(p1::Period,p2::Period)
     return Dates.value(p1 - p2) < 0
 end
 
+function Base.mod(x::Period,y::Period)
+    x,y = promote(x,y)
+    T = typeof(x)
+    return T(mod(Dates.value(x),Dates.value(y)))
+end
 
 # Missing support
 (==)(x::Period, y::Missing) = missing

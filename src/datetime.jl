@@ -75,7 +75,8 @@ This type implements the calendar defined as "$($calendar)".
         function $CFDateTime(t::Union{Number,Tuple},units::AbstractString)
             origintuple, factor, exponent = _timeunits(Tuple,units)
             instant = Period(t,factor,exponent)
-            dt = $CFDateTime{typeof(instant),Val(origintuple)}(instant)
+            origintuple3 = chop0(origintuple,3)
+            dt = $CFDateTime{typeof(instant),Val(origintuple3)}(instant)
         end
 
         $CFDateTime(y::Integer,args::Vararg{Integer,N}; kwargs...) where N = $CFDateTime(Int64,y,args...; kwargs...)

@@ -51,7 +51,7 @@ import Dates:
     yearmonthday
 
 import Base: +, -, isless, string, show, convert, reinterpret, ==, promote_rule,
-    round
+    floor, mod, round
 
 include("constants.jl")
 include("types.jl")
@@ -62,6 +62,7 @@ include("accessors.jl")
 include("query.jl")
 include("conversions.jl")
 include("ranges.jl")
+include("rounding.jl")
 
 export
     AbstractCFDateTime,

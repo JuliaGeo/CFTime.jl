@@ -163,22 +163,6 @@ dt = DateTimeStandard(Float32(24*60*60*1000),"milliseconds since 2000-01-01")
 @test Dates.minute(dt) < 60
 @test Dates.second(dt) < 60
 
-# rounding
-dt = DateTimeStandard(24*60*60*1000*1000 + 123,"microsecond since 2000-01-01")
-@test round(DateTime,dt) == DateTime(2000,1,2)
-
-using Dates: UTInstant, Millisecond
-using CFTime: _origin_period, DATETIME_OFFSET, _factor, _exponent
-    origin = _origin_period(dt)
-
-t = dt.instant + (origin + DATETIME_OFFSET)
-
-r = RoundNearestTiesUp
-t_ms = t.duration * _factor(t) * 10^(3+_exponent(t))
-t_ms_rounded = round(Int64,t_ms,r)
-DateTime(UTInstant{Millisecond}(Dates.Millisecond(t_ms_rounded)))
-
-
 dt = DateTimeStandard(Float64(24*60*60*1000),"milliseconds since 2000-01-01")
 @test same_tuple(datetuple(dt),(2000,1,2))
 
