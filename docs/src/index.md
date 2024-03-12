@@ -10,7 +10,7 @@ This package implements the calendar types from the [CF convention](http://cfcon
 * Julian calendar (`DateTimeJulian`)
 
 Note that time zones are not supported by `CFTime.jl`.
- 
+
 
 ## Installation
 
@@ -108,21 +108,7 @@ Time ranges can be constructed using a start date, end date and a time increment
 
 ## Rounding
 
-
 ```julia
-using CFTime: DateTimeStandard
-using Dates: DateTime
-dt = DateTimeStandard(24*60*60*1000*1000 + 123,"microsecond since 2000-01-01")
-round(DateTime,dt)
-# output
-
-2000-01-02T00:00:00
-```
-
-
-
-```julia
-using Dates: DateTime, Second
 using CFTime: DateTimeStandard
 
 dt = DateTimeStandard(24*60*60,"second since 2000-01-01")
@@ -143,6 +129,31 @@ round(dt+Second(9),Second(10)) == dt + Second(10)
 true
 ```
 
-                                                                    
 
+Julia's `DateTime` records the time relative to a time orgin (January 1st, 1 BC or 0000-01-01 in ISO_8601) with a millisecond accuracy. Converting CFTime date time structures to
+Julia's `DateTime` (using `convert(DateTime,dt)`) can trigger an inexact exception if the convertion cannot be done without loss of precision. One can use the `round` function in order to round to the nearest time represenatable by `DateTime`:
 
+```julia
+using CFTime: DateTimeStandard
+using Dates: DateTime
+dt = DateTimeStandard(24*60*60*1000*1000 + 123,"microsecond since 2000-01-01")
+round(DateTime,dt)
+# output
+
+2000-01-02T00:00:00
+```
+
+## Internal API
+
+For CFTime 0.1.3 and before all date-times are encoded using internally milliseconds since a fixed time origin and stored as an `Int64` similar to julia's `Dates.DateTime`.
+However, this approach does not allow to encode time with a sub-millisecond precision possible allowed by the CF convention and supported by e.g. [numpy](https://numpy.org/doc/1.25/reference/arrays.datetime.html#datetime-units). While `numpy` allows attosecond precision, it can only encode a time span of ±9.2 around the date 00:00:00 UTC on 1 January 1970. In CFTime the time origin and the number containing the duration and the time precision are now encoded as two additional type parameters.
+
+When wrapping CFTime data-time, it is recommended for performance reasons to make the containg structure also parametric, for example
+
+``` julia
+struct MyStuct{T1,T2}
+  dt::DateTimeStandard{T1,T2}
+end
+```
+
+Future version of CFTime might add other type parameters.

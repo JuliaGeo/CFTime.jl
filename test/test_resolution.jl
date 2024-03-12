@@ -240,6 +240,14 @@ end
 
 
 
+
+dt1 = DateTimeStandard(1,"day since 2000-01-01")
+dt2 = DateTimeStandard(24,"hours since 2001-01-01")
+T = typeof(dt1)
+# to be implemented
+#@test_broken dt2 == convert(T,dt2)
+
+
 @test daysinmonth(DateTimeAllLeap,2001,2) == 29
 @test daysinmonth(DateTimeStandard,1582,10) == 21
 

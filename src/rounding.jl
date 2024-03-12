@@ -1,7 +1,10 @@
 
+"""
+    dtr = round(::Type{DateTime}, dt::Union{DateTimeProlepticGregorian,DateTimeStandard,DateTimeJulian},r = RoundNearestTiesUp)
 
-
-function round(::Type{DateTime}, dt::AbstractCFDateTime,r = RoundNearestTiesUp)
+Round the date time `dt` to the nearest date time represenatable by julia's `DateTime` using the rounding mode `r` (either `RoundNearest` (default) `RoundDown` or `RoundUp`).
+"""
+function round(::Type{DateTime}, dt::DateTimeProlepticGregorian,r::RoundingMode = RoundNearest)
     function round_ms(t)
         t_ms =
             if 3+_exponent(t) > 0
@@ -31,7 +34,10 @@ function round(::Type{DateTime}, dt::AbstractCFDateTime,r = RoundNearestTiesUp)
     end
 
     return DateTime(UTInstant{Millisecond}(Dates.Millisecond(duration)))
+end
 
+function round(::Type{DateTime}, dt::Union{DateTimeJulian,DateTimeStandard},r = RoundNearest)
+    round(DateTime,convert(DateTimeProlepticGregorian,dt))
 end
 
 
