@@ -36,7 +36,7 @@ function round(::Type{DateTime}, dt::DateTimeProlepticGregorian,r::RoundingMode 
     return DateTime(UTInstant{Millisecond}(Dates.Millisecond(duration)))
 end
 
-function round(::Type{DateTime}, dt::Union{DateTimeJulian,DateTimeStandard},r = RoundNearest)
+function round(::Type{DateTime}, dt::Union{DateTimeJulian,DateTimeStandard},r::RoundingMode = RoundNearest)
     round(DateTime,convert(DateTimeProlepticGregorian,dt))
 end
 
