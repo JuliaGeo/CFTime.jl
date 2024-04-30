@@ -146,9 +146,9 @@ round(DateTime,dt)
 ## Internal API
 
 For CFTime 0.1.3 and before all date-times are encoded using internally milliseconds since a fixed time origin and stored as an `Int64` similar to julia's `Dates.DateTime`.
-However, this approach does not allow to encode time with a sub-millisecond precision possible allowed by the CF convention and supported by e.g. [numpy](https://numpy.org/doc/1.25/reference/arrays.datetime.html#datetime-units). While `numpy` allows attosecond precision, it can only encode a time span of ±9.2 around the date 00:00:00 UTC on 1 January 1970. In CFTime the time origin and the number containing the duration and the time precision are now encoded as two additional type parameters.
+However, this approach does not allow to encode time with a sub-millisecond precision allowed by the CF convention and supported by e.g. [numpy](https://numpy.org/doc/1.25/reference/arrays.datetime.html#datetime-units). While `numpy` allows attosecond precision, it can only encode a time span of ±9.2 around the date 00:00:00 UTC on 1 January 1970. In CFTime the time origin and the number containing the duration and the time precision are now encoded as two additional type parameters.
 
-When wrapping CFTime data-time, it is recommended for performance reasons to make the containg structure also parametric, for example
+When wrapping a CFTime date-time type, it is recommended for performance reasons to make the containg structure also parametric, for example
 
 ``` julia
 struct MyStuct{T1,T2}
@@ -157,3 +157,11 @@ end
 ```
 
 Future version of CFTime might add other type parameters.
+Internally, `T1` corresponds to a `CFTime.Period{T,Tfactor,Texponent}` structure  wrapping a number type T representing the duration expressed in seconds as:
+
+```
+duration * factor * 10^exponent
+```
+
+where `Tfactor` and `Texponent` are value types of `factor` and `exponent` respectively.
+`T2` is a value type of the date origin tuple represented as `(year, month, day,...)`.
