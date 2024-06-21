@@ -165,3 +165,51 @@ duration * factor * 10^exponent
 
 where `Tfactor` and `Texponent` are value types of `factor` and `exponent` respectively.
 `T2` is a value type of the date origin tuple represented as `(year, month, day,...)`.
+
+
+For example, duration 3600000 milliseconds is represented as `duration = 3600000`,
+`Tfactor = Val(1)`, `Texponent = Val(-3)`, as
+
+```
+3600000 milliseconds = 3600000 * 1 * 10⁻³ seconds
+```
+
+or the durtion 1 hours is `duration = 1`,  `Tfactor = Val(3600)` and `Texponent = Val(0)` since:
+
+```
+1 hour = 3600 * 1 * 10⁰ seconds
+```
+
+There is no normalization of the time duration per default as it could lead to under-/overflow.
+
+The type parameter `T2` of `DateTimeStandard` encodes the time origin as a tuple of integers starting with the year (year,month,day,hour,minute,seconds,milliseconds,microseconds,...).  Only the year, month and day need specified; all other default to zero.
+For example `T2` would be `Val((1970,1,1))` if the time origin is the 1st January 1970).
+
+By using value types as type parametes, the time origin, time resolution... are known to the compiler.
+For example computing the difference between between two date time expressed in as the same time origin and units as a si
+
+```julia
+using BenchmarkTools
+using Dates
+
+dt0 = DateTimeStandard(1,"days since 2000-01-01")
+dt1 = DateTimeStandard(1000,"days since 2000-01-01")
+
+difference_datetime(dt0,dt1) = Dates.Millisecond(dt1 - dt0).value
+@btime difference_datetime($dt0,$dt1)
+
+# output (minimum of 5 @btime trails)
+# 1.689 ns (0 allocations: 0 bytes)
+
+v0 = 1
+v1 = 1000
+
+difference_numbers(v0,v1) = (v1-v0)*(86_400_000)
+@btime difference_numbers($v0,$v1)
+
+# output (minimum of 5 @btime trails)
+# 1.683 ns (0 allocations: 0 bytes)
+```
+
+The information in this section and any other information marked as internal or experimental is not part of the public API and not covered by the semantic versioning.
+Future version of CFTime might add or changing the meaning of type parameters as patch-level changes. However removing a type parameter would be considered as a breaking change.
