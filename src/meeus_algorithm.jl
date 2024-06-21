@@ -121,18 +121,12 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where
         #α = trunc(Int64, (Z - 1867_216.25)/36524.25)
         # 400 years = 146097 days = (400 * 365 + 100 - 4 + 1) days
         # α number of centuries since 400-02-29
-        α = (4*Z - 7468865) ÷ 146097
-
-        β = Z + (-7468865 + 146097) ÷ 4
-        if (β <= 0) && (β % 146097 == 0)
-            # correction for 300-03-01 AC, 101-03-01 BC, 501-03-01 BC, ...
-            A += 1
-        end
+        α = fld(4*Z - 7468865, 146097)
 
         # +α: add leap days for 1700, 1800, 1900, 2000, 2100,
         # -(α ÷ 4): remove leap days for 2000, 2400, ... (already included)
         # so that Julian and Gregorian calendar coincide
-        A += 1 + α - (α ÷ 4)
+        A += 1 + α - fld(α, 4)
     end
 
     # even more magic...
