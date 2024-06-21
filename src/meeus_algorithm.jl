@@ -83,7 +83,7 @@ function datenum_ac(year,month,day,gregorian::Bool)
     # 31  January
     # 30  February (wrong, but not used, since it is the last month)
 
-    Z = (1461 * (year + 4716)) ÷ 4 + (153 * (month+1)) ÷ 5 + day + B - 2401525
+    Z = fld((1461 * (year + 4716)), 4) + (153 * (month+1)) ÷ 5 + day + B - 2401525
     # Modified Julan Day
     return Z + DATENUM_OFFSET
 end
@@ -138,15 +138,15 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where
     # even more magic...
     B = A + 1524
     #C = trunc(Int64, (B - 122.1) / 365.25)
-    C = (20*B - 2442) ÷ 7305
+    C = fld((20*B - 2442), 7305)
     #D = trunc(Int64, 365.25 * C)
     # 1461 = 3*365 + 366
-    D = 1461 * C ÷ 4
+    D = fld(1461 * C, 4)
     #E = trunc(Int64, (B-D)/30.6001)
-    E = (10000 * (B-D)) ÷ 306001
+    E = fld((10000 * (B-D)), 306001)
 
     #day = B - D - trunc(Int64,30.6001 * E)
-    day = B - D - (306001 * E) ÷ 10000
+    day = B - D - fld((306001 * E), 10000)
 
     month = (E < 14 ? E-1 : E-13)
     y = (month > 2 ? C - 4716 : C - 4715)
