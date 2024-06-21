@@ -107,7 +107,7 @@ for Tfactor1 in (SOLAR_YEAR, SOLAR_YEAR ÷ 12)
 end
 
 
-function convert(::Type{Period{T1,Tfactor1,Texponent1}},
+@inline function convert(::Type{Period{T1,Tfactor1,Texponent1}},
                  p::Period{T2,Tfactor2,Texponent2}) where
     {T1,Tfactor1,Texponent1,T2,Tfactor2,Texponent2}
 
@@ -200,8 +200,18 @@ end
 
 
 # Can throw an InexactError
-Dates.Millisecond(p::Period{T, Val{1}(), Val{-3}()}) where T =
+@inline Dates.Millisecond(p::Period{T, Val{1}(), Val{-3}()}) where T =
     Dates.Millisecond(Int64(p.duration))
+
+@inline function Dates.Millisecond(p::Period)
+    @inline Dates.Millisecond(convert(CFTime.Period{Int64,Val{1}(),Val{-3}()},p))
+end
+
+@inline function Dates.Second(p::Period)
+    @inline Dates.Second(convert(CFTime.Period{Int64,Val{1}(),Val{0}()},p))
+end
+
+
 
 function isless(p1::Period,p2::Period)
     return Dates.value(p1 - p2) < 0
