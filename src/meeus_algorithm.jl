@@ -17,25 +17,6 @@ function datenum_gregjulian(year,month,day,gregorian::Bool,has_year_zero = false
         year = year+1
     end
 
-    if gregorian
-        # bring year in range of 1601 to 2000
-        ncycles = (2000 - year) ÷ 400
-        year = year + 400 * ncycles
-        # 146_097 = days in 400 years = 365.2425 * 400
-        return datenum_ac(year,month,day,gregorian) - ncycles*146_097
-    else
-        return datenum_ac(year,month,day,gregorian)
-    end
-
-end
-
-
-# Meeus, Jean (1998) Astronomical Algorithms (2nd Edition). Willmann-Bell,  Virginia. p. 63
-# However, the algorithm does not work for -100:03:01 and before in
-# the proleptic Gregorian Calendar
-
-function datenum_ac(year,month,day,gregorian::Bool)
-
     if month <= 2
         # if the date is January or February, it is considered
         # the 13rth or 14th month of the preceeding year
@@ -45,8 +26,8 @@ function datenum_ac(year,month,day,gregorian::Bool)
 
     B =
         if gregorian
-            A = year ÷ 100
-            2 - A + A ÷ 4
+            A = fld(year, 100)
+            2 - A + fld(A, 4)
         else
             0
         end
