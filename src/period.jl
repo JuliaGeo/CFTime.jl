@@ -204,11 +204,11 @@ end
     Dates.Millisecond(Int64(p.duration))
 
 @inline function Dates.Millisecond(p::Period)
-    @inline Dates.Millisecond(convert(CFTime.Period{Int64,Val{1}(),Val{-3}()},p))
+    Dates.Millisecond(convert(CFTime.Period{Int64,Val{1}(),Val{-3}()},p))
 end
 
 @inline function Dates.Second(p::Period)
-    @inline Dates.Second(convert(CFTime.Period{Int64,Val{1}(),Val{0}()},p))
+    Dates.Second(convert(CFTime.Period{Int64,Val{1}(),Val{0}()},p))
 end
 
 
