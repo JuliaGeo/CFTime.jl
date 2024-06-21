@@ -131,8 +131,10 @@ pattern given in the `format` string.
 
             y,mo,d,HMS... = datetuple(dt)
             mo = mo + Dates.value(Δ)
-            mo2 = mod(mo - 1, 12) + 1
-            y = y + (mo-mo2) ÷ 12
+
+            Δy,mo2 = fldmod(mo - 1, 12)
+            mo2 = mo2 + 1
+            y = y + Δy
 
             T = eltype(dt.instant.duration)
             p = Period(

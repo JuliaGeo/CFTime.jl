@@ -32,12 +32,20 @@ function datenum_gregjulian(year,month,day,gregorian::Bool,has_year_zero = false
             0
         end
 
-    # benchmark shows that it is 40% faster replacing
-    # trunc(Int64,365.25 * (year + 4716))
-    # by
-    # (1461 * (year + 4716)) ÷ 4
     #
-    # and other floating point divisions
+    # benchmark shows that integer division is 40% faster than floating point division
+    # flowing by truncation
+
+    # julia> yyear = 2024
+    # julia> @btime trunc(Int64,365.25 * ($yyear + 4716))
+    #   2.881 ns (0 allocations: 0 bytes)
+    # 2461785
+
+    # julia> @btime fld(1461 * ($yyear + 4716), 4)
+    #   1.929 ns (0 allocations: 0 bytes)
+    # 2461785
+    #
+    #  11th Gen Intel(R) Core(TM) i5-1135G7 @ 2.40GHz
 
     # Z is the Julian Day plus 0.5
     # 1461/4 is 365.25
@@ -105,7 +113,7 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where
         α = fld(4*Z - 7468865, 146097)
 
         # +α: add leap days for 1700, 1800, 1900, 2000, 2100,
-        # -(α ÷ 4): remove leap days for 2000, 2400, ... (already included)
+        # -fld(α, 4): remove leap days for 2000, 2400, ... (already included)
         # so that Julian and Gregorian calendar coincide
         A += 1 + α - fld(α, 4)
     end
