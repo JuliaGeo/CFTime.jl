@@ -538,3 +538,18 @@ end
 
 
 @test_logs (:warn,r".*cannot.*") @test_throws InexactError convert(DateTime,DateTimeStandard(2000,1,1,0,0,0,0,1,units = :microsecond))
+
+
+
+# issue #27
+
+# the leap day: 29 Feburary -4717 in proleptic Julian calendar
+# https://web.archive.org/web/20231211220247/https://tondering.dk/claus/cal/chrmisc.php
+Z = -2401403
+T = DateTimeJulian
+RYMD = Reference.datetuple_ymd(T,Z)
+MYMD = CFTime.datetuple_ymd(T,Z)
+@test RYMD == MYMD
+
+Z2 = CFTime.datenum(T,MYMD...)
+@test Z == Z2
