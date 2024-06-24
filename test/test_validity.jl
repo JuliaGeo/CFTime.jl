@@ -1,3 +1,7 @@
+
+# run on SLURM as
+# step=10000; max=1000000; for i in $(seq -$max $step $max); do sbatch --job-name=julia --output=output-%j-%N.out  --nodes=1 --ntasks=1   --mem-per-cpu=800 --time=48:00:00  julia test_validity.jl  $i:$((i+step-1)); done
+
 using CFTime
 using Test
 
@@ -40,7 +44,7 @@ yearrange = 1000:3000
 yearrange = 1900:2000
 
 if length(ARGS) > 0
-    param = parse.(Int64,split(ARGS[1],','))
+    param = parse.(Int64,split(ARGS[1],':'))
     yearrange = param[1]:param[2]
 end
 
