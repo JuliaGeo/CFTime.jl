@@ -44,8 +44,8 @@ end
     end
 end
 
-function month_lengths(::Type{DateTime360Day}, year::Integer, has_year_zero)
-    ntuple(i -> 30,12)
+@inline function month_lengths(::Type{DateTime360Day}, year::Integer, has_year_zero)
+    ntuple(i -> 30,Val(12))
 end
 
 # Adapted
@@ -53,10 +53,7 @@ end
 # Licence MIT
 # by Jeff Whitaker (https://github.com/jswhit)
 
-
-@inline function datetuple_ymd(::Type{T}, delta_days, julian_gregorian_mixed, has_year_zero) where T
-    # use the same origin
-    year,month,day = CFTime.datetuple_ymd(T,0)
+@inline function add_timedelta_ymd(::Type{T}, (year,month,day), delta_days, julian_gregorian_mixed, has_year_zero) where T
 
     month_length = month_lengths(T, year, has_year_zero)
 
@@ -128,6 +125,13 @@ function datetuple_ymd(::Type{T},Z) where T
     has_year_zero = _hasyear0(T)
     julian_gregorian_mixed = T <: DateTimeStandard
     return datetuple_ymd(T, Z, julian_gregorian_mixed, has_year_zero)
+end
+
+
+@inline function datetuple_ymd(::Type{T}, delta_days, julian_gregorian_mixed, has_year_zero) where T
+    # use the same origin
+    year,month,day = CFTime.datetuple_ymd(T,0)
+    return add_timedelta_ymd(T, (year,month,day), delta_days, julian_gregorian_mixed, has_year_zero)
 end
 
 end

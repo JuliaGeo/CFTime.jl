@@ -1,59 +1,73 @@
-
-# run on SLURM as
-# step=10000; max=1000000; for i in $(seq -$max $step $max); do sbatch --job-name=julia --output=output-%j-%N.out  --nodes=1 --ntasks=1   --mem-per-cpu=800 --time=48:00:00  julia test_validity.jl  $i:$((i+step-1)); done
-
 using CFTime
 using Test
 
 include("reference_algorithm.jl")
 
+function test_dates(::Type{T},YMD0,YMD1) where T
+    nsuccess = 0
+    fails = []
 
-test_years(T,max_year::Integer) = test_years(T,-max_year:max_year)
+    # start day
+    YMD = YMD0
 
-function test_years(T,yearrange::AbstractRange)
-    nsuccess = Int128(0)
-    fails = Int64[]
+    Z = CFTime.datenum(T,YMD...)
 
-    for year = yearrange
-        if (year != 0) || ((year == 0) && CFTime._hasyear0(T))
-            for Z in (CFTime.datenum(T,year,1,1):1:CFTime.datenum(T,year+1,1,1))[1:end-1]
-                MYMD = CFTime.datetuple_ymd(T,Z);
-                RYMD = Reference.datetuple_ymd(T,Z);
 
-                if MYMD == RYMD
-                    nsuccess += 1
-                else
-                    push!(fails,Z)
-                end
+    has_year_zero = CFTime._hasyear0(T)
+    julian_gregorian_mixed = T <: DateTimeStandard
+    Δdays = 1
 
-                Z2 = CFTime.datenum(T,MYMD...)
+    while YMD != YMD1
+        # next day using the reference algorithm
+        YMD = Reference.add_timedelta_ymd(T, YMD, Δdays, julian_gregorian_mixed, has_year_zero)
 
-                if Z == Z2
-                    nsuccess += 1
-                else
-                    push!(fails,Z)
-                end
-            end
+        # next day using the adapted Meeus algorithm
+        Z += Δdays
+        MYMD = CFTime.datetuple_ymd(T,Z)
+
+        if MYMD == YMD
+            nsuccess += 1
+        else
+            push!(fails,Z)
         end
+
+        # test round-trip
+        Z2 = CFTime.datenum(T,MYMD...)
+
+        if Z == Z2
+            nsuccess += 1
+        else
+            push!(fails,Z)
+        end
+
     end
+
     return (nsuccess,fails)
 end
 
+T = DateTimeStandard
 
-yearrange = 1000:3000
-yearrange = 1900:2000
+YMD0 = (-1_000_000,1,1)
+YMD1 = (1_000_000,1,1)
 
-if length(ARGS) > 0
-    param = parse.(Int64,split(ARGS[1],':'))
-    yearrange = param[1]:param[2]
-end
+# quick test
+YMD0 = (-100_000,1,1)
 
-@show yearrange
+YMD1 = (100_000,12,31)
+
 
 for T in [DateTimeStandard, DateTimeJulian, DateTimeProlepticGregorian,
           DateTimeAllLeap, DateTimeNoLeap, DateTime360Day]
+#for T in [DateTime360Day]
 
-    nsuccess,fails = @time test_years(T,yearrange)
+    global YMD1
+
+    if T <: DateTime360Day
+        YMD1 = (YMD1[1:2]...,30)
+    end
+
+    nsuccess,fails = @time test_dates(T,YMD0,YMD1)
+
 
     println(T," success: ",nsuccess)
     println(T," fails: ",length(fails))
