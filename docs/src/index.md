@@ -28,7 +28,6 @@ If you want to try the latest development version, you can do this with the foll
 ```julia
 using Pkg
 Pkg.add(PackageSpec(url="https://github.com/JuliaGeo/CFTime.jl", rev="master"))
-Pkg.build("CFTime")
 ```
 
 ## Types
