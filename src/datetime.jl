@@ -9,6 +9,14 @@ Dates.value(p::AbstractCFDateTime) = Dates.value(p.instant)
 
 _origintuple(dt::AbstractCFDateTime{T,Torigintuple}) where {T,Torigintuple} = unwrap(Torigintuple)
 
+for (name,factor,exponent) in TIME_DIVISION
+    qname = Meta.quot(name)
+    @eval begin
+        _Tfactor(::Val{$qname}) = Val($factor)
+        _Texponent(::Val{$qname}) = Val($exponent)
+    end
+end
+
 for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                               (:DateTimeJulian,"julian"),
                               (:DateTimeProlepticGregorian,"prolepticgregorian"),
@@ -59,17 +67,24 @@ All arguments must be convertible to `Int64`.
 The netCDF CF calendars are defined in [the CF Standard](http://cfconventions.org/cf-conventions/cf-conventions.html#calendar).
 This type implements the calendar defined as "$($calendar)".
         """
-        function $CFDateTime(Ti::DataType,
+        @inline function $CFDateTime(Ti::DataType,
                              args...;
-#                             origin = (1858,11,17),
                              origin = (1900, 1, 1),
                              # milliseconds or smaller
                              units = first(TIME_DIVISION[max(length(args),7)-2]),
-                             )
+                                     )
+            as_val(x::T) where T <: Val = x
+            as_val(x) = Val(x)
+
             DT = $CFDateTime
-            factor, exponent = filter(td -> td[1] == Symbol(units),TIME_DIVISION)[1][2:end]
-            T = Period{Ti,Val(factor), Val(exponent)}
-            return DT{T,Val(origin)}(args...)
+
+            Torigin = as_val(origin)
+            Tunits = as_val(units)
+            Tfactor = _Tfactor(Tunits)
+            Texponent = _Texponent(Tunits)
+
+            T = Period{Ti,Tfactor, Texponent}
+            return DT{T,Torigin}(args...)
         end
 
         function $CFDateTime(t::Union{Number,Tuple},units::AbstractString)
@@ -187,6 +202,11 @@ pattern given in the `format` string.
     end
 end
 
+function units(dt::AbstractCFDateTime{T,Torigintuple}) where {T,Torigintuple}
+    return string(units(dt.instant)," since ",
+                  datetuple_to_string(unwrap(Torigintuple)))
+end
+
 +(dt::AbstractCFDateTime,p::Union{Dates.TimePeriod,Dates.Day}) = dt + convert(CFTime.Period,p)
 
 @inline function -(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
@@ -233,23 +253,45 @@ function chop0(timetuple,minlen=0)
     end
 end
 
-function string(dt::T)  where T <: AbstractCFDateTime
-    y,mo,d,h,mi,s,subsec... = chop0(datetuple(dt),6)
-    io = IOBuffer()
-    @printf(io,"%04d-%02d-%02dT%02d:%02d:%02d",y,mo,d,h,mi,s)
-    if length(subsec) > 0
-        @printf(io,".")
-    end
+function datetuple_to_string(timetuple::Tuple)
+    y,mo,d,rest... = pad_ymd(timetuple)
 
-    for subsec_ in subsec
-        @printf(io,"%03d",subsec_)
+    io = IOBuffer()
+    @printf(io,"%04d-%02d-%02d",y,mo,d)
+
+    if length(rest) > 0
+        @printf(io,"T")
+
+        for i = 1:3
+            r,rest... = rest
+            @printf(io,"%02d",r)
+            if length(rest) == 0
+                break
+            end
+            if i < 3
+                @printf(io,":")
+            end
+        end
+
+        if length(rest) > 0
+            @printf(io,".")
+
+            for subsec_ in rest
+                @printf(io,"%03d",subsec_)
+            end
+        end
     end
 
     return String(take!(io))
 end
 
+
+function string(dt::T)  where T <: AbstractCFDateTime
+    return datetuple_to_string(chop0(datetuple(dt),6))
+end
+
 function show(io::IO,dt::T)  where T <: AbstractCFDateTime
-    write(io, string(typeof(dt)), "(",string(dt),")")
+    println(io, string(typeof(dt)), "(",string(dt),")")
 end
 
 

@@ -173,6 +173,21 @@ for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond
     end
 end
 
+
+function units(p::Period{T,Tfactor,Texponent}) where {T,Tfactor,Texponent}
+
+    for (name,factor,exponent) in TIME_DIVISION
+        if (Val(factor) == Tfactor) && (Val(exponent) == Texponent)
+            # always append s for plural
+            return string(name,"s")
+        end
+    end
+
+    return string(unwrap(factor)," × 10^",unwrap(exponent)," s")
+end
+
+
+
 function Base.show(io::IO,p::Period)
     exp = _exponent(p)
     fact = _factor(p)

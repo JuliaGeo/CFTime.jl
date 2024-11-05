@@ -143,6 +143,35 @@ round(DateTime,dt)
 2000-01-02T00:00:00
 ```
 
+
+## Type-stable constructors
+
+To create a type-stable date time structure, use the `DateTimeStandard` (and similar) either with the default `units` and time `origin`, a constant unit/origin or a value type of the unit and origin. For example:
+
+```julia
+using CFTime
+
+foo(year,month,day,hour,minute,second) = CFTime.DateTimeStandard(year,month,day,hour,minute,second; units=:second, origin=(1970,1,1))
+
+# Type-stable thanks to constant propagation
+@code_warntype foo(2000,1,1,0,0,0)
+
+
+foo2(year,month,day,hour,minute,second,units,origin) = CFTime.DateTimeStandard(year,month,day,hour,minute,second; units, origin)
+
+# This not type-stable as the type depends on the value of units and origin
+units = :second
+origin = (1970,1,1)
+@code_warntype foo2(2000,1,1,0,0,0,units,origin)
+
+
+# But this is again type-stable
+units = Val(:second)
+origin = Val((1970,1,1))
+@code_warntype foo2(2000,1,1,0,0,0,units,origin)
+```
+
+
 ## Internal API
 
 For CFTime 0.1.3 and before all date-times are encoded using internally milliseconds since a fixed time origin and stored as an `Int64` similar to julia's `Dates.DateTime`.
