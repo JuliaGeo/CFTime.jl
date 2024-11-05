@@ -93,11 +93,15 @@ show(io,p1)
 str = String(take!(io))
 @test occursin("1 second",str)
 @test occursin("1 second",string(p1))
+@test occursin("second",CFTime.units(p1))
+@test Dates.Second(p1) === Dates.Second(1)
+@test Dates.Millisecond(p1) === Dates.Millisecond(1000)
 
 # unknown Period
 p1 = Period(1000,1,-21) # 1000 zeptosecond = 1 attosecond
 @test p1 == Period(1,:attosecond)
 @test occursin("-21",string(p1))
+@test occursin("-21",CFTime.units(p1))
 
 # decode dates
 

@@ -204,7 +204,7 @@ end
 
 function units(dt::AbstractCFDateTime{T,Torigintuple}) where {T,Torigintuple}
     return string(units(dt.instant)," since ",
-                  datetuple_to_string(unwrap(Torigintuple)))
+                  format_datetuple(unwrap(Torigintuple)))
 end
 
 +(dt::AbstractCFDateTime,p::Union{Dates.TimePeriod,Dates.Day}) = dt + convert(CFTime.Period,p)
@@ -253,7 +253,7 @@ function chop0(timetuple,minlen=0)
     end
 end
 
-function datetuple_to_string(timetuple::Tuple)
+function format_datetuple(timetuple::Tuple)
     y,mo,d,rest... = pad_ymd(timetuple)
 
     io = IOBuffer()
@@ -287,7 +287,7 @@ end
 
 
 function string(dt::T)  where T <: AbstractCFDateTime
-    return datetuple_to_string(chop0(datetuple(dt),6))
+    return format_datetuple(chop0(datetuple(dt),6))
 end
 
 function show(io::IO,dt::T)  where T <: AbstractCFDateTime

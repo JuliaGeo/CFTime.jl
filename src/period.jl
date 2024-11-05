@@ -208,7 +208,7 @@ function units(p::Period{T,Tfactor,Texponent}) where {T,Tfactor,Texponent}
         end
     end
 
-    return string(unwrap(factor)," × 10^",unwrap(exponent)," s")
+    return string(unwrap(Tfactor)," × 10^",unwrap(Texponent)," s")
 end
 
 
@@ -244,11 +244,15 @@ end
     Dates.Millisecond(Int64(p.duration))
 
 @inline function Dates.Millisecond(p::Period)
-    Dates.Millisecond(convert(CFTime.Period{Int64,Val{1}(),Val{-3}()},p))
+    Dates.Millisecond(convert(Period{Int64,Val{1}(),Val{-3}()},p))
 end
 
 @inline function Dates.Second(p::Period)
-    Dates.Second(convert(CFTime.Period{Int64,Val{1}(),Val{0}()},p))
+    Dates.Second(convert(Period{Int64,Val{1}(),Val{0}()},p))
+end
+
+@inline function Dates.Second(p::Period{T,Val{1}(),Val{0}()}) where T
+    Dates.Second(p.duration)
 end
 
 function isless(p1::Period,p2::Period)
