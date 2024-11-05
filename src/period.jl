@@ -20,16 +20,16 @@ _factor(p::Period{T,Tfactor,Texponent}) where {T,Tfactor,Texponent} = unwrap(Tfa
 _exponent(p::Period{T,Tfactor,Texponent}) where {T,Tfactor,Texponent} = unwrap(Texponent)
 
 
-_type(::Type{Period{T,factor,exponent}}) where {T,factor,exponent} = T
-_factor(::Type{Period{T,factor,exponent}}) where {T,factor,exponent} = unwrap(factor)
-_exponent(::Type{Period{T,factor,exponent}}) where {T,factor,exponent} = unwrap(exponent)
+_type(::Type{Period{T,Tfactor,Texponent}}) where {T,Tfactor,Texponent} = T
+_factor(::Type{Period{T,Tfactor,Texponent}}) where {T,Tfactor,Texponent} = unwrap(Tfactor)
+_exponent(::Type{Period{T,Tfactor,Texponent}}) where {T,Tfactor,Texponent} = unwrap(Texponent)
 
-function Base.zero(p::Period{T,numerator,denominator}) where {T,numerator,denominator}
-    Period{T,numerator,denominator}(0)
+function Base.zero(p::Period{T,Tfactor,Texponent}) where {T,Tfactor,Texponent}
+    Period{T,Tfactor,Texponent}(0)
 end
 
-function Base.one(p::Period{T,numerator,denominator}) where {T,numerator,denominator}
-    Period{T,numerator,denominator}(1)
+function Base.one(p::Period{T,Tfactor,Texponent}) where {T,Tfactor,Texponent}
+    Period{T,Tfactor,Texponent}(1)
 end
 
 
