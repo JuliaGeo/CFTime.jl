@@ -44,6 +44,23 @@ Dates.value(p::Period) = p.duration
        __tf((result...,Int64(p)),time2,dn...)
     end
 end
+
+"""
+    tf(time,divi)
+
+Recursively divides `time` into the tuple `divi`. For example
+
+```julia
+divi = (24*60*60,60*60,60,1)
+tf(1234567,divi)
+# output
+# (14, 6, 56, 7)
+# 14 days, 6 hours, 56 minutes, 7 seconds
+sum(tf(1234567,divi) .* divi) == 1234567
+# output
+# true
+```
+"""
 @inline tf(time,divi) = __tf((),time,divi...)
 
 # rescale the time units for the ratio factor/exponent
