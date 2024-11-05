@@ -5,7 +5,7 @@ using UUIDs
 using Pkg
 
 function compute(n)
-    t0 = DateTime(1000,1,1) .+ Dates.Second.(0:(n-1))
+    t0 = DateTime(1900,1,1) .+ Dates.Second.(0:(n-1))
     t1 = DateTime(2000,1,1) .+ Dates.Second.(0:(n-1))
 
     diff = t1 - reverse(t0)
@@ -19,8 +19,8 @@ pkg_name = "Dates"
 m = Pkg.Operations.Context().env.manifest
 println("Dates: ", m[findfirst(v->v.name == pkg_name, m)].version)
 
-#n = 1_000_000
-n = 100_000
+n = 1_000_000
+#n = 100_000
 println("mean_total_seconds: ", compute(n))
 
 bm = run(@benchmarkable compute(n) samples=100)
