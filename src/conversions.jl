@@ -171,7 +171,13 @@ function parseDT(::Type{Tuple},str)
     return (y,m,d,h,mi,s,subsec...)
 end
 
-function parseDT(::Type{DT},str) where DT <: Union{DateTime,AbstractCFDateTime}
+function parseDT(::Type{DateTime},str)
+    t = parseDT(Tuple,str)
+    t = t[1:min(length(t),7)] # truncate smaller than microseconds
+    return DateTime(t...)
+end
+
+function parseDT(::Type{DT},str) where DT <: AbstractCFDateTime
     return DT(parseDT(Tuple,str)...)
 end
 
