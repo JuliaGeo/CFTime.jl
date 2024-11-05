@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - master
-      - flexible-resolution
     tags: '*'
 jobs:
   test:
@@ -14,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.6'
+          - 'lts'
           - '1'
           - 'nightly'
         os:
