@@ -54,23 +54,27 @@ function datenum_gregjulian(year,month,day,gregorian::Bool,has_year_zero = false
     # why 153/5 (or 30.6001 ?)
     # month+1 varies between 4 (March), 5 (April), .. 14 (December),
     # 15 (January), 16 (February)
+    # The 5 months March - July = 153 days
+    # The 5 months August - December = 153 days
 
     # cm = 153 * (4:16) ÷ 5; cm[2:end]-cm[1:end-1]
     #
-    # length of each month
-    # --------------------
-    # 31  March
-    # 30  April
-    # 31  May
-    # 30  June
-    # 31  July
-    # 31  August
-    # 30  September
-    # 31  October
-    # 30  November
-    # 31  December
-    # 31  January
-    # 30  February (wrong, but not used, since it is the last month)
+    #  E length  month
+    # ---------------------
+    #  4   31    March
+    #  5   30    April
+    #  6   31    May
+    #  7   30    June
+    #  8   31    July
+    #
+    #  9   31    August
+    # 10   30    September
+    # 11   31    October
+    # 12   30    November
+    # 13   31    December
+    #
+    # 14   31    January
+    # 15   30    February (wrong, but not used, since it is the last month)
 
     Z = fld(1461 * (year + 4716), 4) + (153 * (month+1)) ÷ 5 + day + B - 2401525
     # Modified Julan Day
@@ -107,7 +111,6 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where
     if gregorian
         # 1867216.25 - 0.5 corresponds to the date 400-02-29T18:00:00
         # lets magic happen
-        #α = trunc(Int64, (Z - 1867_216.25)/36524.25)
         # 400 years = 146097 days = (400 * 365 + 100 - 4 + 1) days
         # α number of centuries since 400-02-29
         α = fld(4*Z - 7468865, 146097)
@@ -120,16 +123,15 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where
 
     # even more magic...
     B = A + 1524
-    #C = trunc(Int64, (B - 122.1) / 365.25)
+    # 20 years = 7305 days in the Julian calendar
     C = fld(20*B - 2442, 7305)
-    #D = trunc(Int64, 365.25 * C)
     # 1461 = 3*365 + 366
     D = fld(1461 * C, 4)
-    #E = trunc(Int64, (B-D)/30.6001)
     E = fld(10000 * (B-D), 306001)
 
-    #day = B - D - trunc(Int64,30.6001 * E)
     day = B - D - fld(306001 * E, 10000)
+
+    # shift to first month from March to January
 
     month = (E < 14 ? E-1 : E-13)
     y = (month > 2 ? C - 4716 : C - 4715)
