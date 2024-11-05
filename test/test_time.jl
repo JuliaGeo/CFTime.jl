@@ -490,6 +490,7 @@ end
 
 for T in [DateTimeStandard, DateTimeJulian, DateTimeProlepticGregorian,
           DateTimeAllLeap, DateTimeNoLeap, DateTime360Day]
+    local Z, MYMD, RYMD
     Z = CFTime.datenum(T,-1000,1,1):Δ:CFTime.datenum(T,4000,1,1)
     MYMD = CFTime.datetuple_ymd.(T,Z);
     RYMD = Reference.datetuple_ymd.(T,Z);
