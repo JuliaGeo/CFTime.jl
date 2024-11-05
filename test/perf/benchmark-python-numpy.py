@@ -15,8 +15,11 @@ def compute(n):
     return diff.astype("int64").mean()
 
 if __name__ == "__main__":
-    n = 1_000_000
-#    n = 100_000
+    print("python: ",sys.version)
+    print("numpy: ",np.__version__)
+
+#    n = 1_000_000
+    n = 100_000
     mean_total_seconds = compute(n)
     print("mean_total_seconds: ", mean_total_seconds)
 

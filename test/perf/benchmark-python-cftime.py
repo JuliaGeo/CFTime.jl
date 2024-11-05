@@ -10,8 +10,8 @@ import cftime
 import datetime
 
 def compute(n):
-    t0 = cftime.num2date(np.arange(n),"milliseconds since 1000-01-1")
-    t1 = cftime.num2date(np.arange(n),"milliseconds since 2000-01-1")
+    t0 = cftime.num2date(np.arange(n),"milliseconds since 1000-01-1",calendar="proleptic_gregorian")
+    t1 = cftime.num2date(np.arange(n),"milliseconds since 2000-01-1",calendar="proleptic_gregorian")
 
     diff = t1 - np.flip(t0)
 
@@ -20,8 +20,10 @@ def compute(n):
 
 
 if __name__ == "__main__":
+    print("python: ",sys.version)
+    print("cftime: ",cftime.__version__)
+#    n = 1_000_000
     n = 100_000
-#    n = 100_000
     mean_total_seconds = compute(n)
     print("mean_total_seconds: ", mean_total_seconds)
 

@@ -2,23 +2,31 @@ using CFTime
 using Dates
 using BenchmarkTools
 using Statistics
+using UUIDs
+using Pkg
 
 function compute(n)
-    t0 = DateTimeStandard(1000,1,1) .+ Dates.Second.(0:(n-1))
-    t1 = DateTimeStandard(2000,1,1) .+ Dates.Second.(0:(n-1))
+    t0 = DateTimeProlepticGregorian(1000,1,1) .+ Dates.Second.(0:(n-1))
+    t1 = DateTimeProlepticGregorian(2000,1,1) .+ Dates.Second.(0:(n-1))
 
     diff = t1 - reverse(t0)
 
-    return mean(Dates.value.(Dates.Millisecond.(diff)))
+    return mean(Dates.value.(Dates.Millisecond.(diff)) ./ 1000)
 end
 
-n = 1_000_000
-@show compute(n)
+println("julia: ",VERSION)
 
-bm = run(@benchmarkable compute(n) samples=100 seconds=10000)
+pkg_name = "CFTime"
+m = Pkg.Operations.Context().env.manifest
+println("CFTime: ", m[findfirst(v->v.name == pkg_name, m)].version)
 
-@show bm
-@show minimum(bm.times/1e9)
+#n = 1_000_000
+n = 100_000
+println("mean_total_seconds: ", compute(n))
+
+bm = run(@benchmarkable compute(n) samples=100)
+
+println("min time: ",minimum(bm.times/1e9))
 
 open("julia-CFTime.txt","w") do f
     for t in bm.times
