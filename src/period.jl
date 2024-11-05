@@ -5,14 +5,19 @@
 
 Period(duration::Number,factor,exponent=-3) = Period{typeof(duration),Val(factor),Val(exponent)}(duration)
 
-function Period(duration::Number,units::Union{Symbol,AbstractString})
-    factor, exponent = filter(td -> td[1] == Symbol(units),TIME_DIVISION)[1][2:end]
-    return Period(duration,factor,exponent)
+@inline function Period(duration::T,units::Val) where T <: Number
+    Tfactor = _Tfactor(units)
+    Texponent = _Texponent(units)
+    return Period{T,Tfactor,Texponent}(duration)
 end
 
-_type(p::Period{T,factor,exponent}) where {T,factor,exponent} = T
-_factor(p::Period{T,factor,exponent}) where {T,factor,exponent} = unwrap(factor)
-_exponent(p::Period{T,factor,exponent}) where {T,factor,exponent} = unwrap(exponent)
+@inline function Period(duration::Number,units::Union{Symbol,AbstractString})
+    return Period(duration,Val(Symbol(units)))
+end
+
+_type(p::Period{T,Tfactor,Texponent}) where {T,Tfactor,Texponent} = T
+_factor(p::Period{T,Tfactor,Texponent}) where {T,Tfactor,Texponent} = unwrap(Tfactor)
+_exponent(p::Period{T,Tfactor,Texponent}) where {T,Tfactor,Texponent} = unwrap(Texponent)
 
 
 _type(::Type{Period{T,factor,exponent}}) where {T,factor,exponent} = T
