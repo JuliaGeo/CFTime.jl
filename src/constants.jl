@@ -30,6 +30,11 @@ const DATETIME_OFFSET = Dates.Millisecond(678576 * (24*60*60*Int64(1000)))
 # 1 day =  24*60*60 × 10⁰ s
 # 1 nanosecond = 1 × 10⁻⁹ s
 
+# Note: the time of first call for datetuple does increases significantly
+# if we use zeptoseconds and beyond.
+# Currently we support only resolutions down to attosecond resolution (as
+# does numpy).
+
 const TIME_DIVISION = (
     # name           factor, exponent
     (:day,         24*60*60,      0),
@@ -40,7 +45,7 @@ const TIME_DIVISION = (
     (:microsecond,        1,     -6), # time of first call for datetuple
     (:nanosecond,         1,     -9), # 1.27 seconds
     (:picosecond,         1,    -12), # 1.52 seconds
-    (:femtosecond,        1,    -15),  # 2.07 seconds
+    (:femtosecond,        1,    -15), # 2.07 seconds
     (:attosecond,         1,    -18), # 3.11 seconds
 #    (:zeptosecond,        1,    -21), # 5.35 seconds
 #    (:yoctosecond,        1,    -24), # 10.36 seconds
@@ -48,4 +53,4 @@ const TIME_DIVISION = (
 #    (:quectosecond,       1,    -30), # 60.37 seconds
 )
 
-TIME_NAMES = (:year, :month, first.(TIME_DIVISION)...)
+const TIME_NAMES = (:year, :month, first.(TIME_DIVISION)...)
