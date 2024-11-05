@@ -35,6 +35,7 @@ end
 
 Dates.value(p::Period) = p.duration
 
+# helper functions for _timetuple
 @inline __tf(result,time) = result
 @inline function __tf(result,time,d1,dn...)
    if d1 == 0
@@ -46,29 +47,31 @@ Dates.value(p::Period) = p.duration
 end
 
 """
-    tf(time,divi)
+    _timetuple(time,divi)
 
 Recursively divides `time` into the tuple `divi`. For example
 
 ```julia
 divi = (24*60*60,60*60,60,1)
-tf(1234567,divi)
+_timetuple(1234567,divi)
 # output
 # (14, 6, 56, 7)
 # 14 days, 6 hours, 56 minutes, 7 seconds
-sum(tf(1234567,divi) .* divi) == 1234567
+sum(_timetuple(1234567,divi) .* divi) == 1234567
 # output
 # true
 ```
 """
-@inline tf(time,divi) = __tf((),time,divi...)
+@inline function _timetuple(time,divi)
+    __tf((),time,divi...)
+end
 
 # rescale the time units for the ratio factor/exponent
 @inline function division(T,factor,exponent)
     (T(10)^(-exponent) .* getindex.(TIME_DIVISION,2)) .÷ (T(10) .^ (.- getindex.(TIME_DIVISION,3)) .* factor)
 end
 
-@inline function datenum_(tuf::Tuple,factor,exponent)
+@inline function _datenum(tuf::Tuple,factor,exponent)
     T =  promote_type(typeof.(tuf)...)
     divi = division(T,factor,exponent)
     return sum(divi[1:length(tuf)] .* tuf)
@@ -86,17 +89,17 @@ function timetuplefrac(t::Period{T,Tfactor}) where {T,Tfactor}
     exponent = _exponent(t)
     divi = division(T,factor,exponent)
     time = t.duration
-    tf(time,divi)
+    _timetuple(time,divi)
 end
 
 
 function Period(tuf::Tuple,factor,exponent=-3)
-    duration = datenum_(tuf,factor,exponent)
+    duration = _datenum(tuf,factor,exponent)
     Period{typeof(duration),Val(factor),Val(exponent)}(duration)
 end
 
 function Period(T::DataType,tuf::Tuple,factor,exponent=-3)
-    duration = T(datenum_(tuf,factor,exponent))
+    duration = T(_datenum(tuf,factor,exponent))
     Period{typeof(duration),Val(factor),Val(exponent)}(duration)
 end
 
@@ -247,8 +250,6 @@ end
 @inline function Dates.Second(p::Period)
     Dates.Second(convert(CFTime.Period{Int64,Val{1}(),Val{0}()},p))
 end
-
-
 
 function isless(p1::Period,p2::Period)
     return Dates.value(p1 - p2) < 0

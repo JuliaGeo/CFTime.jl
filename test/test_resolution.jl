@@ -4,7 +4,6 @@ import CFTime:
     DateTimeStandard,
     Period,
     datenum,
-    datenum_,
     datetuple,
     datetuple_ymd,
     parseDT,
