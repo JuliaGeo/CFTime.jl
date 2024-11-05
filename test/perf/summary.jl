@@ -7,7 +7,7 @@ using Glob
 table = Any[["Module","median","minimum","mean","std. dev."]]
 
 fmt(x) = @sprintf("%4.3f",x)
-fmt(x) = @sprintf("%5.4f",x)
+fmt(x) = @sprintf("%6.5f",x)
 
 for f in glob("*.txt")
     data = readdlm(f,' ',Float64)
