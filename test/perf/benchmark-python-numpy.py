@@ -8,7 +8,7 @@ import sys
 
 
 def compute(n):
-    t0 = np.datetime64("1000-01-01") + np.arange(0,n).astype("timedelta64[s]")
+    t0 = np.datetime64("1900-01-01") + np.arange(0,n).astype("timedelta64[s]")
     t1 = np.datetime64("2000-01-01") + np.arange(0,n).astype("timedelta64[s]")
     diff = t1 - np.flip(t0)
 
