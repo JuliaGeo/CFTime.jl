@@ -21,7 +21,7 @@ jobs:
           - macOS-latest
         include:
           - os: ubuntu-latest
-            julia-version: ['lts']
+            julia-version: 'lts'
             julia-arch: x86
     steps:
       - uses: actions/checkout@v4
