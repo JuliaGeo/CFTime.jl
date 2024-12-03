@@ -7,7 +7,6 @@ on:
     tags: '*'
 jobs:
   test:
-    name: Julia ${{ matrix.julia-version }} - ${{ matrix.os }} - ${{ github.event_name }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -20,6 +19,10 @@ jobs:
           - ubuntu-latest
           - windows-latest
           - macOS-latest
+         include:
+          - os: ubuntu-latest
+            julia-version: ['lts']
+            julia-arch: x86
     steps:
       - uses: actions/checkout@v4
       - uses: julia-actions/setup-julia@v2
