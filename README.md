@@ -1,6 +1,6 @@
 # CFTime
 
-[![Build Status](https://github.com/JuliaGeo/CFTime.jl/actions/workflows/ci.yml/badge.svg)](https://github.com/JuliaGeo/CFTime.jl/actions)
+[![Build Status](https://github.com/JuliaGeo/CFTime.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaGeo/CFTime.jl/actions)
 [![codecov](https://codecov.io/gh/JuliaGeo/CFTime.jl/graph/badge.svg?token=A6XMcOvIFr)](https://codecov.io/gh/JuliaGeo/CFTime.jl)
 [![documentation stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliageo.github.io/CFTime.jl/stable/)
 [![documentation latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliageo.github.io/CFTime.jl/latest/)
