@@ -19,7 +19,7 @@ jobs:
           - ubuntu-latest
           - windows-latest
           - macOS-latest
-         include:
+        include:
           - os: ubuntu-latest
             julia-version: ['lts']
             julia-arch: x86
