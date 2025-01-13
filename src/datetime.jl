@@ -161,6 +161,7 @@ pattern given in the `format` string.
             return $CFDateTime(p,_origintuple(dt))
         end
 
+        Base.zero(::Type{$CFDateTime}) = Millisecond(0)
 
         function _origin_period(dt::$CFDateTime{T,Torigintuple}) where {T,Torigintuple}
             Ti = _type(T)
