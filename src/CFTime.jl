@@ -223,6 +223,7 @@ pattern given in the `format` string.
         $CFDateTime(dt::AbstractString, format::DateFormat) =
             parse($CFDateTime, dt, format)
 
+        Base.zero(::Type{$CFDateTime}) = Millisecond(0)
     end
 end
 
