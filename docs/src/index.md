@@ -173,7 +173,7 @@ origin = Val((1970,1,1))
 
 ## Internal API
 
-For CFTime 0.1.3 and before all date-times are encoded using internally milliseconds since a fixed time origin and stored as an `Int64` similar to julia's `Dates.DateTime`.
+For CFTime 0.1.4 and before all date-times are encoded using internally milliseconds since a fixed time origin and stored as an `Int64` similar to julia's `Dates.DateTime`.
 However, this approach does not allow to encode time with a sub-millisecond precision allowed by the CF convention and supported by e.g. [numpy](https://numpy.org/doc/1.25/reference/arrays.datetime.html#datetime-units). While `numpy` allows attosecond precision, it can only encode a time span of ±9.2 around the date 00:00:00 UTC on 1 January 1970. In CFTime the time origin and the number containing the duration and the time precision are now encoded as two additional type parameters.
 
 When wrapping a CFTime date-time type, it is recommended for performance reasons to make the containg structure also parametric, for example
@@ -185,15 +185,13 @@ end
 ```
 
 Future version of CFTime might add other type parameters.
-Internally, `T1` corresponds to a `CFTime.Period{T,Tfactor,Texponent}` structure  wrapping a number type T representing the duration expressed in seconds as:
+Internally, `T1` corresponds to a `CFTime.Period{T,Tfactor,Texponent}` structure  wrapping a number type `T` representing the duration expressed in seconds as:
 
 ```
 duration * factor * 10^exponent
 ```
 
 where `Tfactor` and `Texponent` are value types of `factor` and `exponent` respectively.
-`T2` is a value type of the date origin tuple represented as `(year, month, day,...)`.
-
 
 For example, duration 3600000 milliseconds is represented as `duration = 3600000`,
 `Tfactor = Val(1)`, `Texponent = Val(-3)`, as
@@ -214,7 +212,7 @@ The type parameter `T2` of `DateTimeStandard` encodes the time origin as a tuple
 For example `T2` would be `Val((1970,1,1))` if the time origin is the 1st January 1970).
 
 By using value types as type parametes, the time origin, time resolution... are known to the compiler.
-For example computing the difference between between two date time expressed in as the same time origin and units as a si
+For example computing the difference between between two date time expressed in as the same time origin and units as a single substraction:
 
 ```julia
 using BenchmarkTools
