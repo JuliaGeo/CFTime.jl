@@ -554,3 +554,12 @@ MYMD = CFTime.datetuple_ymd(T,Z)
 
 Z2 = CFTime.datenum(T,MYMD...)
 @test Z == Z2
+
+@testset "zero" begin
+    @test zero(DateTimeAllLeap) == CFTime.Millisecond(0)
+    @test zero(DateTimeNoLeap) == CFTime.Millisecond(0)
+    @test zero(DateTimeJulian) == CFTime.Millisecond(0)
+    @test zero(DateTimeJulian) == CFTime.Millisecond(0)
+    @test zero(DateTime360Day) == CFTime.Millisecond(0)
+    @test zero(DateTime360Day) == CFTime.Millisecond(0)
+end
