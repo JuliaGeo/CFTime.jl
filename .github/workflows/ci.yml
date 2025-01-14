@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - zero_fun
     tags: '*'
 jobs:
   test:
