@@ -32,6 +32,10 @@ function Base.one(p::Period{T,Tfactor,Texponent}) where {T,Tfactor,Texponent}
     Period{T,Tfactor,Texponent}(1)
 end
 
+function Base.abs(p::Period{T,Tfactor,Texponent}) where {T,Tfactor,Texponent}
+    Period{T,Tfactor,Texponent}(abs(Dates.value(p)))
+end
+
 
 Dates.value(p::Period) = p.duration
 

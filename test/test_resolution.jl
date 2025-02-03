@@ -25,6 +25,7 @@ import Dates:
     year
 using Test
 
+
 function same_tuple(t1,t2)
     len = min(length(t1),length(t2))
     (t1[1:len] == t2[1:len]) &&
@@ -34,6 +35,13 @@ end
 
 @test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5)*1000,1))[1:4] == (2,3,4,5)
 @test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5),1000))[1:4] == (2,3,4,5)
+
+@testset "Base methods on Period" begin
+    p = Period(10, 1)
+    @test abs(-p) == p
+    @test zero(p) == Period(0, 1)
+    @test one(p) == Period(1, 1)
+end
 
 tuf = (2,3,4,5,6,7,8) # day, hour, minute, seconds, ...
 factor = 1
