@@ -119,11 +119,26 @@ function promote_rule(::Type{Period{T1,Tfactor1,Texponent1}},
     exponent2 = unwrap(Texponent2)
     T = promote_type(T1,T2)
 
-    # which is the smallest unit?
-    if factor1 / 10^(-exponent1) <= factor2 / 10^(-exponent2)
-        return Period{T,Tfactor1,Texponent1}
+    # the ^ is problematic for the CUDA compiler and type-stability
+
+    if factor1 == factor2
+        if exponent1 < exponent2
+            return Period{T,Tfactor1,Texponent1}
+        else
+            return Period{T,Tfactor2,Texponent2}
+        end
+    elseif exponent1 == exponent2
+        if factor1 < factor2
+            return Period{T,Tfactor1,Texponent1}
+        else
+            return Period{T,Tfactor2,Texponent2}
+        end
     else
-        return Period{T,Tfactor2,Texponent2}
+        if factor1 / 10^(-exponent1) <= factor2 / 10^(-exponent2)
+            return Period{T,Tfactor1,Texponent1}
+        else
+            return Period{T,Tfactor2,Texponent2}
+        end
     end
 end
 
