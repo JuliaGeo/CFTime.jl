@@ -212,7 +212,7 @@ The type parameter `T2` of `DateTimeStandard` encodes the time origin as a tuple
 For example `T2` would be `Val((1970,1,1))` if the time origin is the 1st January 1970).
 
 By using value types as type parametes, the time origin, time resolution... are known to the compiler.
-For example computing the difference between between two date time expressed in as the same time origin and units as a single substraction:
+For example, computing the difference between between two date time expressed in as the same time origin and units as a single substraction:
 
 ```julia
 using BenchmarkTools
