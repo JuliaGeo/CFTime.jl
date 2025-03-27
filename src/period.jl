@@ -41,12 +41,14 @@ Dates.value(p::Period) = p.duration
 
 # helper functions for _timetuple
 @inline __tf(result,time) = result
-@inline function __tf(result,time,d1,dn...)
-   if d1 == 0
-       __tf((result...,0),0,dn...)
-   else
-       p, time2 = divrem(time, d1, RoundDown)
-       __tf((result...,Int64(p)),time2,dn...)
+@inline function __tf(result,time::T,d1,dn...) where T
+    Ti = promote_type(Int64,T)
+
+    if d1 == 0
+        __tf((result...,Ti(0)),0,dn...)
+    else
+        p, time2 = divrem(time, d1, RoundDown)
+        __tf((result...,Ti(p)),time2,dn...)
     end
 end
 
