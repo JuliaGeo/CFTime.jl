@@ -215,9 +215,10 @@ end
     (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
 end
 
-#@inline function -(dt1::AbstractCFDateTime{T,Torigintuple},dt2::AbstractCFDateTime{T,Torigintuple}) where {T,Torigintuple}
-#     dt1.instant - dt2.instant
-#end
+# fast case if the same resolution and time origin is used
+@inline function -(dt1::DT,dt2::DT) where DT <: AbstractCFDateTime{T,Torigintuple} where {T,Torigintuple}
+     dt1.instant - dt2.instant
+end
 
 
 function -(dt1::AbstractCFDateTime,dt2::DateTime)
