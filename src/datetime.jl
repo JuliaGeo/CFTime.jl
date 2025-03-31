@@ -211,7 +211,7 @@ end
 +(dt::AbstractCFDateTime,p::Union{Dates.TimePeriod,Dates.Day}) = dt + convert(CFTime.Period,p)
 
 @inline function -(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
-     (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
+    (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
 end
 
 #@inline function -(dt1::AbstractCFDateTime{T,Torigintuple},dt2::AbstractCFDateTime{T,Torigintuple}) where {T,Torigintuple}

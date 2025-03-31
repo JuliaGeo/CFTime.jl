@@ -72,9 +72,16 @@ sum(_timetuple(1234567,divi) .* divi) == 1234567
     __tf((),time,divi...)
 end
 
+
+# T(10)^(-n) for n <= 0 avoiding problems with type-inference on the GPU (CUDA)
+@inline ten_tom(T,n::Integer) = (n >= 0 ? T(1) : T(10) * ten_tom(T,n+1))
+
 # rescale the time units for the ratio factor/exponent
 @inline function division(T,factor,exponent)
-    (T(10)^(-exponent) .* getindex.(TIME_DIVISION,2)) .÷ (T(10) .^ (.- getindex.(TIME_DIVISION,3)) .* factor)
+    ntuple(length(TIME_DIVISION)) do i
+        (ten_tom(T,exponent) * TIME_DIVISION[i][2]) ÷
+            (ten_tom(T,TIME_DIVISION[i][3]) * factor)
+    end
 end
 
 @inline function _datenum(tuf::Tuple,factor,exponent)
@@ -99,12 +106,13 @@ function timetuplefrac(t::Period{T,Tfactor}) where {T,Tfactor}
 end
 
 
-function Period(tuf::Tuple,factor,exponent=-3)
+@inline function Period(tuf::Tuple,factor,exponent=-3)
     duration = _datenum(tuf,factor,exponent)
     Period{typeof(duration),Val(factor),Val(exponent)}(duration)
 end
 
-function Period(T::DataType,tuf::Tuple,factor,exponent=-3)
+# must be inlined for type-stability using the CUDA compiler
+@inline function Period(T::DataType,tuf::Tuple,factor,exponent=-3)
     duration = T(_datenum(tuf,factor,exponent))
     Period{typeof(duration),Val(factor),Val(exponent)}(duration)
 end
@@ -119,7 +127,9 @@ function promote_rule(::Type{Period{T1,Tfactor1,Texponent1}},
     exponent2 = unwrap(Texponent2)
     T = promote_type(T1,T2)
 
-    # the ^ is problematic for the CUDA compiler and type-stability
+    # the 10^exp is problematic for the CUDA compiler and type-stability
+    # all these clauses expect the last one redundant but necessary to
+    # workaround limitation of the CUDA compiler
 
     if factor1 == factor2
         if exponent1 < exponent2
@@ -133,6 +143,10 @@ function promote_rule(::Type{Period{T1,Tfactor1,Texponent1}},
         else
             return Period{T,Tfactor2,Texponent2}
         end
+    elseif (factor2 > 1) && (factor1 == 1) && (exponent1 < exponent2)
+        return Period{T,Tfactor1,Texponent1}
+    elseif (factor1 > 1) && (factor2 == 1) && (exponent2 < exponent1)
+        return Period{T,Tfactor2,Texponent2}
     else
         if factor1 / 10^(-exponent1) <= factor2 / 10^(-exponent2)
             return Period{T,Tfactor1,Texponent1}
