@@ -76,6 +76,7 @@ function datenum_gregjulian(year,month,day,gregorian::Bool,has_year_zero = false
     # 14   31    January
     # 15   30    February (wrong, but not used, since it is the last month)
 
+    # 4 years in the Julian calendar = 4*365 + 1 = 1461 days
     Z = fld(1461 * (year + 4716), 4) + (153 * (month+1)) ÷ 5 + day + B - 2401525
     # Modified Julan Day
     return Z + DATENUM_OFFSET
@@ -121,18 +122,19 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where
         A += 1 + α - fld(α, 4)
     end
 
-    # even more magic...
     B = A + 1524
-    # 20 years = 7305 days in the Julian calendar
+
+    # 20 years = 5 * (4*365 + 1) = 7305 days in the Julian calendar
     C = fld(20*B - 2442, 7305)
-    # 1461 = 3*365 + 366
+    # 4 years = 4*365 + 1 = 1461 days
     D = fld(1461 * C, 4)
+    # we use 306001/10000 = 30.6001 rather than 30.6 to avoid
+    # a day 0, e.g. Feburary 0 instead of January 31
     E = fld(10000 * (B-D), 306001)
 
     day = B - D - fld(306001 * E, 10000)
 
     # shift to first month from March to January
-
     month = (E < 14 ? E-1 : E-13)
     y = (month > 2 ? C - 4716 : C - 4715)
 
