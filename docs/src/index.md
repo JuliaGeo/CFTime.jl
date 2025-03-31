@@ -1,6 +1,6 @@
 # CFTime.jl
 
-This package implements the calendar types from the [CF convention](http://cfconventions.org/Data/cf-conventions/cf-conventions-1.7/cf-conventions.html#calendar), namely:
+This package implements the calendar types from the [CF convention](http://cfconventions.org/Data/cf-conventions/cf-conventions-1.12/cf-conventions.html#calendar), namely:
 
 * Mixed Gregorian/Julian calendar  (`DateTimeStandard`)
 * Proleptic gregorian calendar (`DateTimeProlepticGregorian`)
@@ -148,15 +148,15 @@ round(DateTime,dt)
 To create a type-stable date time structure, use the `DateTimeStandard` (and similar) either with the default `units` and time `origin`, a constant unit/origin or a value type of the unit and origin. For example:
 
 ```julia
-using CFTime
+using CFTime: DateTimeStandard
 
-foo(year,month,day,hour,minute,second) = CFTime.DateTimeStandard(year,month,day,hour,minute,second; units=:second, origin=(1970,1,1))
+foo(year,month,day,hour,minute,second) = DateTimeStandard(year,month,day,hour,minute,second; units=:second, origin=(1970,1,1))
 
 # Type-stable thanks to constant propagation
 @code_warntype foo(2000,1,1,0,0,0)
 
 
-foo2(year,month,day,hour,minute,second,units,origin) = CFTime.DateTimeStandard(year,month,day,hour,minute,second; units, origin)
+foo2(year,month,day,hour,minute,second,units,origin) = DateTimeStandard(year,month,day,hour,minute,second; units, origin)
 
 # This not type-stable as the type depends on the value of units and origin
 units = :second
@@ -217,6 +217,7 @@ For example, computing the difference between between two date time expressed in
 ```julia
 using BenchmarkTools
 using Dates
+using CFTime: DateTimeStandard
 
 dt0 = DateTimeStandard(1,"days since 2000-01-01")
 dt1 = DateTimeStandard(1000,"days since 2000-01-01")
