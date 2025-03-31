@@ -41,17 +41,17 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                 factor,
                 exponent)
 
-            @debug p
+            @debug "period " p
             # time origin
             p0 = Period(
                 Ti,
                 (datenum(DT,oy,om,od),oHMS...),
                 factor,
                 exponent)
-            @debug p0
+            @debug "period of origin" p0
 
             Δ = p - p0
-            @debug Δ
+            @debug "duration " Δ
             return DT{T,Torigintuple}(Δ)
         end
 
