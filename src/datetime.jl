@@ -94,7 +94,8 @@ This type implements the calendar defined as "$($calendar)".
             dt = $CFDateTime{typeof(instant),Val(origintuple3)}(instant)
         end
 
-        $CFDateTime(y::Integer,args::Vararg{Integer,N}; kwargs...) where N = $CFDateTime(Int64,y,args...; kwargs...)
+        # @inline is important for type-stability
+        @inline $CFDateTime(y::Integer,args::Vararg{Integer,N}; kwargs...) where N = $CFDateTime(Int64,y,args...; kwargs...)
 
 
         function $CFDateTime(p::Period,origintuple::Tuple)
