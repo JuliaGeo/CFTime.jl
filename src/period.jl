@@ -191,8 +191,13 @@ function convert(::Type{Period{T,Tfactor,Texponent}},t::Union{Dates.Day,Dates.Ti
     convert(Period{T,Tfactor,Texponent},p)
 end
 
-function ==(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
-    return p1.duration == p2.duration
+# boolean functions
+for op in (:(==),:isless)
+    @eval begin
+        function $op(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
+            $op(p1.duration,p2.duration)
+        end
+    end
 end
 
 for op in (:+,:-,:mod)
@@ -203,7 +208,7 @@ for op in (:+,:-,:mod)
     end
 end
 
-for op in (:+,:-,:mod,:(==))
+for op in (:+,:-,:mod,:(==),:isless)
     @eval begin
         $op(p1::Period,p2::Period) = $op(promote(p1,p2)...)
         $op(p1::Period,p2::Dates.Period) = $op(promote(p1,p2)...)
