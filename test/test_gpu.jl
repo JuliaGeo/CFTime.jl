@@ -38,3 +38,9 @@ dt2 =  [DateTimeStandard(2001,1,1)];
 
 @test dt2 - dt == Array(cu(dt2) - cu(dt))
 
+
+@test Array(Dates.year.(cu(dt))) == Dates.year.(dt)
+@test Array(Dates.month.(cu(dt))) == Dates.month.(dt)
+@test Array(Dates.day.(cu(dt))) == Dates.day.(dt)
+@test Array(Dates.minute.(cu(dt))) == Dates.minute.(dt)
+

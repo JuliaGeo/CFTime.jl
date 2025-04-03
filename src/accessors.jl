@@ -9,7 +9,7 @@ for (i,func) in enumerate(TIME_NAMES)
         Extract the $($func) part of an `AbstractCFDateTime` as an `Int64`.
         """
         function $func(dt::AbstractCFDateTime)
-            t = datetuple(dt)
+            t = _datetuple(dt)
             if length(t) >= $i
                 return Int64(t[$i])
             else

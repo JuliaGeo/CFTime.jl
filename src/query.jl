@@ -100,7 +100,7 @@ monthday(dt::AbstractCFDateTime) = (Dates.month(dt),Dates.day(dt))
 
 Return the first day of the year including the date `dt`
 """
-firstdayofyear(dt::T) where T <: AbstractCFDateTime = T(Dates.year(dt),1,1,0,0,0)
+@inline firstdayofyear(dt::T) where T <: AbstractCFDateTime = T(Dates.year(dt),1,1,0,0,0)
 
 
 """

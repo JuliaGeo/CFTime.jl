@@ -186,7 +186,7 @@ pattern given in the `format` string.
                 exponent)
         end
 
-        function datetuple(dt::$CFDateTime)
+        @inline function _datetuple(dt::$CFDateTime)
             factor = _factor(dt.instant)
             exponent = _exponent(dt.instant)
 
@@ -197,8 +197,11 @@ pattern given in the `format` string.
             # HMS contains hours, minutes, seconds and all sub-second units
             days,HMS... = timetuplefrac(p2)
             y, m, d = datetuple_ymd($CFDateTime,days)
-            @debug "hours minutes seconds" HMS
-            return chop0((y, m, d, HMS...),7)
+            return (y, m, d, HMS...)
+        end
+
+        function datetuple(dt::$CFDateTime)
+            return chop0(_datetuple(dt),7)
         end
 
     end
@@ -246,7 +249,7 @@ pad_ymd(a::Tuple{T1}) where T1 = (a[1],1,1)
 pad_ymd(a::Tuple{T1,T2})  where {T1,T2}  = (a[1],a[2],1)
 pad_ymd(a::Tuple) = a
 
-function chop0(timetuple,minlen=0)
+@inline function chop0(timetuple,minlen=0)
     if length(timetuple) == minlen
         return timetuple
     elseif timetuple[end] == 0

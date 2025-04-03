@@ -26,7 +26,7 @@ function findmonth(cm,t2)
     return mo
 end
 
-function datetuple_ymd(::Type{T},timed_::Number) where T <: AbstractCFDateTime
+@inline function datetuple_ymd(::Type{T},timed_::Number) where T <: AbstractCFDateTime
     cm = _cum_month_length(T)
     y = fld(Int64(timed_), cm[end])
     t2 = Int64(timed_) - cm[end]*y
