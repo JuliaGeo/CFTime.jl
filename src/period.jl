@@ -290,10 +290,11 @@ end
     Dates.Second(p.duration)
 end
 
-function isless(p1::Period,p2::Period)
-    return Dates.value(p1 - p2) < 0
-end
-
 # Missing support
 (==)(x::Period, y::Missing) = missing
 (==)(x::Missing, y::Period) = missing
+
+
+typemax(::Type{Period{T,Tfactor,Texponent}}) where {T,Tfactor,Texponent} = Period{T,Tfactor,Texponent}(typemax(T))
+
+typemin(::Type{Period{T,Tfactor,Texponent}}) where {T,Tfactor,Texponent} = Period{T,Tfactor,Texponent}(typemin(T))

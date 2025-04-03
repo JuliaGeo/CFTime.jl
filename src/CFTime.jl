@@ -51,7 +51,7 @@ import Dates:
     yearmonthday
 
 import Base: +, -, isless, string, show, convert, reinterpret, ==, promote_rule,
-    floor, mod, round
+    floor, mod, round, typemax, typemin
 
 include("constants.jl")
 include("types.jl")
