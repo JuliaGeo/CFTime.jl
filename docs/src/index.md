@@ -79,8 +79,19 @@ dayofyear
 
 ## Convertion Functions
 
+The `convert` function can be used to convert dates between the different calendars:
+
+```julia
+convert(DateTime,DateTimeJulian(2024,4,4))
+# 2024-04-17T00:00:00
+
+convert(DateTimeJulian,DateTime(2024,4,17))
+# DateTimeJulian(2024-04-04T00:00:00)
+```
+
+
 ```@docs
-convert
+convert(::Type{DateTime}, dt::DateTimeStandard)
 reinterpret
 ```
 
@@ -102,8 +113,20 @@ DateTimeStandard(2000,01,01) < DateTimeStandard(2000,01,02)
 # returns true
 ```
 
-Time ranges can be constructed using a start date, end date and a time increment, for example: `DateTimeStandard(2000,1,1):Dates.Day(1):DateTimeStandard(2000,12,31)`
+## Ranges
 
+
+Time ranges can be constructed using a start date, end date and a time increment:
+
+```julia
+range = DateTimeStandard(2000,1,1):Dates.Day(1):DateTimeStandard(2000,12,31)
+length(range)
+# returns 366
+step(range)
+# returns 1 day
+```
+
+Note that there is no default increment for range.
 
 ## Rounding
 
