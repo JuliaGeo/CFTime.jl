@@ -16,7 +16,7 @@ Feature of CFTime include:
 * Per default, the time counter is a 64-bit integer, but other integers types (such as `Int32`, `Int128` or `BigInt`) or floating-point types can be used (not recommended)
 * Basic arithmetic such as computing the duration between two time instances
 * Conversion function between types and Julia's `DateTime`.
-* Regular time range
+* Time range
 
 
 ## Installation
@@ -47,7 +47,7 @@ dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00")
 ```
 
 
-The function `CFTime.timeencode` does the inverse operation: converting a Julia `DateTime` structure to a duration since a strting time:
+The function `CFTime.timeencode` does the inverse operation: converting a Julia `DateTime` structure to a duration since a start time:
 
 ```julia
 CFTime.timeencode(dt,"days since 2000-01-01 00:00:00")
@@ -78,7 +78,10 @@ CFTime.timeencode(dt,"days since 2000-01-01 00:00:00",DateTime360Day)
 ```
 You can replace in the example above the type `DateTime360Day` by the string `"360_day"` (the name for the calendar according to the CF conventions).
 
-CFTime supports a wide range of the time resolutions, from days down to attoseconds (for feature parity with NumPy's date time type).
+Single time instances can also be created by calling the corresponding constructor function, e.g. `DateTimeStandard` for the standard calendar (mixed Gregorian/Julian calendar)
+in a similar way than Julias `DateTime` type.
+The `units` argument specifies the time resolutions (either `day`, `hour`, ... `attosecond`) for the common case where the duration is specified as an integer.
+For example, the 1 January 2000 + 1 ns would be:
 
 ```julia
 y,m,d = (2000,1,1)
@@ -87,7 +90,8 @@ H,M,S = (0,0,0)
 DateTimeStandard(y,m,d,H,M,S,µS,mS,nS; units=:nanosecond)
 # DateTimeStandard(2000-01-01T00:00:00.000000001)
 ```
-As in Julia's `Dates`, the default time resolution is milliseconds.
+
+As in Julia's `DateTime`, the default time resolution is milliseconds.
 The duration are encoded internally as a 64-bit signed integer. High precision integer (or floating point numbers) can also be used, for example a 128-bit signed integer:
 
 
@@ -101,7 +105,7 @@ The default time origin is currently 1 January 1900 00:00:00. A different time o
 DateTimeStandard(Int128,y,m,d,H,M,S,µS,mS,nS; units=:nanosecond, origin=(1970,1,1))
 ```
 
-The units and origin argument can be wrapped as a `Val` to ensure that these values are known at compile time:
+The units and origin argument can be wrapped as a `Val` to ensure that these values are known at compile-time:
 
 ```julia
 DateTimeStandard(Int128,y,m,d,H,M,S,µS,mS,nS; units=Val(:nanosecond), origin=Val((1970,1,1)))
