@@ -9,6 +9,15 @@
 `CFTime` encodes and decodes time units conforming to the [Climate and Forecasting (CF) conventions](https://cfconventions.org/).
 `CFTime` was split out of the [NCDatasets](https://github.com/JuliaGeo/NCDatasets.jl) julia package.
 
+Feature of CFTime include:
+
+* Supporting a wide range of the time resolutions, from days down to attoseconds (for feature parity with NumPy's date time type)
+* Supporting arbitrary time origins
+* Per default, the time counter is a 64-bit integer, but other integers types (such as `Int32`, `Int128` or `BigInt`) or floating-point types can be used (not recommended)
+* Basic arithmetic such as computing the duration between two time instances
+* Conversion function between types and Julia's `DateTime`.
+* Regular time range
+
 
 ## Installation
 
@@ -21,7 +30,7 @@ Pkg.add("CFTime")
 
 ## Example
 
-For NetCDF and Zarr files the time is expressed as duration since starting time. The function `CFTime.timedecode` allows to convert these
+For the Climate and Forecasting (CF) conventions, time is expressed as duration since starting time. The function `CFTime.timedecode` allows to convert these
 time instances as a Julia `DateTime` structure:
 
 ```julia
@@ -118,7 +127,6 @@ DateTimeStandard(2000,1,2) > DateTimeStandard(2000,1,1)
 ```
 
 
-
 ## Parsing dates
 
 Dates can be parsed by using `dateformat` from julia's `Dates` module, for example:
@@ -130,6 +138,12 @@ dt = DateTimeNoLeap("21001231",dateformat"yyyymmdd");
 Dates.year(dt),Dates.month(dt),Dates.day(dt)
 # output (2100, 12, 31)
 ```
+
+## Alternatives
+
+ * [NanoDates.jl](https://github.com/JuliaTime/NanoDates.jl): Dates with nanosecond resolved days
+ * [TimesDates.jl](https://github.com/JeffreySarnoff/TimesDates.jl): Nanosecond resolution for Time and Date, TimeZones
+ * [AstroTime.jl](https://github.com/JuliaAstro/AstroTime.jl): Astronomical time keeping in Julia
 
 ## Acknowledgments
 
