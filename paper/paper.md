@@ -22,7 +22,7 @@ bibliography: paper.bib
 # Summary
 
 
-Climate and Forecasting (CF) conventions are a metadata standard for earth data [@Eaton2023] and are mainly used in oceanography and meteorology.
+Climate and Forecasting (CF) conventions are a metadata standard for earth data [@Eaton2024] and are mainly used in oceanography and meteorology.
 It aims to be equally applicable to model data, remote-sensing data and in-situ data, despite the high heterogeneity of the different data types.
 The CF conventions were originally proposed for the NetCDF storage format, but they are also increasingly used with other formats like Zarr [@OGC_Zarr] and grib ([GRIBDatasets](https://github.com/JuliaGeo/GRIBDatasets.jl)).
 
@@ -67,11 +67,11 @@ Different calendars have been defined in the context of the CF conventions:
 | `360_day`               | `DateTime360Day`             | calendar assuming that all months have 30 days |
 
 
-The Gregorian calendar has been introduced to account for the fact that a solar year is not exactly 365.25 days, but  more closely approximating 365.2422 days. In the standard calendar, the day Thursday, 4 October 1582 (the last day of the Julian calendar) is followed by the first day of the Gregorian calendar, Friday, 15 October 1582 (the date of introduction of the Gregorian calendar). 
+The Gregorian calendar has been introduced to account for the fact that a solar year is not exactly 365.25 days, but  more closely approximating 365.2422 days. In the standard calendar, the day Thursday, 4 October 1582 (the last day of the Julian calendar) is followed by the first day of the Gregorian calendar, Friday, 15 October 1582 (the date of introduction of the Gregorian calendar).
 
 CFTime is based on the Meeus' algorithm [@Meeus98] for the Gregorian and Julian calendars, with two adaptations:
 
-* The original algorithm is based on floating-point arithmetic. The algorithm in CFTime is implemented using integer arithmetics,  which is more efficient. Also, underflows and overflows are easier to reason about in integer arithmetic. 
+* The original algorithm is based on floating-point arithmetic. The algorithm in CFTime is implemented using integer arithmetics,  which is more efficient. Also, underflows and overflows are easier to reason about in integer arithmetic.
 * The Meeus' algorithm has been extended to dates prior to 100 BC.
 
 The Meeus' algorithm is very compact, efficient, requires only very few branches, and does not need large tables of constants. For verification purposes, the
@@ -80,8 +80,8 @@ algorithm used in the cftime python package [@Whitaker2024] was ported to Julia,
 The following is a list of the main features of CFTime:
 
 * Basic arithmetic such as computing the duration between two time instances by subtracting them, or adding a duration to a time instance
-* Supporting a wide range of the time resolutions, from days down to attoseconds. Even if the use of attoseconds is quite unlikely in the context of earth science data, it has been added for feature parity with NumPy's date time type [@numpy]. 
-* Supporting arbitrary time origins. Since the time origin for NumPy's date time type is fixed to be 1 January 1970 at 00:00, the usefulness of some time units is limited. As an extreme example, with attoseconds, all NumPy's date times can only express a time span of +/- 9.2 s around the time origin since a 64-bit integer is used internally. For CFTime.jl the time origin is arbitrary and part of the parametric type definition and not an additional field of the time data structure. As a consequence, a large array of date times with common time origin only need to store the time counter (also a 64-bit integer per default) for every element, which makes this case as memory efficient as NumPy's or Julia's default date time for this common use case. 
+* Supporting a wide range of the time resolutions, from days down to attoseconds. Even if the use of attoseconds is quite unlikely in the context of earth science data, it has been added for feature parity with NumPy's date time type [@harris2020array; @numpy].
+* Supporting arbitrary time origins. Since the time origin for NumPy's date time type is fixed to be 1 January 1970 at 00:00, the usefulness of some time units is limited. As an extreme example, with attoseconds, all NumPy's date times can only express a time span of +/- 9.2 s around the time origin since a 64-bit integer is used internally. For CFTime.jl the time origin is arbitrary and part of the parametric type definition and not an additional field of the time data structure. As a consequence, a large array of date times with common time origin only need to store the time counter (also a 64-bit integer per default) for every element, which makes this case as memory efficient as NumPy's or Julia's default date time for this common use case.
 
 * Per default, the time counter is a 64-bit integer, but other integers types (such as 32-bit, 128-bit or Julia's arbitrary-sized integer `BigInt`) or floating-point types can be used. Using an integer to encode a time instance should be preferred for most applications, as it is easier to reason about the time resolution in this case.  Julia's compiler specializes all functions and methods for the employed types for optimal run-time performance.
 * Conversion function between types and Julia's `DateTime`.
