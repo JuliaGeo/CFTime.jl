@@ -176,12 +176,24 @@ end
     exponent1 = unwrap(Texponent1)
     exponent2 = unwrap(Texponent2)
 
-    duration =
-        if T1 <: AbstractFloat
-            (T1(p.duration) * factor2 * 10^(exponent2-exponent1)) / factor1
-        else
-            (T1(p.duration) * factor2 * 10^(exponent2-exponent1)) ÷ factor1
+    exp = exponent2-exponent1
+
+    if T1 <: AbstractFloat
+        duration = (T1(p.duration) * factor2 * 10^(exp)) / factor1
+    else
+        (num,denom) =
+            if exp > 0
+                ((T1(p.duration) * factor2 * 10^(exp)), factor1)
+            else
+                ((T1(p.duration) * factor2), (factor1 * 10^(-exp)))
+            end
+
+        if num % denom != 0
+            throw(InexactError(:convert,Type{Period{T1,Tfactor1,Texponent1}},p))
         end
+
+        duration = num ÷ denom
+    end
 
     return Period{T1,Tfactor1,Texponent1}(duration)
 end
@@ -235,6 +247,15 @@ for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond
                 Period{T,Tfactor,Texponent},
                 Period{Int64,Val($factor),Val($exponent)})
         end
+
+        # Can throw an InexactError
+        @inline function Dates.$T(p::Period{T, Val($factor),Val($exponent)}) where T
+            Dates.$T(Int64(p.duration))
+        end
+
+        @inline function Dates.$T(p::Period)
+            Dates.$T(convert(Period{Int64,Val($factor),Val($exponent)},p))
+        end
     end
 end
 
@@ -278,22 +299,6 @@ function Base.show(io::IO,p::Period)
     print(io,"s")
 end
 
-
-# Can throw an InexactError
-@inline Dates.Millisecond(p::Period{T, Val{1}(), Val{-3}()}) where T =
-    Dates.Millisecond(Int64(p.duration))
-
-@inline function Dates.Millisecond(p::Period)
-    Dates.Millisecond(convert(Period{Int64,Val{1}(),Val{-3}()},p))
-end
-
-@inline function Dates.Second(p::Period)
-    Dates.Second(convert(Period{Int64,Val{1}(),Val{0}()},p))
-end
-
-@inline function Dates.Second(p::Period{T,Val{1}(),Val{0}()}) where T
-    Dates.Second(p.duration)
-end
 
 # Missing support
 (==)(x::Period, y::Missing) = missing

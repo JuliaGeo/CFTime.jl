@@ -105,6 +105,11 @@ str = String(take!(io))
 @test Dates.Second(p1) === Dates.Second(1)
 @test Dates.Millisecond(p1) === Dates.Millisecond(1000)
 
+# convertion
+@test Dates.Hour(Period(60,:minute)) == Dates.Hour(1)
+@test_throws InexactError Dates.Hour(Period(61,:minute))
+
+
 # unknown Period
 p1 = Period(1000,1,-21) # 1000 zeptosecond = 1 attosecond
 @test p1 == Period(1,:attosecond)
