@@ -9,7 +9,7 @@ This package implements the calendar types from the [CF convention](http://cfcon
 * A calendar with every year being 360 days long (divided into 30 day months) (`DateTime360Day`)
 * Julian calendar (`DateTimeJulian`)
 
-Note that time zones are not supported by `CFTime.jl`.
+Note that time zones and leap seconds are not supported by `CFTime.jl`.
 
 
 ## Installation
@@ -107,6 +107,21 @@ Time ranges can be constructed using a start date, end date and a time increment
 
 ## Rounding
 
+Julia's `DateTime` records the time relative to a time orgin (January 1st, 1 BC or 0000-01-01 in ISO_8601) with a millisecond accuracy. Converting CFTime date time structures to
+Julia's `DateTime` (using `convert(DateTime,dt)`) can trigger an inexact exception if the convertion cannot be done without loss of precision. One can use the `round` function in order to round to the nearest time represenatable by `DateTime`:
+
+```julia
+using CFTime: DateTimeStandard
+using Dates: DateTime
+dt = DateTimeStandard(24*60*60*1000*1000 + 123,"microsecond since 2000-01-01")
+round(DateTime,dt)
+# output
+
+2000-01-02T00:00:00
+```
+
+The functions `floor` and `ceil` are also supported. They can be used to effectively reduce the time resolution, for example:
+
 ```julia
 using CFTime: DateTimeStandard
 
@@ -128,19 +143,6 @@ round(dt+Second(9),Second(10)) == dt + Second(10)
 true
 ```
 
-
-Julia's `DateTime` records the time relative to a time orgin (January 1st, 1 BC or 0000-01-01 in ISO_8601) with a millisecond accuracy. Converting CFTime date time structures to
-Julia's `DateTime` (using `convert(DateTime,dt)`) can trigger an inexact exception if the convertion cannot be done without loss of precision. One can use the `round` function in order to round to the nearest time represenatable by `DateTime`:
-
-```julia
-using CFTime: DateTimeStandard
-using Dates: DateTime
-dt = DateTimeStandard(24*60*60*1000*1000 + 123,"microsecond since 2000-01-01")
-round(DateTime,dt)
-# output
-
-2000-01-02T00:00:00
-```
 
 
 ## Type-stable constructors
