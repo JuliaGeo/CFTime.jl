@@ -225,7 +225,7 @@ For example, duration 3600000 milliseconds is represented as `duration = 3600000
 3600000 milliseconds = 3600000 * 1 * 10⁻³ seconds
 ```
 
-or the durtion 1 hours is `duration = 1`,  `Tfactor = Val(3600)` and `Texponent = Val(0)` since:
+or the duration 1 hours is `duration = 1`,  `Tfactor = Val(3600)` and `Texponent = Val(0)` since:
 
 ```
 1 hour = 3600 * 1 * 10⁰ seconds
@@ -233,8 +233,8 @@ or the durtion 1 hours is `duration = 1`,  `Tfactor = Val(3600)` and `Texponent 
 
 There is no normalization of the time duration per default as it could lead to under-/overflow.
 
-The type parameter `T2` of `DateTimeStandard` encodes the time origin as a tuple of integers starting with the year (year,month,day,hour,minute,seconds,milliseconds,microseconds,...).  Only the year, month and day need specified; all other default to zero.
-For example `T2` would be `Val((1970,1,1))` if the time origin is the 1st January 1970).
+The type parameter `T2` of `DateTimeStandard` encodes the time origin as a tuple of integers starting with the year (year,month,day,hour,minute,seconds,...attoseconds).  Only the year, month and day need specified; all other default to zero.
+For example `T2` would be `Val((1970,1,1))` if the time origin is the 1st January 1970.
 
 By using value types as type parametes, the time origin, time resolution... are known to the compiler.
 For example, computing the difference between between two date time expressed in as the same time origin and units as a single substraction:

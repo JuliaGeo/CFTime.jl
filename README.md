@@ -16,7 +16,7 @@ Feature of CFTime include:
 * Per default, the time counter is a 64-bit integer, but other integers types (such as `Int32`, `Int128` or `BigInt`) or floating-point types can be used (not recommended)
 * Basic arithmetic such as computing the duration between two time instances
 * Conversion function between types and Julia's `DateTime`.
-* Time range
+* Time ranges
 
 
 ## Installation
