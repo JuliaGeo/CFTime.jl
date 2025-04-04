@@ -86,7 +86,7 @@ The following is a list of the main features of CFTime:
 * Per default, the time counter is a 64-bit integer, but other integers types (such as 32-bit, 128-bit or Julia's arbitrary-sized integer `BigInt`) or floating-point types can be used. Using an integer to encode a time instance should be preferred for most applications, as it is easier to reason about the time resolution in this case.  Julia's compiler specializes all functions and methods for the employed types for optimal run-time performance.
 * Conversion function between types and Julia's `DateTime`.
 
-* Regular time range by leveraging Julia's range type. For example, the following creates a `timerange` variable with all days of the year 2000. It can be used as a vector of 366 elements, but only the start time, the end time and the steps need to be stored in memory.
+* Regular time range by leveraging Julia's range type. Time range are a vector of date time elements, but only the start time, the end time and the steps need to be stored in memory.
 
 
 The flexibility of the CFTimes date time comes also at some cost. When merging data from different sources using different time origins and time units, the corresponding merge time vector is potentially not a concrete type as there is no implicit conversion to a common time origin or internal time unit as it is the case for Julia's `DateTime`. In some cases, the user might decide to explicitly convert all time to a common time origin and internal time unit for optimal performance.
