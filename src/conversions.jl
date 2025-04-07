@@ -67,7 +67,7 @@ end
 Convert a variable `dt` of type `DateTime`, `DateTimeStandard`, `DateTimeJulian`,
 `DateTimeProlepticGregorian`, `DateTimeAllLeap`, `DateTimeNoLeap` or
 `DateTime360Day` into the date time type `T` using the same values for
-year, month, day, minute, second and millisecond.
+year, month, day, minute, second, ... attosecond.
 The conversion might fail if a particular date does not exist in the
 target calendar.
 """
@@ -409,7 +409,7 @@ for CFDateTime in [:DateTimeStandard,
 """
     dt2 = convert(::Type{T}, dt)
 
-Convert a DateTime of type `DateTimeStandard`, `DateTimeProlepticGregorian`,
+Convert a DateTime `dt` of type `DateTimeStandard`, `DateTimeProlepticGregorian`,
 `DateTimeJulian` or `DateTime` into the type `T` which can also be either
 `DateTimeStandard`, `DateTimeProlepticGregorian`, `DateTimeJulian` or `DateTime`.
 

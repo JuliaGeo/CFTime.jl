@@ -9,7 +9,7 @@ This package implements the calendar types from the [CF convention](http://cfcon
 * A calendar with every year being 360 days long (divided into 30 day months) (`DateTime360Day`)
 * Julian calendar (`DateTimeJulian`)
 
-Note that time zones are not supported by `CFTime.jl`.
+Note that time zones and leap seconds are not supported by `CFTime.jl`.
 
 
 ## Installation
@@ -79,8 +79,19 @@ dayofyear
 
 ## Convertion Functions
 
+The `convert` function can be used to convert dates between the different calendars:
+
+```julia
+convert(DateTime,DateTimeJulian(2024,4,4))
+# 2024-04-17T00:00:00
+
+convert(DateTimeJulian,DateTime(2024,4,17))
+# DateTimeJulian(2024-04-04T00:00:00)
+```
+
+
 ```@docs
-convert
+convert(::Type{DateTime}, dt::DateTimeStandard)
 reinterpret
 ```
 
@@ -102,10 +113,37 @@ DateTimeStandard(2000,01,01) < DateTimeStandard(2000,01,02)
 # returns true
 ```
 
-Time ranges can be constructed using a start date, end date and a time increment, for example: `DateTimeStandard(2000,1,1):Dates.Day(1):DateTimeStandard(2000,12,31)`
+## Ranges
 
+
+Time ranges can be constructed using a start date, end date and a time increment:
+
+```julia
+range = DateTimeStandard(2000,1,1):Dates.Day(1):DateTimeStandard(2000,12,31)
+length(range)
+# returns 366
+step(range)
+# returns 1 day
+```
+
+Note that there is no default increment for range.
 
 ## Rounding
+
+Julia's `DateTime` records the time relative to a time orgin (January 1st, 1 BC or 0000-01-01 in ISO_8601) with a millisecond accuracy. Converting CFTime date time structures to
+Julia's `DateTime` (using `convert(DateTime,dt)`) can trigger an inexact exception if the convertion cannot be done without loss of precision. One can use the `round` function in order to round to the nearest time represenatable by `DateTime`:
+
+```julia
+using CFTime: DateTimeStandard
+using Dates: DateTime
+dt = DateTimeStandard(24*60*60*1000*1000 + 123,"microsecond since 2000-01-01")
+round(DateTime,dt)
+# output
+
+2000-01-02T00:00:00
+```
+
+The functions `floor` and `ceil` are also supported. They can be used to effectively reduce the time resolution, for example:
 
 ```julia
 using CFTime: DateTimeStandard
@@ -128,19 +166,6 @@ round(dt+Second(9),Second(10)) == dt + Second(10)
 true
 ```
 
-
-Julia's `DateTime` records the time relative to a time orgin (January 1st, 1 BC or 0000-01-01 in ISO_8601) with a millisecond accuracy. Converting CFTime date time structures to
-Julia's `DateTime` (using `convert(DateTime,dt)`) can trigger an inexact exception if the convertion cannot be done without loss of precision. One can use the `round` function in order to round to the nearest time represenatable by `DateTime`:
-
-```julia
-using CFTime: DateTimeStandard
-using Dates: DateTime
-dt = DateTimeStandard(24*60*60*1000*1000 + 123,"microsecond since 2000-01-01")
-round(DateTime,dt)
-# output
-
-2000-01-02T00:00:00
-```
 
 
 ## Type-stable constructors
@@ -200,7 +225,7 @@ For example, duration 3600000 milliseconds is represented as `duration = 3600000
 3600000 milliseconds = 3600000 * 1 * 10⁻³ seconds
 ```
 
-or the durtion 1 hours is `duration = 1`,  `Tfactor = Val(3600)` and `Texponent = Val(0)` since:
+or the duration 1 hours is `duration = 1`,  `Tfactor = Val(3600)` and `Texponent = Val(0)` since:
 
 ```
 1 hour = 3600 * 1 * 10⁰ seconds
@@ -208,8 +233,8 @@ or the durtion 1 hours is `duration = 1`,  `Tfactor = Val(3600)` and `Texponent 
 
 There is no normalization of the time duration per default as it could lead to under-/overflow.
 
-The type parameter `T2` of `DateTimeStandard` encodes the time origin as a tuple of integers starting with the year (year,month,day,hour,minute,seconds,milliseconds,microseconds,...).  Only the year, month and day need specified; all other default to zero.
-For example `T2` would be `Val((1970,1,1))` if the time origin is the 1st January 1970).
+The type parameter `T2` of `DateTimeStandard` encodes the time origin as a tuple of integers starting with the year (year,month,day,hour,minute,seconds,...attoseconds).  Only the year, month and day need specified; all other default to zero.
+For example `T2` would be `Val((1970,1,1))` if the time origin is the 1st January 1970.
 
 By using value types as type parametes, the time origin, time resolution... are known to the compiler.
 For example, computing the difference between between two date time expressed in as the same time origin and units as a single substraction:

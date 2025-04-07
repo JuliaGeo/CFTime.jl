@@ -56,13 +56,18 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
         end
 
         """
-    $($CFDateTime)([Ti::DataType], y, [m, d, h, mi, s, ms]) -> $($CFDateTime)
+    $($CFDateTime)([Ti::DataType], y, [m, d, h, mi, s, ms, ...], origin = (1900, 1, 1), units = ...) -> $($CFDateTime)
 
 Construct a `$($CFDateTime)` type by year (`y`), month (`m`, default 1),
 day (`d`, default 1), hour (`h`, default 0), minute (`mi`, default 0),
-second (`s`, default 0), millisecond (`ms`, default 0).
+second (`s`, default 0), millisecond (`ms`, default 0), ....
+Currently `attosecond` is the smallest supported time unit.
+
 All arguments must be convertible to `Int64`.
 `$($CFDateTime)` is a subtype of `AbstractCFDateTime`.
+
+The date is stored a duration since the time `origin` (epoch) expressed as `milliseconds`
+but smaller time units will be if necessary.
 
 The netCDF CF calendars are defined in [the CF Standard](http://cfconventions.org/cf-conventions/cf-conventions.html#calendar).
 This type implements the calendar defined as "$($calendar)".
