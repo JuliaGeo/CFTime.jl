@@ -109,7 +109,7 @@ DateTimeStandard(Int128,y,m,d,hour,minute,sec,µsec,msec,nsec; units=:nanosecond
 The units and origin argument can be wrapped as a `Val` to ensure that these values are known at compile-time:
 
 ```julia
-DateTimeStandard(Int128y,m,d,hour,minute,sec,µsec,msec,nsec; units=Val(:nanosecond), origin=Val((1970,1,1)))
+DateTimeStandard(Int128,y,m,d,hour,minute,sec,µsec,msec,nsec; units=Val(:nanosecond), origin=Val((1970,1,1)))
 ```
 
 Several compile-time optimization have been implemented for the particular but common case where date have the same time origin and/or the same time resolution.
