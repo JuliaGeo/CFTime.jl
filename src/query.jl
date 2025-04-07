@@ -78,21 +78,21 @@ end
 
 Simultaneously return the year, month and day parts of `dt`.
 """
-yearmonthday(dt::AbstractCFDateTime) = (Dates.year(dt),Dates.month(dt),Dates.day(dt))
+yearmonthday(dt::AbstractCFDateTime) = _datetuple(dt)[1:3]
 
 """
     yearmonth(dt::AbstractCFDateTime) -> (Int64, Int64)
 
 Simultaneously return the year and month parts of `dt`.
 """
-yearmonth(dt::AbstractCFDateTime) = (Dates.year(dt),Dates.month(dt))
+yearmonth(dt::AbstractCFDateTime) = _datetuple(dt)[1:2]
 
 """
     monthday(dt::AbstractCFDateTime) -> (Int64, Int64)
 
 Simultaneously return the month and day parts of `dt`.
 """
-monthday(dt::AbstractCFDateTime) = (Dates.month(dt),Dates.day(dt))
+monthday(dt::AbstractCFDateTime) = _datetuple(dt)[2:3]
 
 
 """
