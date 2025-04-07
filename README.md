@@ -77,7 +77,7 @@ CFTime.timeencode(dt,"days since 2000-01-01 00:00:00",DateTime360Day)
 #  2.0
 #  3.0
 ```
-You can replace in the example above the type `DateTime360Day` by the string `"360_day"` (the name for the calendar according to the CF conventions).
+You can replace in the example above the type `DateTime360Day` by the string `"360_day"` (the [name for the calendar](https://cfconventions.org/Data/cf-conventions/cf-conventions-1.12/cf-conventions.html#calendar) according to the CF conventions).
 
 Single time instances can also be created by calling the corresponding constructor function, e.g. `DateTimeStandard` for the standard calendar (mixed Gregorian/Julian calendar)
 in a similar way than Julias `DateTime` type.
