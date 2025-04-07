@@ -59,7 +59,7 @@ CFTime.timeencode(dt,"days since 2000-01-01 00:00:00")
 #  3.0
 ```
 
-The CF conventions also allow for calendars where every months has a duration of 30 days:
+The CF conventions also allow for different calendars, for example a calendar where every months has a duration of 30 days:
 
 ```julia
 dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00",DateTime360Day)
@@ -86,9 +86,9 @@ For example, the 1 January 2000 + 1 ns would be:
 
 ```julia
 y,m,d = (2000,1,1)
-H,M,S = (0,0,0)
-µS,mS,nS = (0,0,1)
-DateTimeStandard(y,m,d,H,M,S,µS,mS,nS; units=:nanosecond)
+hour,minute,sec = (0,0,0)
+µsec,msec,nsec = (0,0,1)
+DateTimeStandard(y,m,d,hour,minute,sec,µsec,msec,nsec; units=:nanosecond)
 # DateTimeStandard(2000-01-01T00:00:00.000000001)
 ```
 
