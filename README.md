@@ -31,7 +31,7 @@ Pkg.add("CFTime")
 
 ## Example
 
-For the Climate and Forecasting (CF) conventions, time is expressed as duration since starting time. The function `CFTime.timedecode` allows to convert these
+For the [Climate and Forecasting (CF) conventions](https://cfconventions.org/Data/cf-conventions/cf-conventions-1.12/cf-conventions.html#time-coordinate-units), time is expressed as duration since starting time. The function `CFTime.timedecode` allows to convert these
 time instances as a Julia `DateTime` structure:
 
 ```julia
