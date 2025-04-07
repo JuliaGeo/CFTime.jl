@@ -82,6 +82,7 @@ dayofyear
 The `convert` function can be used to convert dates between the different calendars:
 
 ```julia
+using CFTime, Dates
 convert(DateTime,DateTimeJulian(2024,4,4))
 # 2024-04-17T00:00:00
 
