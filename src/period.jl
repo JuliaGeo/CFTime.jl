@@ -74,15 +74,16 @@ end
 
 
 # T(10)^(-n) for n <= 0 avoiding problems with type-inference on the GPU (CUDA)
+# but slow on CPU
 #@inline ten_tom(T,n::Integer) = (n >= 0 ? T(1) : T(10) * ten_tom(T,n+1))
 
 # rescale the time units for the ratio factor/exponent
 @inline function division(T,factor,exponent)
     ntuple(length(TIME_DIVISION)) do i
-        #        (ten_tom(T,exponent) * TIME_DIVISION[i][2]) ÷
-        #            (ten_tom(T,TIME_DIVISION[i][3]) * factor)
         (T(10)^(-exponent) * TIME_DIVISION[i][2]) ÷
             (T(10)^(-TIME_DIVISION[i][3]) * factor)
+#        (ten_tom(T,exponent) * TIME_DIVISION[i][2]) ÷
+#            (ten_tom(T,TIME_DIVISION[i][3]) * factor)
     end
 end
 

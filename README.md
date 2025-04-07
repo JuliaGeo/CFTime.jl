@@ -11,11 +11,12 @@
 
 Feature of CFTime include:
 
+* Time instances as defined [Climate and Forecasting (CF) conventions](https://cfconventions.org/)
 * Supporting a wide range of the time resolutions, from days down to attoseconds (for feature parity with NumPy's date time type)
 * Supporting arbitrary time origins
 * Per default, the time counter is a 64-bit integer, but other integers types (such as `Int32`, `Int128` or `BigInt`) or floating-point types can be used (not recommended)
 * Basic arithmetic such as computing the duration between two time instances
-* Conversion function between types and Julia's `DateTime`.
+* Conversion function between CFTime types and Julia's `DateTime`.
 * Time ranges
 
 
@@ -30,7 +31,7 @@ Pkg.add("CFTime")
 
 ## Example
 
-For the Climate and Forecasting (CF) conventions, time is expressed as duration since starting time. The function `CFTime.timedecode` allows to convert these
+For the [Climate and Forecasting (CF) conventions](https://cfconventions.org/Data/cf-conventions/cf-conventions-1.12/cf-conventions.html#time-coordinate-units), time is expressed as duration since starting time. The function `CFTime.timedecode` allows to convert these
 time instances as a Julia `DateTime` structure:
 
 ```julia
@@ -58,7 +59,7 @@ CFTime.timeencode(dt,"days since 2000-01-01 00:00:00")
 #  3.0
 ```
 
-The CF conventions also allow for calendars where every months has a duration of 30 days:
+The CF conventions also allow for different calendars, for example a calendar where every months has a duration of 30 days:
 
 ```julia
 dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00",DateTime360Day)
@@ -76,7 +77,7 @@ CFTime.timeencode(dt,"days since 2000-01-01 00:00:00",DateTime360Day)
 #  2.0
 #  3.0
 ```
-You can replace in the example above the type `DateTime360Day` by the string `"360_day"` (the name for the calendar according to the CF conventions).
+You can replace in the example above the type `DateTime360Day` by the string `"360_day"` (the [name for the calendar](https://cfconventions.org/Data/cf-conventions/cf-conventions-1.12/cf-conventions.html#calendar) according to the CF conventions).
 
 Single time instances can also be created by calling the corresponding constructor function, e.g. `DateTimeStandard` for the standard calendar (mixed Gregorian/Julian calendar)
 in a similar way than Julias `DateTime` type.
@@ -85,9 +86,9 @@ For example, the 1 January 2000 + 1 ns would be:
 
 ```julia
 y,m,d = (2000,1,1)
-H,M,S = (0,0,0)
-µS,mS,nS = (0,0,1)
-DateTimeStandard(y,m,d,H,M,S,µS,mS,nS; units=:nanosecond)
+hour,minute,sec = (0,0,0)
+µsec,msec,nsec = (0,0,1)
+DateTimeStandard(y,m,d,hour,minute,sec,µsec,msec,nsec; units=:nanosecond)
 # DateTimeStandard(2000-01-01T00:00:00.000000001)
 ```
 
@@ -96,19 +97,19 @@ The duration are encoded internally as a 64-bit signed integer. High precision i
 
 
 ```julia
-DateTimeStandard(Int128,y,m,d,H,M,S,µS,mS,nS; units=:nanosecond)
+DateTimeStandard(Int128,y,m,d,hour,minute,sec,µsec,msec,nsec; units=:nanosecond)
 ```
 
 The default time origin is currently 1 January 1900 00:00:00. A different time origin can be used by setting the origin parameter:
 
 ```julia
-DateTimeStandard(Int128,y,m,d,H,M,S,µS,mS,nS; units=:nanosecond, origin=(1970,1,1))
+DateTimeStandard(Int128,y,m,d,hour,minute,sec,µsec,msec,nsec; units=:nanosecond, origin=(1970,1,1))
 ```
 
 The units and origin argument can be wrapped as a `Val` to ensure that these values are known at compile-time:
 
 ```julia
-DateTimeStandard(Int128,y,m,d,H,M,S,µS,mS,nS; units=Val(:nanosecond), origin=Val((1970,1,1)))
+DateTimeStandard(Int128,y,m,d,hour,minute,sec,µsec,msec,nsec; units=Val(:nanosecond), origin=Val((1970,1,1)))
 ```
 
 Several compile-time optimization have been implemented for the particular but common case where date have the same time origin and/or the same time resolution.

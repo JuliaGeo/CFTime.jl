@@ -1,5 +1,6 @@
 using Documenter
 using CFTime
+using Dates
 
 makedocs(
     format = Documenter.HTML(),
