@@ -70,6 +70,18 @@ Convert a variable `dt` of type `DateTime`, `DateTimeStandard`, `DateTimeJulian`
 year, month, day, minute, second, ... attosecond.
 The conversion might fail if a particular date does not exist in the
 target calendar.
+
+For example, the difference of the 1 January 2000 in the Julian and
+and the 1 January 2000 in the standard calendar is 13 days:
+
+
+```julia
+using CFTime, Dates
+dt = DateTimeJulian(2000,1,1)
+Dates.Day(dt - reinterpret(DateTimeStandard,dt))
+# 13 days
+```
+
 """
 function reinterpret(::Type{T1}, dt::DateTime) where T1 <: AbstractCFDateTime
    return T1(
@@ -93,7 +105,7 @@ function parseDT(::Type{Tuple},str)
     str = replace(str,"T" => " ")
 
     # remove Z time zone indicator
-    # all times are assumed UTC anyway
+    # all times are assumed to be UTC anyway
     if endswith(str,"Z")
         str = str[1:end-1]
     end
