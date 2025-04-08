@@ -477,3 +477,10 @@ the types `DateTimeStandard` and `DateTimeJulian`.
 
     end
 end
+
+
+function convert(::Type{DT},dt::AbstractCFDateTime) where DT <: AbstractCFDateTime{T,Torigintuple} where {T,Torigintuple}
+    dt0 = DT(T(0))
+    p = convert(T,dt - dt0)
+    return DT(p)
+end
