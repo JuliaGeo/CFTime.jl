@@ -7,18 +7,19 @@
 
 
 `CFTime` encodes and decodes time units conforming to the [Climate and Forecasting (CF) conventions](https://cfconventions.org/).
-`CFTime` was split out of the [NCDatasets](https://github.com/JuliaGeo/NCDatasets.jl) julia package.
+`CFTime` was split out of the [NCDatasets](https://github.com/JuliaGeo/NCDatasets.jl) Julia package.
 
 Feature of CFTime include:
 
 * Time instances as defined [Climate and Forecasting (CF) conventions](https://cfconventions.org/)
 * Supporting a wide range of the time resolutions, from days down to attoseconds (for feature parity with NumPy's date time type)
 * Supporting arbitrary time origins
-* Per default, the time counter is a 64-bit integer, but other integers types (such as `Int32`, `Int128` or `BigInt`) or floating-point types can be used (not recommended)
+* By default, the time counter is a 64-bit integer, but other integers types (such as `Int32`, `Int128` or `BigInt`) or floating-point types can be used (not recommended)
 * Basic arithmetic such as computing the duration between two time instances
 * Conversion function between CFTime types and Julia's `DateTime`.
 * Time ranges
 
+Leap seconds are currently not supported by `CFTime.jl`.
 
 ## Installation
 
@@ -134,7 +135,7 @@ DateTimeStandard(2000,1,2) > DateTimeStandard(2000,1,1)
 
 ## Parsing dates
 
-Dates can be parsed by using `dateformat` from julia's `Dates` module, for example:
+Dates can be parsed by using `dateformat` from Julia's `Dates` module, for example:
 
 ```julia
 dt = DateTimeNoLeap("21001231",dateformat"yyyymmdd");
