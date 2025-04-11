@@ -7,11 +7,9 @@ version = "0.2.1"
 
 [deps]
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
-LeapSeconds = "2f5f767c-a11e-5269-a972-637d4b97c32d"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [compat]
 Dates = "1"
-LeapSeconds = "1.1.0"
 Printf = "1"
 julia = "1.6"
