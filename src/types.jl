@@ -21,7 +21,11 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                               (:DateTimeProlepticGregorian,"prolepticgregorian"),
                               (:DateTimeAllLeap,"allleap"),
                               (:DateTimeNoLeap,"noleap"),
-                              (:DateTime360Day,"360day")]
+                              (:DateTime360Day,"360day"),
+                              (:DateTimeUTC,"utc"),
+                              (:DateTimeTAI,"tai"),
+
+                              ]
     @eval begin
         struct $CFDateTime{T,Torigintuple} <: AbstractCFDateTime{T,Torigintuple}
             instant::T
