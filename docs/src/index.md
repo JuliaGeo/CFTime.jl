@@ -9,7 +9,7 @@ This package implements the calendar types from the [CF convention](http://cfcon
 * A calendar with every year being 360 days long (divided into 30 day months) (`DateTime360Day`)
 * Julian calendar (`DateTimeJulian`)
 
-Note that time zones and leap seconds are not supported by `CFTime.jl`.
+Note that time zones and leap seconds are currently not supported by `CFTime.jl`.
 
 
 ## Installation
