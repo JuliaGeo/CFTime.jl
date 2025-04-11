@@ -1,5 +1,5 @@
 ---
-title: 'CFTime.jl: a Julia package for time types conforming to the Climate and Forecasting (CF) conventions'
+title: 'CFTime.jl: a Julia package for representing time following the Climate and Forecast conventions'
 tags:
   - julia
   - climate-and-forecast-conventions
@@ -22,11 +22,11 @@ bibliography: paper.bib
 # Summary
 
 
-Climate and Forecasting (CF) conventions are a metadata standard for Earth data [@Eaton2024] and are mainly used in oceanography and meteorology.
+Climate and Forecast (CF) conventions are a metadata standard for Earth data [@Eaton2024] and are mainly used in oceanography and meteorology.
 They aim to be equally applicable to model data, remote-sensing data and in-situ data, despite the high heterogeneity among data types.
 The CF conventions were originally proposed for the NetCDF storage format, but they are also increasingly used with other formats like Zarr [@OGC_Zarr] and GRIB ([GRIBDatasets](https://github.com/JuliaGeo/GRIBDatasets.jl)).
 
-Since the initial release of the Climate and Forecasting (CF) conventions [@Eaton2003], the encoding of time instances has been standardized. This part of the standard is based on the earlier COARDS (Cooperative Ocean Atmosphere Research Data Service) standard from 1995 [@COARDS]. The Julia package CFTime implements various standardized calendars that have been standardized in the frame of these conventions. It also supports some arithmetic operations for example, computing the duration between two time instances, ordering time instances and creating time ranges. The time origin and resolution are flexible ranging from days to attoseconds.
+Since the initial release of the Climate and Forecast (CF) conventions [@Eaton2003], the encoding of time instances has been standardized. This part of the standard is based on the earlier COARDS (Cooperative Ocean Atmosphere Research Data Service) standard from 1995 [@COARDS]. The Julia package CFTime implements various standardized calendars that have been standardized in the frame of these conventions. It also supports some arithmetic operations for example, computing the duration between two time instances, ordering time instances and creating time ranges. The time origin and resolution are flexible ranging from days to attoseconds.
 
 
 # Statement of need
