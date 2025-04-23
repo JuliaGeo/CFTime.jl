@@ -79,6 +79,9 @@ dayofyear
 
 ## Convertion Functions
 
+
+The flexibility of CFTime's datetime (related to the time origin, time resolution and type of the time counter) comes with some cost. When merging data from different sources, the resulting merged time vector may not have a concrete type, as there is no implicit conversion to a common time origin or internal unit, unlike Julia's `DateTime`. In some cases, the user might decide to explicitly convert all times to a common time origin and internal unit for optimal performance.
+
 The `convert` function can be used to convert dates between the different calendars:
 
 ```julia
