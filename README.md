@@ -157,7 +157,7 @@ Outside of the julia ecosystem:
 
 * [cftime](https://unidata.github.io/cftime/) for python
 * [CFtime](https://CRAN.R-project.org/package=CFtime) for R
-
+* [cftime-rs](https://github.com/antscloud/cftime-rs) for rust with python bindings
 
 ## Acknowledgments
 
