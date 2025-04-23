@@ -9,7 +9,7 @@
 `CFTime` encodes and decodes time units conforming to the [Climate and Forecasting (CF) conventions](https://cfconventions.org/).
 `CFTime` was split out of the [NCDatasets](https://github.com/JuliaGeo/NCDatasets.jl) Julia package.
 
-Feature of CFTime include:
+Features of CFTime include:
 
 * Time instances as defined [Climate and Forecasting (CF) conventions](https://cfconventions.org/)
 * Supporting a wide range of the time resolutions, from days down to attoseconds (for feature parity with NumPy's date time type)
