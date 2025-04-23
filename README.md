@@ -19,7 +19,7 @@ Features of CFTime include:
 * Conversion function between CFTime types and Julia's `DateTime`.
 * Regular time range based on Julia's range type. A time range is a vector of date time elements, but only the start time, the end time and the steps need to be stored in memory.
 
-`CFTime.jl` currently does not support leap seconds, which were standardized as part of CF conventions version 1.12, released in December 2024.
+CFTime currently does not support leap seconds, which were standardized as part of CF conventions version 1.12, released in December 2024.
 
 ## Installation
 
