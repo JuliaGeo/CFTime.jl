@@ -2,6 +2,17 @@ using CFTime
 using Test
 using Dates: DateTime
 
+# handling of year zero, reference values
+# from pythons cftime 1.6.0
+# issue #17
+
+@test DateTimeProlepticGregorian(1,1,1) - Day(1) == DateTimeProlepticGregorian(0,12,31)
+@test DateTimeJulian(1,1,1) - Day(1) == DateTimeJulian(-1,12,31)
+@test DateTimeStandard(1,1,1) - Day(1) == DateTimeStandard(-1,12,31)
+@test DateTimeAllLeap(1,1,1) - Day(1) == DateTimeAllLeap(0,12,31)
+@test DateTimeNoLeap(1,1,1) - Day(1) == DateTimeNoLeap(0,12,31)
+@test DateTime360Day(1,1,1) - Day(1) == DateTime360Day(0,12,30)
+
 
 dt = CFTime.timedecode(0,"days since 0001-01-01",prefer_datetime = false)
 @test dt == DateTimeStandard(1,1,1)
