@@ -32,7 +32,7 @@ Pkg.add("CFTime")
 
 After installing the package, the test suite of `CFTime` can be run using:
 
-```
+```julia
 Pkg.test("CFTime")
 ```
 
