@@ -6,6 +6,10 @@ using Test
         include("test_time.jl")
     end
 
+    @testset verbose = true "Comparision with reference algorithm" begin
+        include("test_validity.jl")
+    end
+
     @testset "Operators (+,-,<,>...)" begin
         include("test_operators.jl")
     end

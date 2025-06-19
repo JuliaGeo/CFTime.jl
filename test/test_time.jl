@@ -7,9 +7,6 @@ datetuple(dt::DateTime) = (Dates.year(dt),Dates.month(dt),Dates.day(dt),
                             Dates.hour(dt),Dates.minute(dt),Dates.second(dt),
                             Dates.millisecond(dt))
 
-# slow, but accurate and easy to understand (and possibly fix)
-include("reference_algorithm.jl")
-
 @testset "Check with reference values" begin
     # reference value from Meeus, Jean (1998)
     # launch of Sputnik 1
