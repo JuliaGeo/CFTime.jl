@@ -30,6 +30,12 @@ using Pkg
 Pkg.add("CFTime")
 ```
 
+After installing the package, the test suite of `CFTime` can be run using:
+
+```julia
+Pkg.test("CFTime")
+```
+
 ## Example
 
 For the [Climate and Forecasting (CF) conventions](https://cfconventions.org/Data/cf-conventions/cf-conventions-1.12/cf-conventions.html#time-coordinate-units), time is expressed as duration since starting time. The function `CFTime.timedecode` allows to convert these
