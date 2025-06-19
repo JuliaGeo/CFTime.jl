@@ -58,7 +58,6 @@ YMD1 = (100_000,12,31)
 
 for T in [DateTimeStandard, DateTimeJulian, DateTimeProlepticGregorian,
           DateTimeAllLeap, DateTimeNoLeap, DateTime360Day]
-#for T in [DateTime360Day]
 
     global YMD1
 
@@ -66,13 +65,16 @@ for T in [DateTimeStandard, DateTimeJulian, DateTimeProlepticGregorian,
         YMD1 = (YMD1[1:2]...,30)
     end
 
-    nsuccess,fails = @time test_dates(T,YMD0,YMD1)
+    nsuccess,fails = test_dates(T,YMD0,YMD1)
 
+    @debug begin
+        println(T," success: ",nsuccess)
+        println(T," fails: ",length(fails))
 
-    println(T," success: ",nsuccess)
-    println(T," fails: ",length(fails))
-
-    if length(fails) > 0
-        println.(fails);
+        if length(fails) > 0
+            println.(fails);
+        end
     end
+
+    @test length(fails) == 0
 end
