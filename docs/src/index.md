@@ -179,13 +179,18 @@ To create a type-stable date time structure, use the `DateTimeStandard` (and sim
 ```julia
 using CFTime: DateTimeStandard
 
-foo(year,month,day,hour,minute,second) = DateTimeStandard(year,month,day,hour,minute,second; units=:second, origin=(1970,1,1))
+function foo(year,month,day,hour,minute,second)
+   DateTimeStandard(year,month,day,hour,minute,second;
+                    units=:second, origin=(1970,1,1))
+end
 
 # Type-stable thanks to constant propagation
 @code_warntype foo(2000,1,1,0,0,0)
 
 
-foo2(year,month,day,hour,minute,second,units,origin) = DateTimeStandard(year,month,day,hour,minute,second; units, origin)
+function foo2(year,month,day,hour,minute,second,units,origin)
+   DateTimeStandard(year,month,day,hour,minute,second; units, origin)
+end
 
 # This not type-stable as the type depends on the value of units and origin
 units = :second

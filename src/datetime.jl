@@ -24,6 +24,9 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
                               (:DateTimeNoLeap,"noleap"),
                               (:DateTime360Day,"360day")]
 
+    # indentation for doc strings
+    indent = " "^length(string(CFDateTime))
+
     @eval begin
         function $CFDateTime{T,Torigintuple}(args::Vararg{Integer,N}) where {T,Torigintuple,N}
 
@@ -56,7 +59,9 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
         end
 
         """
-    $($CFDateTime)([Ti::DataType], y, [m, d, h, mi, s, ms, ...], origin = (1900, 1, 1), units = ...) -> $($CFDateTime)
+    $($CFDateTime)([Ti::DataType], y, [m, d, h, mi, s, ms, ...],
+    $($indent    ) origin = (1900, 1, 1),
+    $($indent    ) units = ...) -> $($CFDateTime)
 
 Construct a `$($CFDateTime)` type by year (`y`), month (`m`, default 1),
 day (`d`, default 1), hour (`h`, default 0), minute (`mi`, default 0),
@@ -111,7 +116,8 @@ This type implements the calendar defined as "$($calendar)".
         end
 
         """
-    $($CFDateTime)(dt::AbstractString, format::AbstractString; locale="english") -> $($CFDateTime)
+    $($CFDateTime)(dt::AbstractString, format::AbstractString;
+    $($indent    ) locale="english") -> $($CFDateTime)
 
 Construct a $($CFDateTime) by parsing the `dt` date time string following the
 pattern given in the `format` string.
