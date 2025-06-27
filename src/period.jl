@@ -78,7 +78,7 @@ end
 #@inline ten_tom(T,n::Integer) = (n >= 0 ? T(1) : T(10) * ten_tom(T,n+1))
 
 # rescale the time units for the ratio factor/exponent
-@inline function division(T,factor,exponent)
+@inline function division(::Type{T},factor,exponent) where T
     ntuple(length(TIME_DIVISION)) do i
         (T(10)^(-exponent) * TIME_DIVISION[i][2]) ÷
             (T(10)^(-TIME_DIVISION[i][3]) * factor)
