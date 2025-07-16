@@ -25,15 +25,14 @@ function datenum_gregjulian(year,month,day,gregorian::Bool,has_year_zero = false
     end
 
     # convert from Gregorian to Julian Calendar
-    B =
-        if gregorian
-            # remove leap days for 1800, 1900, 2000, 2100...
-            A = fld(year, 100)
-            # add leap days for 1600, 2000, 2400, ...
-            2 - A + fld(A, 4)
-        else
-            0
-        end
+    B = if gregorian
+        # remove leap days for 1800, 1900, 2000, 2100...
+        A = fld(year, 100)
+        # add leap days for 1600, 2000, 2400, ...
+        2 - A + fld(A, 4)
+    else
+        0
+    end
 
     #
     # benchmark shows that integer division is 40% faster than floating point division
