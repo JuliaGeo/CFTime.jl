@@ -1,13 +1,19 @@
 # CFTime.jl
 
-This package implements the calendar types from the [CF convention](http://cfconventions.org/Data/cf-conventions/cf-conventions-1.12/cf-conventions.html#calendar), namely:
+In many Earth science disciplines and beyond, expressing a time instance and a duration is essential. The [CF conventions](http://cfconventions.org/Data/cf-conventions/cf-conventions-1.12/cf-conventions.html#calendar) provide a rich and flexible framework for handling time, equally applicable to observations and model data.
 
-* Mixed Gregorian/Julian calendar  (`DateTimeStandard`)
-* Proleptic gregorian calendar (`DateTimeProlepticGregorian`)
-* Gregorian calendar without leap years (all years are 365 days long) (`DateTimeNoLeap`)
-* Gregorian calendar with only leap year (all years are 366 days long) (`DateTimeAllLeap`)
-* A calendar with every year being 360 days long (divided into 30 day months) (`DateTime360Day`)
-* Julian calendar (`DateTimeJulian`)
+CFTime.jl implements the time structures standardized by the CF conventions, namely:
+
+* Julian calendar (`DateTimeJulian`). A year is a leap year if it is divisible by 4. For example, 1900 and 2000 are both leap years in the Julian calendar.
+* Proleptic Gregorian calendar (`DateTimeProlepticGregorian`). A year is a leap year if it is divisible by 4 but not 100 or if it is divisible by 400. For example, 1900 is not a leap year in the proleptic Gregorian calendar but 2000 is.
+* Mixed Gregorian/Julian calendar  (`DateTimeStandard`). This calendar uses the Julian calendar for time instances before 15th October 1582 and Gregorian calendar afterwards.
+* A calendar without leap years (`DateTimeNoLeap`). All years are 365 days long.
+* A calendar with only leap years (`DateTimeAllLeap`). All years are 366 days long.
+* A calendar with every year being 360 days long (divided into 30-day months) (`DateTime360Day`).
+
+The first three calendars (with different rules for leap years) can be used to express the time instances of observations or model. The remaining three calendars correspond to idealised model configurations where the duration of a year (revolution of the Earth around the Sun) is assumed to be exactly 365, 366 or 360 days.
+
+While almost all datasets used in Earth Science use dates after the year 1582, some datasets or software systems use a time origin before this date, which makes it necessary to handle the transition from Julian to Gregorian calendar. Additionally, some dataset use microseconds and nanoseconds as time resolution, whereas Julia's `Dates.DateTime` has milliseconds as time resolution.
 
 Note that time zones and leap seconds are currently not supported by `CFTime.jl`.
 
@@ -20,6 +26,9 @@ Inside the Julia shell, you can download and install the package by issuing:
 using Pkg
 Pkg.add("CFTime")
 ```
+
+CFTime is a pure Julia package and currently depends only on the modules `Dates` and `Printf`, which are part of Julia’s standard library.
+
 
 ### Latest development version
 
