@@ -299,7 +299,16 @@ end
     dt = timedecode(data,units,calendar = "standard"; prefer_datetime = true)
 
 Decode the time information in data as given by the units `units` according to
-the specified calendar. Valid values for `calendar` are
+the specified calendar.
+
+`units` has the format `"DURATION_UNIT since TIME_ORIGIN"` where
+`DURATION_UNIT` can be the year, month, $(join(getindex.(TIME_DIVISION,1),", ", " or "))
+(in singular or plural). The string `TIME_ORIGIN` is a time instance written as
+`year-month-day hour:minute:second.subseconds...`  using 24-hour clock system
+where `subseconds` is the decimal fraction of the second. `day` and `hour` can
+also be separated by the character `T` following ISO 8601.
+
+Valid values for `calendar` are
 `"standard"`, `"gregorian"`, `"proleptic_gregorian"`, `"julian"`, `"noleap"`, `"365_day"`,
 `"all_leap"`, `"366_day"` and `"360_day"`.
 
@@ -374,9 +383,29 @@ Convert a vector or array of `DateTime` (or `DateTimeStandard`,
 `DateTimeProlepticGregorian`, `DateTimeJulian`, `DateTimeNoLeap`,
 `DateTimeAllLeap`, `DateTime360Day`) according to
 the specified units (e.g. `"days since 2000-01-01 00:00:00"`) using the calendar
-`calendar`.  Valid values for calendar are:
+`calendar`.
+
+`units` has the format `"DURATION_UNIT since TIME_ORIGIN"` where
+`DURATION_UNIT` can be the year, month, $(join(getindex.(TIME_DIVISION,1),", ", " or "))
+(in singular or plural). The string `TIME_ORIGIN` is a time instance written as
+`year-month-day hour:minute:second.subseconds...`  using 24-hour clock system
+where `subseconds` is the decimal fraction of the second. `day` and `hour` can
+also be separated by the character `T` following ISO 8601.
+
+Valid values for calendar are:
 `"standard"`, `"gregorian"`, `"proleptic_gregorian"`, `"julian"`, `"noleap"`, `"365_day"`,
 `"all_leap"`, `"366_day"`, `"360_day"`.
+
+
+## Example:
+
+```julia
+using CFTime
+dt = [DateTimeStandard(2000,1,1),DateTimeStandard(2000,1,2),DateTimeStandard(2000,1,3)]
+CFTime.timeencode(dt,"days since 2000-01-01 00:00:00")
+# output: [0., 1., 2.]
+```
+
 """
 function timeencode(data::AbstractArray{DT,N},units,
                     calendar = "standard") where N where DT <: Union{DateTime,AbstractCFDateTime,Union{DateTime,AbstractCFDateTime,Missing}}

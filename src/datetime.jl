@@ -59,13 +59,14 @@ for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
         end
 
         """
-    $($CFDateTime)([Ti::DataType], y, [m, d, h, mi, s, ms, ...],
+    $($CFDateTime)([Ti::DataType], y, [m, d, h, mi, s, ms, µs, ns...],
     $($indent    ) origin = (1900, 1, 1),
     $($indent    ) units = ...) -> $($CFDateTime)
 
 Construct a `$($CFDateTime)` type by year (`y`), month (`m`, default 1),
 day (`d`, default 1), hour (`h`, default 0), minute (`mi`, default 0),
-second (`s`, default 0), millisecond (`ms`, default 0), ....
+second (`s`, default 0), millisecond (`ms`, default 0),
+microsecond (`µs`, default 0), nanosecond (`ns`, default 0), ....
 Currently `attosecond` is the smallest supported time unit.
 
 All arguments must be convertible to `Int64`.
@@ -76,6 +77,44 @@ The date is stored a duration since the time `origin` (epoch) expressed as
 the user provides 8 integers, they will be interpreted as year, month, day, hour,
 minute, second, millisecond and microsecond. The internal time units will be
 microsecond in this case.
+
+Valid values for `units` are `:day`, `:hour`, `:second`, ..., `:attosecond` as symbols
+or value types of symbols (e.g. `Val(:day)`).
+
+`origin` is a tuple of integers representing the year,
+month and day as well as smaller time divisions if necessary.
+
+The duration is stored as a number of type `Ti` (`Int64` per default). Any
+integers types (such as `Int32`, `Int128` or `BigInt`) or floating-point types
+can be used. Using an integer to encode a time instance is recommended for most
+applications, as it makes reasoning about the time resolution easier.
+
+
+## Example:
+
+```julia
+using CFTime
+
+# 31st December 2000, 00:00:00 using the CF calendaro "$($calendar)"
+# The internal time unit is millisecond.
+dt1 = $($CFDateTime)(2000,12,31)
+
+# 31st December 2000, 00:00:00 and 1 nanosecond.
+# The internal time unit is nanosecond.
+dt2 = $($CFDateTime)(2000,12,31, 0,0,0, 0,0,1)
+
+dt2 - dt1
+# output: 1 nanosecond
+
+# 31st December 2000, 00:00:00
+# The internal time unit is microsecond. Internally the duration is stored
+# as an Int128.
+dt3 = $($CFDateTime)(Int128, 2000,12,31, units = :microsecond)
+
+dt1 == dt3
+# output: true
+```
+
 
 The netCDF CF calendars are defined in [the CF Standard](http://cfconventions.org/cf-conventions/cf-conventions.html#calendar).
 This type implements the calendar defined as "$($calendar)".
@@ -120,7 +159,19 @@ This type implements the calendar defined as "$($calendar)".
     $($indent    ) locale="english") -> $($CFDateTime)
 
 Construct a $($CFDateTime) by parsing the `dt` date time string following the
-pattern given in the `format` string.
+pattern given in the `format` string. In Julia, the only currently defined locale is
+English, therefore locale must be "english" or omitted.
+
+See `Dates.DateFormat` for more information about the date time and format string.
+
+## Example:
+
+```julia
+using CFTime
+
+# 31st December 2000
+dt1 = DateTimeStandard("2000-December-31","yyyy-U-dd")
+```
 
 !!! note
     This function is experimental and might
