@@ -16,6 +16,7 @@ for file in files
         joinpath(@__DIR__, "src"),
         execute = true,
         documenter = true,
+        #size_threshold = 400_000,
         # We add the credit to Literate.jl the footer
         credit = false,
     )
