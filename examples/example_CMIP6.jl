@@ -1,15 +1,16 @@
-
 # # Example
 #
 # This example shows how to use the CFTime package with CMIP6 data
 # in the NetCDF format following the CF Conventions.
 #
-# The CMIP6 example data is from NOAA-GFDL and included in the R package CFtime.
+# The CMIP6 example data is from NOAA-GFDL and data extracted at a single point
+# as provided by the R package [CFtime](https://github.com/R-CF/CFtime). The
+# data is downloaded automatically.
 
 using NCDatasets, CFTime, Dates, Statistics
 using Downloads: download
 
-
+# Download the sample data
 url = "https://github.com/R-CF/CFtime/raw/1509a2387a92bda8500d1d6ac472b36df3575b56/inst/extdata/pr_day_GFDL-ESM4_ssp245_r1i1p1f1_gr1_20150101-20991231_v20180701.nc"
 fname = download(url)
 
@@ -22,6 +23,7 @@ ds.attrib["Conventions"]
 # Get the calendar and units attriute of the variable time
 calendar = ds["time"].attrib["calendar"]
 units = ds["time"].attrib["units"]
+(calendar,units)
 
 # Load the raw data representing the number of days since 1850-01-01 with the
 # noleap calendar
@@ -41,7 +43,9 @@ pr_units = ds["pr"].attrib["units"];
 close(ds)
 
 # Verify that the time series cover a complete years
-(time[1],time[end])
+time[1]
+
+time[end]
 
 # Get all unique years
 years = unique(Dates.year.(time));
