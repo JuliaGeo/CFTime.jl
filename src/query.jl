@@ -110,5 +110,5 @@ Return the day of the year for dt with January 1st being day 1.
 """
 function dayofyear(dt::AbstractCFDateTime)
     t0 = firstdayofyear(dt)
-    return Dates.value(dt - t0) ÷ (24*60*60*1000) + 1
+    return Dates.value(floor(dt-t0,Dates.Day)) + 1
 end

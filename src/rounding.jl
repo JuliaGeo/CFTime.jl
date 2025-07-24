@@ -40,7 +40,6 @@ function round(::Type{DateTime}, dt::Union{DateTimeJulian,DateTimeStandard},r::R
     round(DateTime,convert(DateTimeProlepticGregorian,dt))
 end
 
-
 # TODO: make generic
 function Base.floor(dt::DateTimeStandard,p::Period)
     origintuple = _origintuple(dt)
@@ -52,4 +51,21 @@ end
 
 function Base.floor(dt::AbstractCFDateTime,p::Dates.TimePeriod)
     floor(dt,convert(Period,p))
+end
+
+function Base.floor(p::Period{T,Tfactor,Texponent},::Type{TDP}) where {T,Tfactor,Texponent} where TDP <: Union{Dates.DatePeriod,Dates.TimePeriod}
+    scale =
+        if TDP(1) > Dates.Second(1)
+            1 // (TDP(1) ÷ Dates.Second(1))
+        else
+            (Dates.Second(1) ÷ TDP(1)) // 1
+        end
+
+    if _exponent(p) > 0
+        d = (p.duration * _factor(p) * T(10) ^ _exponent(p) * scale)
+    else
+        d = (p.duration * _factor(p) * scale) ÷ (T(10) ^ (-_exponent(p)))
+    end
+
+    return TDP(floor(Int64,d))
 end
