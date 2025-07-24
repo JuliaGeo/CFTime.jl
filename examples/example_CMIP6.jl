@@ -28,7 +28,7 @@ units = ds["time"].attrib["units"]
 data = ds["time"].var[:];
 
 # Decode the data and return a vector of `DateTimeNoLeap`
-time = CFTime.timedecode(data,units,calendar)
+time = CFTime.timedecode(data,units,calendar);
 time[1:3]
 
 # Since CFTime is integrated in NCDatasets, this transformation above
@@ -37,6 +37,7 @@ time = ds["time"][:];
 
 # Load the precitipation which is a variable of the size 1 x 1 x 31025
 pr = ds["pr"][1,1,:];
+pr_units = ds["pr"].attrib["units"];
 close(ds)
 
 # Verify that the time series cover a complete years
@@ -49,4 +50,19 @@ years = unique(Dates.year.(time));
 pr_yearly_mean = [mean(pr[Dates.year.(time) .== y]) for y in years];
 pr_yearly_std = [std(pr[Dates.year.(time) .== y]) for y in years];
 
+
+# Plot the result
 using CairoMakie
+fig = Figure()
+ax = Axis(fig[1, 1],
+          xlabel = "year",
+          ylabel = "precipitation ($(pr_units))",
+          title = "yearly mean and standard deviation of precipitation")
+
+lines!(ax, years, pr_yearly_mean, label = "yearly mean", color = :blue, linewidth = 2)
+lines!(ax, years, pr_yearly_std, label = "yearly standard deviation", color = :red, linestyle = :dash, linewidth = 2)
+
+axislegend(ax, position = :lt)
+
+save("precipitation.png",fig); nothing # hide
+#md # ![](precipitation.png)
