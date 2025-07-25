@@ -41,6 +41,8 @@ Pkg.add(PackageSpec(url="https://github.com/JuliaGeo/CFTime.jl", rev="master"))
 
 ## Types
 
+`DateTimeStandard`, `DateTimeProlepticGregorian`, `DateTimeJulian`, `DateTimeNoLeap`, `DateTimeAllLeap` and `DateTime360Day` are the core types that define time instances according to the corresponding calendars. The main focus of this package is to instantiate and to manipulate these types.
+
 ```@docs
 DateTimeStandard
 DateTimeJulian
