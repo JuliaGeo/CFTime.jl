@@ -18,26 +18,26 @@ url = "https://github.com/R-CF/CFtime/raw/1509a2387a92bda8500d1d6ac472b36df3575b
 fname = download(url);
 ds = NCDataset(fname);
 
-# Get the global attriute Conventions
+# Get the global attribute Conventions
 ds.attrib["Conventions"]
 
-# Get the calendar and units attriute of the variable time
+# Get the calendar and units attribute of the variable time
 calendar = ds["time"].attrib["calendar"]
 units = ds["time"].attrib["units"]
 (calendar,units)
 
 # Load the raw data representing the number of days since 1850-01-01 with the
-# noleap calendar and decode the data. The variable `time` is a vector
+# no-leap calendar and decode the data. The variable `time` is a vector
 # of `DateTimeNoLeap`
 
 data = ds["time"].var[:];
 time = CFTime.timedecode(data,units,calendar);
 
 # Since CFTime is integrated in NCDatasets, this transformation above
-# is handeld autmatically by using:
+# is handeld automatically by using:
 time = ds["time"][:];
 
-# Load the precitipation which is a variable of the size 1 x 1 x 31025
+# Load the precipitation which is a variable of the size 1 x 1 x 31025
 pr = ds["pr"][1,1,:];
 pr_units = ds["pr"].attrib["units"];
 close(ds);
