@@ -32,7 +32,6 @@ units = ds["time"].attrib["units"]
 
 data = ds["time"].var[:];
 time = CFTime.timedecode(data,units,calendar);
-(time[1],time[end])
 
 # Since CFTime is integrated in NCDatasets, this transformation above
 # is handeld autmatically by using:
@@ -42,6 +41,14 @@ time = ds["time"][:];
 pr = ds["pr"][1,1,:];
 pr_units = ds["pr"].attrib["units"];
 close(ds);
+
+# Check that the time resolution of the datasets is 1 day (and constant).
+@assert all(time[2:end]-time[1:end-1] .== Dates.Day(1))
+
+# Verify that the time series spans over entire years (otherwise the yearly
+# statistics would be biased)
+@assert Dates.dayofyear(time[1]) == 1
+@assert Dates.dayofyear(time[end]) == 365
 
 # Get all unique years and compute mean and standard deviation per year
 years = unique(Dates.year.(time));
