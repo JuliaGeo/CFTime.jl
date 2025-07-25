@@ -34,10 +34,10 @@ data = ds["time"].var[:];
 time = CFTime.timedecode(data,units,calendar);
 
 # Since CFTime is integrated in NCDatasets, this transformation above
-# is handeld automatically by using:
+# is handled automatically by using:
 time = ds["time"][:];
 
-# Load the precipitation which is a variable of the size 1 x 1 x 31025
+# Load the precipitation which is a variable of size 1 x 1 x 31025
 pr = ds["pr"][1,1,:];
 pr_units = ds["pr"].attrib["units"];
 close(ds);
@@ -45,7 +45,7 @@ close(ds);
 # Check that the time resolution of the datasets is 1 day (and constant).
 @assert all(time[2:end]-time[1:end-1] .== Dates.Day(1))
 
-# Verify that the time series spans over entire years (otherwise the yearly
+# Verify that the time series spans entire years (otherwise the yearly
 # statistics would be biased)
 @assert Dates.dayofyear(time[1]) == 1
 @assert Dates.dayofyear(time[end]) == 365
