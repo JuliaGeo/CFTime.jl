@@ -85,7 +85,7 @@ or value types of symbols (e.g. `Val(:day)`).
 month and day as well as smaller time divisions if necessary.
 
 The duration is stored as a number of type `Ti` (`Int64` per default). Any
-integers types (such as `Int32`, `Int128` or `BigInt`) or floating-point types
+integer types (such as `Int32`, `Int128` or `BigInt`) or floating-point types
 can be used. Using an integer to encode a time instance is recommended for most
 applications, as it makes reasoning about the time resolution easier.
 

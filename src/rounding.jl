@@ -4,7 +4,7 @@
 
 Round the date time `dt` to the nearest date time represenatable by julia's `DateTime` using the rounding mode `r` (either `RoundNearest` (default) `RoundDown` or `RoundUp`).
 """
-function round(::Type{DateTime}, dt::DateTimeProlepticGregorian,r::RoundingMode = RoundNearest)
+function Base.round(::Type{DateTime}, dt::DateTimeProlepticGregorian,r::RoundingMode = RoundNearest)
     function round_ms(t)
         t_ms =
             if 3+_exponent(t) > 0
@@ -36,17 +36,18 @@ function round(::Type{DateTime}, dt::DateTimeProlepticGregorian,r::RoundingMode 
     return DateTime(UTInstant{Millisecond}(Dates.Millisecond(duration)))
 end
 
-function round(::Type{DateTime}, dt::Union{DateTimeJulian,DateTimeStandard},r::RoundingMode = RoundNearest)
+function Base.round(::Type{DateTime}, dt::Union{DateTimeJulian,DateTimeStandard},r::RoundingMode = RoundNearest)
     round(DateTime,convert(DateTimeProlepticGregorian,dt))
 end
 
-# TODO: make generic
-function Base.floor(dt::DateTimeStandard,p::Period)
-    origintuple = _origintuple(dt)
-    origin = _origin_period(dt)
-    t = dt.instant + origin
-    t_mod = (t - mod(t,p)) - origin
-    return DateTimeStandard{typeof(t_mod), Val(origintuple)}(t_mod)
+for CFDateTime in (DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian,DateTimeNoLeap,DateTimeAllLeap,DateTime360Day)
+    @eval function Base.floor(dt::$CFDateTime,p::Period)
+        origintuple = _origintuple(dt)
+        origin = _origin_period(dt)
+        t = dt.instant + origin
+        t_mod = (t - mod(t,p)) - origin
+        return $CFDateTime{typeof(t_mod), Val(origintuple)}(t_mod)
+    end
 end
 
 function Base.floor(dt::AbstractCFDateTime,p::Dates.TimePeriod)

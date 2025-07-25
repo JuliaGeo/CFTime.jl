@@ -20,10 +20,12 @@ dt = DateTimeStandard(24*60*60,"second since 2000-01-01")
 @test floor(dt+Dates.Second(9),Dates.Second(10)) == dt
 @test round(dt+Dates.Second(9),Dates.Second(10)) == dt + Dates.Second(10)
 
+dt = DateTimeJulian(24*60*60,"second since 2000-01-01")
+@test floor(dt+Dates.Second(9),Dates.Second(10)) == dt
+@test round(dt+Dates.Second(9),Dates.Second(10)) == dt + Dates.Second(10)
 
 dt = DateTimeStandard(24*60*60,"second since 2000-01-01 00:00:00.111222")
 @test round(DateTime,dt) == DateTime(2000,1,2,0,0,0,111)
-
 
 for DT in (DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian,DateTimeNoLeap,DateTimeAllLeap,DateTime360Day)
     local dt1, dt2, p
