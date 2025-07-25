@@ -6,7 +6,7 @@ CFTime.jl implements the time structures standardized by the CF conventions, nam
 
 * Julian calendar (`DateTimeJulian`). A year is a leap year if it is divisible by 4. For example, 1900 and 2000 are both leap years in the Julian calendar.
 * Proleptic Gregorian calendar (`DateTimeProlepticGregorian`). A year is a leap year if it is divisible by 4 but not 100 or if it is divisible by 400. For example, 1900 is not a leap year in the proleptic Gregorian calendar but 2000 is.
-* Mixed Gregorian/Julian calendar  (`DateTimeStandard`). This calendar uses the Julian calendar for time instances before 15th October 1582 and Gregorian calendar afterwards.
+* The default mixed Gregorian/Julian calendar  (`DateTimeStandard`). This calendar uses the Julian calendar for time instances before 15th October 1582 and Gregorian calendar afterwards.
 * A calendar without leap years (`DateTimeNoLeap`). All years are 365 days long.
 * A calendar with only leap years (`DateTimeAllLeap`). All years are 366 days long.
 * A calendar with every year being 360 days long (divided into 30-day months) (`DateTime360Day`).
