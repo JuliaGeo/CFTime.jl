@@ -88,7 +88,7 @@ firstdayofyear
 dayofyear
 ```
 
-## Convertion Functions
+## Conversion Functions
 
 
 The flexibility of CFTime's datetime (related to the time origin, time resolution and type of the time counter) comes with some cost. When merging data from different sources, the resulting merged time vector may not have a concrete type, as there is no implicit conversion to a common time origin or internal unit, unlike Julia's `DateTime`. In some cases, the user might decide to explicitly convert all times to a common time origin and internal unit for optimal performance.
@@ -121,7 +121,7 @@ DateTimeStandard(1582,10,4) + Dates.Day(1)
 
 1582-10-15 is the adoption of the Gregorian Calendar.
 
-Comparision operator can be used to check if a date is before or after another date.
+Comparison operator can be used to check if a date is before or after another date.
 
 ```julia
 DateTimeStandard(2000,01,01) < DateTimeStandard(2000,01,02)
@@ -145,8 +145,8 @@ Note that there is no default increment for range.
 
 ## Rounding
 
-Julia's `DateTime` records the time relative to a time orgin (January 1st, 1 BC or 0000-01-01 in ISO_8601) with a millisecond accuracy. Converting CFTime date time structures to
-Julia's `DateTime` (using `convert(DateTime,dt)`) can trigger an inexact exception if the convertion cannot be done without loss of precision. One can use the `round` function in order to round to the nearest time represenatable by `DateTime`:
+Julia's `DateTime` records the time relative to a time origin (January 1st, 1 BC or 0000-01-01 in ISO_8601) with a millisecond accuracy. Converting CFTime date time structures to
+Julia's `DateTime` (using `convert(DateTime,dt)`) can trigger an inexact exception if the conversion cannot be done without loss of precision. One can use the `round` function in order to round to the nearest time represenatable by `DateTime`:
 
 ```julia
 using CFTime: DateTimeStandard
@@ -221,7 +221,7 @@ origin = Val((1970,1,1))
 For CFTime 0.1.4 and before all date-times are encoded using internally milliseconds since a fixed time origin and stored as an `Int64` similar to julia's `Dates.DateTime`.
 However, this approach does not allow to encode time with a sub-millisecond precision allowed by the CF convention and supported by e.g. [numpy](https://numpy.org/doc/1.25/reference/arrays.datetime.html#datetime-units). While `numpy` allows attosecond precision, it can only encode a time span of ±9.2 around the date 00:00:00 UTC on 1 January 1970. In CFTime the time origin and the number containing the duration and the time precision are now encoded as two additional type parameters.
 
-When wrapping a CFTime date-time type, it is recommended for performance reasons to make the containg structure also parametric, for example
+When wrapping a CFTime date-time type, it is recommended for performance reasons to make the containing structure also parametric, for example
 
 ``` julia
 struct MyStuct{T1,T2}

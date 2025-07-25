@@ -112,7 +112,7 @@ data2 = CFTime.timeencode(dt,"days since 2000-01-01 00:00:00+00:00",DateTime360D
 @test data == data2
 
 
-# convertion when substracting dates
+# conversion when substracting dates
 @test DateTimeStandard(2000,1,1) - DateTime(2000,1,1) == Dates.Day(0)
 @test DateTime(2000,1,1) - DateTimeStandard(2000,1,1) == Dates.Day(0)
 @test DateTimeStandard(2000,1,1) - DateTimeProlepticGregorian(2000,1,1) == Dates.Day(0)

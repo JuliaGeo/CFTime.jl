@@ -167,4 +167,4 @@ Outside of the julia ecosystem:
 
 ## Acknowledgments
 
-Thanks to Jeff Whitaker and [contributors](https://github.com/Unidata/cftime/graphs/contributors) for python's [cftime](https://github.com/Unidata/cftime) released under the MIT license which has helped the developpement of this package by providing reference values and a reference implementation for tests. The algorithm is based on Jean Meeus' algorithm published in Astronomical Algorithms (2nd Edition, Willmann-Bell, p. 63, 1998) adapted to years prior to 300 AC.
+Thanks to Jeff Whitaker and [contributors](https://github.com/Unidata/cftime/graphs/contributors) for python's [cftime](https://github.com/Unidata/cftime) released under the MIT license which has helped the development of this package by providing reference values and a reference implementation for tests. The algorithm is based on Jean Meeus' algorithm published in Astronomical Algorithms (2nd Edition, Willmann-Bell, p. 63, 1998) adapted to years prior to 300 AC.

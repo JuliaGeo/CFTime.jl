@@ -104,7 +104,7 @@ str = String(take!(io))
 @test Dates.Second(p1) === Dates.Second(1)
 @test Dates.Millisecond(p1) === Dates.Millisecond(1000)
 
-# convertion
+# conversion
 @test Dates.Hour(Period(60,:minute)) == Dates.Hour(1)
 @test_throws InexactError Dates.Hour(Period(61,:minute))
 
