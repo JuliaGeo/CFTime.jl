@@ -1,4 +1,6 @@
 using CFTime
+using Test
+using Dates
 
 # issue #12
 
@@ -176,7 +178,7 @@ end
 @testset "zero" begin
     @test zero(DateTimeAllLeap) == CFTime.Millisecond(0)
     @test zero(DateTimeNoLeap) == CFTime.Millisecond(0)
-    @test zero(DateTimeJulian) == CFTime.Millisecond(0)
+    @test zero(DateTimeProlepticGregorian) == CFTime.Millisecond(0)
     @test zero(DateTimeJulian) == CFTime.Millisecond(0)
     @test zero(DateTime360Day) == CFTime.Millisecond(0)
     @test zero(DateTime360Day) == CFTime.Millisecond(0)
