@@ -87,6 +87,13 @@ end
     end
 end
 
+@inline function division(::Type{T},factor,exponent) where T <: AbstractFloat
+    ntuple(length(TIME_DIVISION)) do i
+        (T(10)^(-exponent) * TIME_DIVISION[i][2]) /
+            (T(10)^(-TIME_DIVISION[i][3]) * factor)
+    end
+end
+
 @inline function _datenum(tuf::Tuple,factor,exponent)
     T =  promote_type(typeof.(tuf)...)
     divi = division(T,factor,exponent)

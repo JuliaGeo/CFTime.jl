@@ -354,3 +354,11 @@ dt = CFTime.timedecode([0,1],"months since 2000-01-01T00:00:00", prefer_datetime
 
 dt = CFTime.timedecode(1,"days since 2000-01-01T00:00:00", prefer_datetime = false)
 @test Dates.value(dt) == dt.instant.duration
+
+
+
+# issue 52
+
+t1 = DateTimeStandard(Float64,2001,1,1,12; units=:day)
+t2 = DateTimeStandard(Float64,2001,1,1,12)
+@test Dates.value(t1 - t2) ≈ 0
