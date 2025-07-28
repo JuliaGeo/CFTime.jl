@@ -40,7 +40,11 @@ function Base.round(::Type{DateTime}, dt::Union{DateTimeJulian,DateTimeStandard}
     round(DateTime,convert(DateTimeProlepticGregorian,dt))
 end
 
-for CFDateTime in (DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian,DateTimeNoLeap,DateTimeAllLeap,DateTime360Day)
+# see this discussion about changing the type parameters
+# https://discourse.julialang.org/t/get-new-type-with-different-parameter/37253
+
+for CFDateTime in (DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian,
+                   DateTimeNoLeap,DateTimeAllLeap,DateTime360Day)
     @eval function Base.floor(dt::$CFDateTime,p::Period)
         origintuple = _origintuple(dt)
         origin = _origin_period(dt)
