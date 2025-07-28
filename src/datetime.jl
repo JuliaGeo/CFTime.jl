@@ -362,7 +362,11 @@ function string(dt::T)  where T <: AbstractCFDateTime
 end
 
 function show(io::IO,dt::T)  where T <: AbstractCFDateTime
-    println(io, string(typeof(dt).name.name), "(",string(dt),")")
+    if dt isa get(io, :typeinfo, Any) <: AbstractCFDateTime
+        print(io, string(dt))
+    else
+        print(io, string(nameof(T)), "(",string(dt),")")
+    end
 end
 
 
