@@ -309,6 +309,10 @@ function isless(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
     return Dates.value(dt1 - dt2) < 0
 end
 
+function isless(dt1::DT,dt2::DT) where DT <: AbstractCFDateTime
+    return isless(dt1.instant,dt2.instant)
+end
+
 
 pad_ymd(a::Tuple{T1}) where T1 = (a[1],1,1)
 pad_ymd(a::Tuple{T1,T2})  where {T1,T2}  = (a[1],a[2],1)
