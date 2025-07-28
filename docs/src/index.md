@@ -4,16 +4,16 @@ In many Earth science disciplines and beyond, expressing a time instance and a d
 
 CFTime.jl implements the time structures standardized by the CF conventions, namely:
 
-* Julian calendar (`DateTimeJulian`). A year is a leap year if it is divisible by 4. For example, 1900 and 2000 are both leap years in the Julian calendar.
-* Proleptic Gregorian calendar (`DateTimeProlepticGregorian`). A year is a leap year if it is divisible by 4 but not 100 or if it is divisible by 400. For example, 1900 is not a leap year in the proleptic Gregorian calendar but 2000 is.
-* The default mixed Gregorian/Julian calendar  (`DateTimeStandard`). This calendar uses the Julian calendar for time instances before 15th October 1582 and Gregorian calendar afterwards.
-* A calendar without leap years (`DateTimeNoLeap`). All years are 365 days long.
-* A calendar with only leap years (`DateTimeAllLeap`). All years are 366 days long.
-* A calendar with every year being 360 days long (divided into 30-day months) (`DateTime360Day`).
+* Julian calendar ([`DateTimeJulian`](@ref)). A year is a leap year if it is divisible by 4. For example, 1900 and 2000 are both leap years in the Julian calendar.
+* Proleptic Gregorian calendar ([`DateTimeProlepticGregorian`](@ref)). A year is a leap year if it is divisible by 4 but not 100 or if it is divisible by 400. For example, 1900 is not a leap year in the proleptic Gregorian calendar but 2000 is.
+* The default mixed Gregorian/Julian calendar  ([`DateTimeStandard`](@ref)). This calendar uses the Julian calendar for time instances before 15th October 1582 and Gregorian calendar afterwards.
+* A calendar without leap years ([`DateTimeNoLeap`](@ref)). All years are 365 days long.
+* A calendar with only leap years ([`DateTimeAllLeap`](@ref)). All years are 366 days long.
+* A calendar with every year being 360 days long (divided into 30-day months) ([`DateTime360Day`](@ref)).
 
 The first three calendars (with different rules for leap years) can be used to express the time instances of observations or model. The remaining three calendars correspond to idealised model configurations where the duration of a year (revolution of the Earth around the Sun) is assumed to be exactly 365, 366 or 360 days.
 
-While almost all datasets used in Earth Science use dates after the year 1582, some datasets or software systems use a time origin before this date, which makes it necessary to handle the transition from Julian to Gregorian calendar. Additionally, some dataset use microseconds and nanoseconds as time resolution, whereas Julia's `Dates.DateTime` has milliseconds as time resolution.
+While almost all datasets used in Earth Science use dates after the year 1582, some datasets or software systems use a time origin before this date, which makes it necessary to handle the transition from Julian to Gregorian calendar. Additionally, some dataset use microseconds and nanoseconds as time resolution, whereas Julia's [`Dates.DateTime`](https://docs.julialang.org/en/v1/stdlib/Dates/#Dates.DateTime) has milliseconds as time resolution.
 
 Note that time zones and leap seconds are currently not supported by `CFTime.jl`.
 
@@ -27,7 +27,7 @@ using Pkg
 Pkg.add("CFTime")
 ```
 
-CFTime is a pure Julia package and currently depends only on the modules `Dates` and `Printf`, which are part of Julia’s standard library.
+CFTime is a pure Julia package and currently depends only on the modules [`Dates`](https://docs.julialang.org/en/v1/stdlib/Dates/) and [`Printf`](https://docs.julialang.org/en/v1/stdlib/Printf/), which are part of Julia’s standard library.
 
 
 ### Latest development version
@@ -41,7 +41,7 @@ Pkg.add(PackageSpec(url="https://github.com/JuliaGeo/CFTime.jl", rev="master"))
 
 ## Types
 
-`DateTimeStandard`, `DateTimeProlepticGregorian`, `DateTimeJulian`, `DateTimeNoLeap`, `DateTimeAllLeap` and `DateTime360Day` are the core types that define time instances according to the corresponding calendars. The main focus of this package is to instantiate and to manipulate these types.
+[`DateTimeStandard`](@ref), [`DateTimeProlepticGregorian`](@ref), [`DateTimeJulian`](@ref), [`DateTimeNoLeap`](@ref), [`DateTimeAllLeap`](@ref) and [`DateTime360Day`](@ref) are the core types that define time instances according to the corresponding calendars. The main focus of this package is to instantiate and to manipulate these types.
 
 ```@docs
 DateTimeStandard
@@ -91,9 +91,9 @@ dayofyear
 ## Conversion Functions
 
 
-The flexibility of CFTime's datetime (related to the time origin, time resolution and type of the time counter) comes with some cost. When merging data from different sources, the resulting merged time vector may not have a concrete type, as there is no implicit conversion to a common time origin or internal unit, unlike Julia's `DateTime`. In some cases, the user might decide to explicitly convert all times to a common time origin and internal unit for optimal performance.
+The flexibility of CFTime's datetime (related to the time origin, time resolution and type of the time counter) comes with some cost. When merging data from different sources, the resulting merged time vector may not have a concrete type, as there is no implicit conversion to a common time origin or internal unit, unlike Julia's [`DateTime`](https://docs.julialang.org/en/v1/stdlib/Dates/#Dates.DateTime). In some cases, the user might decide to explicitly convert all times to a common time origin and internal unit for optimal performance.
 
-The `convert` function can be used to convert dates between the different calendars:
+The [`convert`](@ref) function can be used to convert dates between the different calendars:
 
 ```julia
 using CFTime, Dates

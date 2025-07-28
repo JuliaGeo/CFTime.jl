@@ -2,7 +2,11 @@
 """
     dtr = round(::Type{DateTime}, dt::Union{DateTimeProlepticGregorian,DateTimeStandard,DateTimeJulian},r = RoundNearestTiesUp)
 
-Round the date time `dt` to the nearest date time represenatable by julia's `DateTime` using the rounding mode `r` (either `RoundNearest` (default) `RoundDown` or `RoundUp`).
+Round the date time `dt` to the nearest date time represenatable by julia's
+[`DateTime`](https://docs.julialang.org/en/v1/stdlib/Dates/#Dates.DateTime) using the rounding mode `r` (either
+[`RoundNearest`](https://docs.julialang.org/en/v1/base/math/#Base.Rounding.RoundNearest) (default),
+[`RoundDown`](https://docs.julialang.org/en/v1/base/math/#Base.Rounding.RoundDown), or
+[`RoundUp`](https://docs.julialang.org/en/v1/base/math/#Base.Rounding.RoundUp)).
 """
 function Base.round(::Type{DateTime}, dt::DateTimeProlepticGregorian,r::RoundingMode = RoundNearest)
     function round_ms(t)
