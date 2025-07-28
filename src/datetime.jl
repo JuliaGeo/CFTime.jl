@@ -279,7 +279,15 @@ end
 
 +(dt::AbstractCFDateTime,p::Union{Dates.TimePeriod,Dates.Day}) = dt + convert(CFTime.Period,p)
 
-@inline function -(dt1::AbstractCFDateTime,dt2::AbstractCFDateTime)
+for CFDateTime in (DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian,
+                   DateTimeNoLeap,DateTimeAllLeap,DateTime360Day)
+    @eval @inline function -(dt1::$CFDateTime,dt2::$CFDateTime)
+        (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
+    end
+end
+
+@eval @inline function -(dt1::Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian},
+                         dt2::Union{DateTimeStandard,DateTimeProlepticGregorian,DateTimeJulian})
     (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
 end
 
