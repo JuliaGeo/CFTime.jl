@@ -47,7 +47,7 @@ using CFTime, Dates
 # standard calendar
 
 dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00")
-# 4-element Array{Dates.DateTime,1}:
+# 4-element Vector{Dates.DateTime}:
 #  2000-01-01T00:00:00
 #  2000-01-02T00:00:00
 #  2000-01-03T00:00:00
@@ -59,7 +59,7 @@ The function `CFTime.timeencode` does the inverse operation: converting a Julia 
 
 ```julia
 CFTime.timeencode(dt,"days since 2000-01-01 00:00:00")
-# 4-element Array{Float64,1}:
+# 4-element Vector{Float64}:
 #  0.0
 #  1.0
 #  2.0
@@ -70,15 +70,14 @@ The CF conventions also allow for different calendars, for example a calendar wh
 
 ```julia
 dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00",DateTime360Day)
-# 4-element Array of DateTime360Day
-#  DateTime360Day(2000-01-01T00:00:00)
-#  DateTime360Day(2000-01-02T00:00:00)
-#  DateTime360Day(2000-01-03T00:00:00)
-#  DateTime360Day(2000-01-04T00:00:00)
-
+# 4-element Vector{DateTime360Day{CFTime.Period{Int64, Val{86400}(), Val{0}()}, Val{(2000, 1, 1)}()}}:
+#  2000-01-01T00:00:00
+#  2000-01-02T00:00:00
+#  2000-01-03T00:00:00
+#  2000-01-04T00:00:00
 
 CFTime.timeencode(dt,"days since 2000-01-01 00:00:00",DateTime360Day)
-# 4-element Array{Float64,1}:
+# 4-element Vector{Float64}:
 #  0.0
 #  1.0
 #  2.0
