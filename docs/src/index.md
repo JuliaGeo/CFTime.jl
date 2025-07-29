@@ -95,13 +95,17 @@ The flexibility of CFTime's datetime (related to the time origin, time resolutio
 
 The `convert` function can be used to convert dates between the different calendars:
 
-```julia
+```jldoctest convert
 using CFTime, Dates
 convert(DateTime,DateTimeJulian(2024,4,4))
-# 2024-04-17T00:00:00
+# output
+2024-04-17T00:00:00
+```
 
+```jldoctest convert
 convert(DateTimeJulian,DateTime(2024,4,17))
-# DateTimeJulian(2024-04-04T00:00:00)
+# output
+DateTimeJulian(2024-04-04T00:00:00)
 ```
 
 
@@ -114,18 +118,21 @@ reinterpret
 
 Adding and subtracting time periods is supported:
 
-```julia
+```jldoctest arithmetic
+using CFTime, Dates
 DateTimeStandard(1582,10,4) + Dates.Day(1)
-# returns DateTimeStandard(1582-10-15T00:00:00)
+# output
+DateTimeStandard(1582-10-15T00:00:00)
 ```
 
 1582-10-15 is the adoption of the Gregorian Calendar.
 
 Comparison operator can be used to check if a date is before or after another date.
 
-```julia
+```jldoctest arithmetic
 DateTimeStandard(2000,01,01) < DateTimeStandard(2000,01,02)
-# returns true
+# output
+true
 ```
 
 ## Ranges
@@ -133,12 +140,18 @@ DateTimeStandard(2000,01,01) < DateTimeStandard(2000,01,02)
 
 Time ranges can be constructed using a start date, end date and a time increment:
 
-```julia
+```jldoctest ranges
+using CFTime, Dates
 range = DateTimeStandard(2000,1,1):Dates.Day(1):DateTimeStandard(2000,12,31)
 length(range)
-# returns 366
+# output
+366
+```
+
+```jldoctest ranges
 step(range)
-# returns 1 day
+# output
+1 day
 ```
 
 Note that there is no default increment for range.
@@ -148,19 +161,18 @@ Note that there is no default increment for range.
 Julia's `DateTime` records the time relative to a time origin (January 1st, 1 BC or 0000-01-01 in ISO_8601) with a millisecond accuracy. Converting CFTime date time structures to
 Julia's `DateTime` (using `convert(DateTime,dt)`) can trigger an inexact exception if the conversion cannot be done without loss of precision. One can use the `round` function in order to round to the nearest time represenatable by `DateTime`:
 
-```julia
+```jldoctest floor
 using CFTime: DateTimeStandard
 using Dates: DateTime
 dt = DateTimeStandard(24*60*60*1000*1000 + 123,"microsecond since 2000-01-01")
 round(DateTime,dt)
 # output
-
 2000-01-02T00:00:00
 ```
 
 The functions `floor` and `ceil` are also supported. They can be used to effectively reduce the time resolution, for example:
 
-```julia
+```jldoctest floor
 using CFTime: DateTimeStandard
 using Dates
 
@@ -168,20 +180,21 @@ dt = DateTimeStandard(24*60*60,"second since 2000-01-01")
 
 floor(dt+Second(9),Second(10)) == dt
 # output
-
-true
-
-ceil(dt+Second(9),Second(10)) == dt + Second(10)
-# output
-
-true
-
-round(dt+Second(9),Second(10)) == dt + Second(10)
-# output
-
 true
 ```
 
+```jldoctest floor
+ceil(dt+Second(9),Second(10)) == dt + Second(10)
+# output
+true
+```
+
+
+```jldoctest floor
+round(dt+Second(9),Second(10)) == dt + Second(10)
+# output
+true
+```
 
 
 ## Type-stable constructors
