@@ -162,6 +162,7 @@ The functions `floor` and `ceil` are also supported. They can be used to effecti
 
 ```julia
 using CFTime: DateTimeStandard
+using Dates
 
 dt = DateTimeStandard(24*60*60,"second since 2000-01-01")
 
