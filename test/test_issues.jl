@@ -1,4 +1,6 @@
 using CFTime
+using Test
+using Dates
 
 # issue #12
 
@@ -176,9 +178,26 @@ end
 @testset "zero" begin
     @test zero(DateTimeAllLeap) == CFTime.Millisecond(0)
     @test zero(DateTimeNoLeap) == CFTime.Millisecond(0)
-    @test zero(DateTimeJulian) == CFTime.Millisecond(0)
+    @test zero(DateTimeProlepticGregorian) == CFTime.Millisecond(0)
     @test zero(DateTimeJulian) == CFTime.Millisecond(0)
     @test zero(DateTime360Day) == CFTime.Millisecond(0)
     @test zero(DateTime360Day) == CFTime.Millisecond(0)
 end
 
+# issue #42
+
+dt0 = DateTimeNoLeap(2015,1,1,12)
+dt1 = DateTimeStandard(1582,10,4)
+@test_throws MethodError dt1 - dt0
+
+dt0 = DateTimeProlepticGregorian(2015,1,1)
+dt1 = DateTimeStandard(2015,1,1)
+@test dt1 - dt0 == Dates.Day(0)
+
+dt0 = DateTimeProlepticGregorian(2015,1,1)
+dt1 = DateTimeJulian(2015,1,1)
+# Between 1901 and 2099 the Gregorian date equals the Julian date plus 13 days.
+# https://en.wikipedia.org/w/index.php?title=Julian_calendar&oldid=1302123007
+@test dt1 - dt0 == Dates.Day(13)
+
+@test_throws MethodError DateTimeStandard(1960,9,27) > DateTimeNoLeap(1900,1,1)
