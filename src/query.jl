@@ -11,7 +11,7 @@
     monthlength = daysinmonth(::Type{DT},y,m)
 
 Returns the number of days in a month for the year `y` and the month `m`
-according to the calendar given by the type `DT`.
+according to the calendar given by the type `DT` (any subtype of [`AbstractCFDateTime`](@ref)).
 
 Example
 ```julia-repl
@@ -44,7 +44,7 @@ end
     yearlength = daysinyear(::Type{DT},y)
 
 Returns the number of days in a year for the year `y`
-according to the calendar given by the type `DT`.
+according to the calendar given by the type `DT` (any subtype of [`AbstractCFDateTime`](@ref)).
 
 Example
 ```julia-repl

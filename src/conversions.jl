@@ -64,9 +64,9 @@ end
 """
     dt2 = reinterpret(::Type{T}, dt)
 
-Convert a variable `dt` of type `DateTime`, `DateTimeStandard`, `DateTimeJulian`,
-`DateTimeProlepticGregorian`, `DateTimeAllLeap`, `DateTimeNoLeap` or
-`DateTime360Day` into the date time type `T` using the same values for
+Convert a variable `dt` of type [`DateTime`](https://docs.julialang.org/en/v1/stdlib/Dates/#Dates.DateTime), [`DateTimeStandard`](@ref), [`DateTimeJulian`](@ref),
+[`DateTimeProlepticGregorian`](@ref), [`DateTimeAllLeap`](@ref), [`DateTimeNoLeap`](@ref) or
+[`DateTime360Day`](@ref) into the date time type `T` using the same values for
 year, month, day, minute, second, ... attosecond.
 The conversion might fail if a particular date does not exist in the
 target calendar.
@@ -313,7 +313,7 @@ Valid values for `calendar` are
 `"all_leap"`, `"366_day"` and `"360_day"`.
 
 If `prefer_datetime` is `true` (default), dates are
-converted to the `DateTime` type (for the calendars
+converted to the [`DateTime`](https://docs.julialang.org/en/v1/stdlib/Dates/#Dates.DateTime) type (for the calendars
 "standard", "gregorian", "proleptic_gregorian" and "julian")
 unless the time unit is expressed in microseconds or smaller. Such conversion is
 not possible for the other calendars.
@@ -379,9 +379,9 @@ end
 """
     data = timeencode(dt,units,calendar = "standard")
 
-Convert a vector or array of `DateTime` (or `DateTimeStandard`,
-`DateTimeProlepticGregorian`, `DateTimeJulian`, `DateTimeNoLeap`,
-`DateTimeAllLeap`, `DateTime360Day`) according to
+Convert a vector or array of [`DateTime`](https://docs.julialang.org/en/v1/stdlib/Dates/#Dates.DateTime) (or [`DateTimeStandard`](@ref),
+[`DateTimeProlepticGregorian`](@ref), [`DateTimeJulian`](@ref), [`DateTimeNoLeap`](@ref),
+[`DateTimeAllLeap`](@ref), [`DateTime360Day`](@ref)) according to
 the specified units (e.g. `"days since 2000-01-01 00:00:00"`) using the calendar
 `calendar`.
 
@@ -450,16 +450,16 @@ for CFDateTime in [:DateTimeStandard,
 """
     dt2 = convert(::Type{T}, dt)
 
-Convert a DateTime `dt` of type `DateTimeStandard`, `DateTimeProlepticGregorian`,
-`DateTimeJulian` or `DateTime` into the type `T` which can also be either
-`DateTimeStandard`, `DateTimeProlepticGregorian`, `DateTimeJulian` or `DateTime`.
+Convert a DateTime `dt` of type [`DateTimeStandard`](@ref), [`DateTimeProlepticGregorian`](@ref),
+[`DateTimeJulian`](@ref) or `DateTime` into the type `T` which can also be either
+[`DateTimeStandard`](@ref), [`DateTimeProlepticGregorian`](@ref), [`DateTimeJulian`](@ref) or [`DateTime`](https://docs.julialang.org/en/v1/stdlib/Dates/#Dates.DateTime).
 
 Conversion is done such that duration (difference of DateTime types) are
 preserved. For dates on and after 1582-10-15, the year, month and days are the same for
-the types `DateTimeStandard`, `DateTimeProlepticGregorian` and `DateTime`.
+the types [`DateTimeStandard`](@ref), [`DateTimeProlepticGregorian`](@ref) and [`DateTime`](https://docs.julialang.org/en/v1/stdlib/Dates/#Dates.DateTime).
 
 For dates before 1582-10-15, the year, month and days are the same for
-the types `DateTimeStandard` and `DateTimeJulian`.
+the types [`DateTimeStandard`](@ref) and [`DateTimeJulian`](@ref).
 """
         function convert(::Type{DateTime}, dt::$CFDateTime)
 
