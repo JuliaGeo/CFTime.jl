@@ -242,6 +242,15 @@ function -(p::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
     Period{T,Tfactor,Texponent}(-p.duration)
 end
 
+for op in (:/,:div)
+    @eval $op(p1::CFTime.Period,p2::CFTime.Period) =
+        $op(Dates.value.(promote(p1,p2))...)
+end
+
+function *(p::Period{T,Tfactor,Texponent},v::T2) where {T, Tfactor, Texponent, T2 <: Number}
+    pv = p.duration * v
+    return Period{typeof(pv),Tfactor,Texponent}(pv)
+end
 
 for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond)
     unit = Symbol(lowercase(string(T)))
@@ -266,6 +275,24 @@ for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond
         @inline function Dates.$T(p::Period)
             Dates.$T(convert(Period{Int64,Val($factor),Val($exponent)},p))
         end
+    end
+end
+
+# picoseconds and smaller
+for (name,factor,exponent) in TIME_DIVISION[8:end]
+    name_str = string(name)
+    name_titlecase = Symbol(titlecase(name_str))
+
+    @eval begin
+        @doc """
+             CFTime.$($name_titlecase)(v::Number)
+
+        Construct an object representing the duration of `v` $($name_str)s.
+        """ $name_titlecase(d::T) where T <: Number = Period{T,Val($factor),Val($exponent)}(d)
+    end
+
+    if VERSION >= v"1.11"
+        eval(Meta.parse("public $name_titlecase"))
     end
 end
 

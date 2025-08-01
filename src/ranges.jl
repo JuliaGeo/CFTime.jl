@@ -3,6 +3,13 @@ function Dates.len(first::T, last::T, step::DT) where T <: AbstractCFDateTime wh
     return Dates.value(last-first) ÷ Dates.value(Dates.Millisecond(step))
 end
 
+function Dates.len(first::T, last::T, step::Period) where T <: AbstractCFDateTime
+    if Dates.value(step) == 0
+        throw(ArgumentError("step cannot be zero"))
+    end
+    return (last - first) ÷ step
+end
+
 function Dates.len(first::T, last::T, step) where T <: AbstractCFDateTime
     if Dates.value(step) == 0
         throw(ArgumentError("the step should not be zero"))

@@ -50,8 +50,8 @@ import Dates:
     yearmonth,
     yearmonthday
 
-import Base: +, -, isless, string, show, convert, reinterpret, ==, promote_rule,
-    floor, mod, round, typemax, typemin
+import Base: +, -, *, /, div, isless, string, show, convert, reinterpret, ==,
+    promote_rule, floor, mod, round, typemax, typemin
 
 include("constants.jl")
 include("types.jl")

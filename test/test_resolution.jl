@@ -73,7 +73,6 @@ pp1,pp2 = promote(p1,Dates.Hour(1))
 @test pp2 == Dates.Hour(1)
 @test typeof(pp2) == typeof(pp1)
 
-
 # missing
 
 p = Period(1,:second)
@@ -362,3 +361,21 @@ dt = CFTime.timedecode(1,"days since 2000-01-01T00:00:00", prefer_datetime = fal
 t1 = DateTimeStandard(Float64,2001,1,1,12; units=:day)
 t2 = DateTimeStandard(Float64,2001,1,1,12)
 @test Dates.value(t1 - t2) ≈ 0
+
+# issue #47
+
+@test Dates.Second(1) == CFTime.Picosecond(10^12)
+@test CFTime.Picosecond(1) == CFTime.Femtosecond(10^3)
+@test CFTime.Picosecond(1) == CFTime.Attosecond(10^6)
+@test Dates.Second(1) == CFTime.Attosecond(10^18)
+@test Dates.Day(1) == CFTime.Attosecond(24*60*60*BigInt(10)^18)
+
+dt = CFTime.timedecode(Int128[0,1],"picoseconds since 2000-01-01T00:00:00", prefer_datetime = false)
+@test dt[2]-dt[1] == CFTime.Picosecond(1)
+
+
+r = DateTimeStandard(2000,1,1):CFTime.Picosecond(1):DateTimeStandard(2000,1,2);
+@test length(r) == 24*60*60*10^12 + 1
+
+r = DateTimeStandard(Int128,2000,1,1):CFTime.Picosecond(1):DateTimeStandard(Int128,2000,12,31);
+@test length(r) == 365*24*60*60*Int128(10)^12 + 1
