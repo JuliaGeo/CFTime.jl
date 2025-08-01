@@ -229,6 +229,66 @@ origin = Val((1970,1,1))
 @code_warntype foo2(2000,1,1,0,0,0,units,origin)
 ```
 
+## Limitations and caveats
+
+In Julia, integer overflows can occur in various operations such as:
+
+```
+using Dates
+typemax(Int64)+1
+# -9223372036854775808
+
+DateTime(2000,1,1) + Dates.Day(typemax(Int64))
+# 1999-12-31T00:00:00
+
+DateTime(typemax(Int64),1,1)
+# -0002-12-31T13:26:24
+```
+
+None of these calls issue a warning or an error in Julia (due to the performance impact affecting the vast majority of cases). The same approach is taken in CFTime: the user should be aware than under some (exeptional) circumstances, the default `Int64` can overflow. But in addition to Julia's `Dates`, CFTime gives us user the option to use different storage types like `Int128` or `BigInt`:
+
+``` julia
+using CFTime
+DateTimeStandard(Int128,typemax(Int64),1,1)
+# DateTimeStandard(9223372036854775807-01-01T00:00:00)
+```
+
+In this example, the year 9223372036854775807 (about nine quintillion years) is about 60 millions time longer than the age of the universe. It dependens on the users' application whether such long time frames are needed.
+
+The default `Int64` time counter can also overflow when using a very small time resolution are used:
+
+
+``` julia
+using CFTime
+DateTimeStandard(2000,1,1, units=:attosecond)
+# which is the same as
+DateTimeStandard(Int64,2000,1,1, units=:attosecond,origin=(1900,1,1))
+# -> overflow
+```
+
+An `Int64` time counter does not allow to represent the number of attoseconds between the 1st January of the years 2000 and 1900. In fact, only 18 s around the time origin can be represent with a 64-bit integer and attoseconds as time unit. But a `Int128` is sufficiently large:
+
+
+```julia
+DateTimeStandard(Int128,2000,1,1, units=:attosecond,origin=(1900,1,1))
+# DateTimeStandard(2000-01-01T00:00:00)
+```
+
+It is important to note that when small durations are added to a time instances, then internal type promotion will also change the unit of the time instance (which is milliseconds since 1900-01-01):
+
+```julia
+dt = DateTimeStandard(2000,1,1) # default unit is :millisecond
+dt2 = dt + Dates.Nanosecond(1) # now the unit is :nanosecond -> but no overflow
+# DateTimeStandard(2000-01-01T00:00:00.000000001)
+
+dt = DateTimeStandard(2160,1,1) # default unit is :millisecond
+dt2 = dt + Dates.Nanosecond(1) # now the unit is :nanosecond -> overflow
+# DateTimeStandard(1575-06-03T00:25:26.290448385)
+```
+
+Whether an overflow occurs or not cannot be statically inferred and a warning at runtime would impact performance. To avoid overflows, one should use `Int128` or `BigInt` in these cases.
+
+Note that on a 32-bit system, the default internal time counter is still `Int64` as in Julia's `Dates` module.
 
 ## Internal API
 
