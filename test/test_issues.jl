@@ -201,3 +201,8 @@ dt1 = DateTimeJulian(2015,1,1)
 @test dt1 - dt0 == Dates.Day(13)
 
 @test_throws MethodError DateTimeStandard(1960,9,27) > DateTimeNoLeap(1900,1,1)
+
+
+# issue #43
+
+@test_throws ErrorException DateTimeStandard(2001,1,1,12; units=:day)

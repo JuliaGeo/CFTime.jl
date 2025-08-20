@@ -97,6 +97,12 @@ end
 @inline function _datenum(tuf::Tuple,factor,exponent)
     T =  promote_type(typeof.(tuf)...)
     divi = division(T,factor,exponent)
+
+    for (_tuf,_divi) in zip(tuf,divi)
+        if (_tuf != 0) && (_divi == 0)
+            error("Cannot express the time tuple $tuf (representing days,[hours,minutes,seconds,milliseconds...]) in $factor × 10^($exponent) seconds without loss of precision")
+        end
+    end
     return sum(divi[1:length(tuf)] .* tuf)
 end
 
