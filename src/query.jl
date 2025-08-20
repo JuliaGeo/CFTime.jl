@@ -74,21 +74,21 @@ function daysinyear(t::DT) where DT <: AbstractCFDateTime
 end
 
 """
-    yearmonthday(dt::AbstractCFDateTime) -> (Int64, Int64, Int64)
+    yearmonthday(dt::AbstractCFDateTime)
 
 Simultaneously return the year, month and day parts of `dt`.
 """
 yearmonthday(dt::AbstractCFDateTime) = _datetuple(dt)[1:3]
 
 """
-    yearmonth(dt::AbstractCFDateTime) -> (Int64, Int64)
+    yearmonth(dt::AbstractCFDateTime)
 
 Simultaneously return the year and month parts of `dt`.
 """
 yearmonth(dt::AbstractCFDateTime) = _datetuple(dt)[1:2]
 
 """
-    monthday(dt::AbstractCFDateTime) -> (Int64, Int64)
+    monthday(dt::AbstractCFDateTime)
 
 Simultaneously return the month and day parts of `dt`.
 """
@@ -96,7 +96,7 @@ monthday(dt::AbstractCFDateTime) = _datetuple(dt)[2:3]
 
 
 """
-    firstdayofyear(dt::AbstractCFDateTime) -> Int
+    firstdayofyear(dt::AbstractCFDateTime)
 
 Return the first day of the year including the date `dt`
 """
@@ -104,7 +104,7 @@ Return the first day of the year including the date `dt`
 
 
 """
-    dayofyear(dt::AbstractCFDateTime) -> Int
+    dayofyear(dt::AbstractCFDateTime)
 
 Return the day of the year for dt with January 1st being day 1.
 """
