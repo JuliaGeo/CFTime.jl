@@ -268,13 +268,34 @@ DateTimeStandard(Int64,2000,1,1, units=:attosecond,origin=(1900,1,1))
 # -> overflow
 ```
 
-An `Int64` time counter does not allow to represent the number of attoseconds between the 1st January of the years 2000 and 1900. In fact, only 18 s around the time origin can be represent with a 64-bit integer and attoseconds as time unit. But a `Int128` is sufficiently large:
+An `Int64` time counter does not allow to represent the number of attoseconds between the 1st January of the years 2000 and 1900. In fact, only 18 s around the time origin can be represent with a 64-bit integer and attoseconds as time unit.
+
+
+This table sumarizes the maximal time span for `Int64` around the time origin (1900-01-01 00:00:00, per default)
+
+| unit | time span |
+|------|-----------|
+| day | ±2.525e+16 years |
+| hour | ±1.052e+15 years |
+| minute | ±1.754e+13 years |
+| second | ±2.923e+11 years |
+| millisecond | ±2.923e+08 years |
+| microsecond | ±2.923e+05 years |
+| nanosecond | ±292.3 years |
+| picosecond | ±106.8 days |
+| femtosecond | ±2.562 hours |
+| attosecond | ±9.223 seconds |
+
+
+An `Int128` is sufficiently large for the case above:
 
 
 ```julia
 DateTimeStandard(Int128,2000,1,1, units=:attosecond,origin=(1900,1,1))
 # DateTimeStandard(2000-01-01T00:00:00)
 ```
+
+Operations can typically be 2 to 4 time slower when using an `Int128` rather than an `Int64`.
 
 It is important to note that when small durations are added to a time instances, then internal type promotion will also change the unit of the time instance (which is milliseconds since 1900-01-01):
 
