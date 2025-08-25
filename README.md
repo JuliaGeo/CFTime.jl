@@ -150,6 +150,38 @@ Dates.year(dt),Dates.month(dt),Dates.day(dt)
 # output (2100, 12, 31)
 ```
 
+## Community guidelines 
+
+We aim to follow the [community standards](https://julialang.org/community/standards/) of the Julia project.
+ 
+Before creating an issue, check whether the issue has not already been reported.
+When you file an issue, please include sufficient information that would _allow somebody else to reproduce the issue_, in particular:
+1. Provide the code that generates the issue.
+3. Make your code as simple as possible (while still showing the error and being runnable).
+4. The full error message that you are seeing (in particular file names and line numbers of the stack-trace).
+5. Which version of Julia and `CFTime` are you using? Please include the output of:
+
+```julia
+versioninfo()
+using Pkg
+Pkg.installed()["CFTime"]
+```
+
+For questions about the usage of CFTime, please create a topic in the Geo section of the Julia forum
+https://discourse.julialang.org/c/domain/geo/
+Feel free to include `CC @Alexander-Barth` in your topic.
+
+Contributions such as code or documentation are very welcomed! Here is an overview of the involved steps:
+
+* fork the repository 
+* create a new branch with a meaningful name 
+* implement the new feature or fix the issue 
+* add a test case and documentation for new features 
+* very that all tests pass locally 
+* open the pull request with a brief description of the improvements to the code
+
+For larger changes, it is recommended to open an issue first to better explain the purpose of the pull request.
+
 ## Alternatives
 
 Julia packages:
