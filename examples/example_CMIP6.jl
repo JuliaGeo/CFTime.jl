@@ -1,4 +1,4 @@
-# # Loading climate date
+# # Loading climate data
 #
 # This example shows how to use the CFTime package with CMIP6 data
 # in the NetCDF format following the CF Conventions.
