@@ -19,9 +19,9 @@ end
 """
     Period{T,Tfactor,Texponent}
 
-Period wraps a number duration of type T where
+Period wraps a number duration of type `T` where
 
-duration * factor * 10^exponent
+    duration * factor * 10^exponent
 
 represents the time in seconds
 """

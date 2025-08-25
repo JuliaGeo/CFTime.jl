@@ -1,5 +1,7 @@
 """
 `CFTime` encodes and decodes time units conforming to the Climate and Forecasting (CF) netCDF conventions.
+Read more about the CF conventions [here](http://cfconventions.org/Data/cf-conventions/cf-conventions-1.12/cf-conventions.html#calendar).
+
 For example:
 
 ```julia
@@ -9,9 +11,9 @@ dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00",DateTime360Day
 # Encoding
 CFTime.timeencode(dt,"days since 2000-01-01 00:00:00",DateTime360Day)
 ```
-The following types are supported `DateTime`,
-`DateTimeStandard`, `DateTimeJulian`, `DateTimeProlepticGregorian`
-`DateTimeAllLeap`, `DateTimeNoLeap` and `DateTime360Day`
+The following types are supported [`DateTime`](https://docs.julialang.org/en/v1/stdlib/Dates/#Dates.DateTime),
+[`DateTimeStandard`](@ref), [`DateTimeJulian`](@ref), [`DateTimeProlepticGregorian`](@ref),
+[`DateTimeAllLeap`](@ref), [`DateTimeNoLeap`](@ref) and [`DateTime360Day`](@ref)
 """
 module CFTime
 
