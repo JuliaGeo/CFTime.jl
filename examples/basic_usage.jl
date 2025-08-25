@@ -59,9 +59,8 @@ Dates.Second(dt1 - dt0)
 # is attoseconds). To avoid overflows, one can use `Int128` or `BigInt`
 # as storage types.
 
-y, m, d          = (2000, 1, 1)
+y, m, d           = (2000, 1, 1)
 hour, minute, sec = (0, 0, 0)
-µsec, msec, nsec  = (0, 0, 0)
 µsec, msec, nsec  = (0, 0, 1)
 
 dt = DateTimeStandard(
