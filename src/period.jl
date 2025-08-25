@@ -219,15 +219,9 @@ function convert(::Type{Period{T,Tfactor,Texponent}},t::Union{Dates.Day,Dates.Ti
     convert(Period{T,Tfactor,Texponent},p)
 end
 
-# boolean functions
-for op in (:(==),:isless)
-    @eval begin
-        function $op(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
-            $op(p1.duration,p2.duration)
-        end
-    end
-end
+# operations between two CFTime.Periods (or Dates.Period)
 
+#   operators returning a CFTime.Period
 for op in (:+,:-,:mod)
     @eval begin
         function $op(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
@@ -236,7 +230,17 @@ for op in (:+,:-,:mod)
     end
 end
 
-for op in (:+,:-,:mod,:(==),:isless)
+#   divisions and boolean functions
+for op in (:/,:div,:(==),:isless)
+    @eval begin
+        function $op(p1::Period{T,Tfactor,Texponent},p2::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
+            $op(p1.duration,p2.duration)
+        end
+    end
+end
+
+
+for op in (:+,:-,:/,:div,:mod,:(==),:isless)
     @eval begin
         $op(p1::Period,p2::Period) = $op(promote(p1,p2)...)
         $op(p1::Period,p2::Dates.Period) = $op(promote(p1,p2)...)
@@ -244,19 +248,20 @@ for op in (:+,:-,:mod,:(==),:isless)
     end
 end
 
+# operations between CFTime.Period and a number
+for op in (:*,:/,:div)
+    @eval begin
+        function $op(p::Period{T,Tfactor,Texponent},v::T2) where {T, Tfactor, Texponent, T2 <: Number}
+            pv = $op(p.duration, v)
+            return Period{typeof(pv),Tfactor,Texponent}(pv)
+        end
+    end
+end
+
 function -(p::Period{T,Tfactor,Texponent}) where {T, Tfactor, Texponent}
     Period{T,Tfactor,Texponent}(-p.duration)
 end
 
-for op in (:/,:div)
-    @eval $op(p1::CFTime.Period,p2::CFTime.Period) =
-        $op(Dates.value.(promote(p1,p2))...)
-end
-
-function *(p::Period{T,Tfactor,Texponent},v::T2) where {T, Tfactor, Texponent, T2 <: Number}
-    pv = p.duration * v
-    return Period{typeof(pv),Tfactor,Texponent}(pv)
-end
 
 for T in (:Day, :Hour, :Minute, :Second, :Millisecond, :Microsecond, :Nanosecond)
     unit = Symbol(lowercase(string(T)))

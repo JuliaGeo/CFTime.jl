@@ -23,3 +23,15 @@ dt = DateTimeNoLeap(1959,12,31,23,39,59,123)
 
 @test DateTimeStandard(2000,01,03) > DateTimeStandard(2000,01,02)
 @test DateTimeStandard(2000,01,03) ≥ DateTimeStandard(2000,01,01)
+
+# issue #55
+
+dt0 = DateTimeProlepticGregorian(2015,1,1)
+dt1 = DateTimeProlepticGregorian(2015,1,2)
+D = dt1 - dt0
+
+@test D / Dates.Second(1) == 24*60*60
+@test D ÷ Dates.Second(1) == 24*60*60
+@test D ÷ CFTime.Picosecond(1) == 24*60*60 * 10^12
+@test D / CFTime.Picosecond(1) ≈ 24*60*60 * 10^12
+@test D/(24*60*60) == Dates.Second(1)
