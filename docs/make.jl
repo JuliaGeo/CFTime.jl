@@ -7,6 +7,7 @@ using Dates
 import Literate
 
 files = joinpath.(@__DIR__, "..", "examples", [
+    "basic_usage.jl",
     "example_CMIP6.jl",
 ])
 
@@ -17,7 +18,7 @@ for file in files
         execute = true,
         documenter = true,
         #size_threshold = 400_000,
-        # We add the credit to Literate.jl the footer
+        # We add the credit to Literate.jl in the footer
         credit = false,
     )
 end
@@ -31,7 +32,10 @@ makedocs(
     sitename = "CFTime",
     pages = [
         "CFTime" => "index.md",
-        "Example" => "example_CMIP6.md",
+        "Example" => [
+            "basic_usage.md",
+            "example_CMIP6.md",
+        ]
     ],
     checkdocs = :none,
 )
