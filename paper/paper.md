@@ -32,11 +32,15 @@ Since the initial release of the Climate and Forecast (CF) conventions [@Eaton20
 
 In many Earth science disciplines and beyond, expressing a time instance and a duration is essential. The CF conventions provide a rich and flexible
 framework for handling time, equally applicable to observations and model data. To our knowledge, CFTime.jl is the only package in the Julia ecosystem that implements the time structures standardized by the CF conventions. While almost all datasets used in Earth Science use dates after the year 1582, some datasets or software systems use a time origin before this date, which makes it necessary to handle the transition from Julian to Gregorian calendar [@Octave; @SeaDataNet_format].
-Some users also expressed the need for microseconds and nanoseconds as time resolution even if they are rarely used in typical Earth science applications.
+Some users also expressed the need for microseconds and nanoseconds as time resolution even if they are rarely used in typical Earth science applications (CFTime github [issue 18](https://github.com/JuliaGeo/CFTime.jl/issues/18) and NCDataset github [issue 248](https://github.com/JuliaGeo/NCDatasets.jl/issues/248)).
 
 As of 31 March 2025, 119 Julia packages depend directly or indirectly on CFTime (excluding optional dependencies). CFTime is for example used by numerical models, such as ClimaOcean.jl, a framework for realistic ocean and coupled sea-ice simulations based on Oceananigans.jl [@OceananigansJOSS], the hydrological modeling package Wflow.jl [@vanVerseveld2024] and AIBECS.jl, a modeling framework for global marine biogeochemical cycles [@Pasquier2022].
 
 Several data-related packages also make direct or indirect use of CFTime, such as the NetCDF manipulation package NCDatasets.jl [@Barth2024], the gridded data processing package YAXArrays.jl [@Gans2023] and packages for handling in-situ data from various observing platforms (OceanRobots.jl [@Forget2024] and ArgoData.jl [@Forget2025]).
+
+# State of the field
+
+The API of CFTime was highly influenced by Julia's `Dates` module from the standard library. The `Dates` module implements the `DateTime` structure representing a time instance in the proleptic Gregorian calendar following the ISO 8601 standard. The time instances are encoded using a 64-bit integer with millisecond precision and 31 December 1 BC 00:00:00 as the starting date. In the Python ecosystem, the calendars from the CF conventions are implemented by the cftime packages. The Python package implements the time with microsecond accuracy (as of version 1.6.4). A timestamp is stored internally by storing separately the year, month, day, hour, minute, second and microsecond. This reduces the risks of integer overflows at the expense of memory requirements and complexity of performing arithmetic operations.
 
 # Installation
 
