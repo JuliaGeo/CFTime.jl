@@ -50,6 +50,7 @@ DateTimeProlepticGregorian
 DateTimeAllLeap
 DateTimeNoLeap
 DateTime360Day
+AbstractCFDateTime
 ```
 
 ## Time encoding and decoding

@@ -1,3 +1,17 @@
+"""
+    AbstractCFDateTime{T,Torigintuple}
+
+Supertype for all DateTime structures following the CF conventions
+where the time instance is represented as a duration of type `T` since a time
+origin specified by the value type of the tuple `Torigintuple`.
+
+The tuple is composed of the integers representing the year,
+month and day as well as smaller time divisions if necessary.
+
+The type parameter `T` and `Torigintuple` are considered as internal API.
+Only reducing the number of type parameters of `AbstractCFDateTime` will be
+considered as a breaking change.
+"""
 abstract type AbstractCFDateTime{T,Torigintuple} <: Dates.TimeType
 end
 
