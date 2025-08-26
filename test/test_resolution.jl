@@ -2,27 +2,13 @@ using CFTime
 import CFTime:
     AbstractCFDateTime,
     DateTimeStandard,
-    Period,
     datenum,
     datetuple,
     datetuple_ymd,
     parseDT,
     timetuplefrac,
     timeunits
-import Dates
-import Dates:
-    @dateformat_str,
-    DateTime,
-    day,
-    hour,
-    microsecond,
-    millisecond,
-    minute,
-    month,
-    nanosecond,
-    second,
-    value,
-    year
+using Dates
 using Test
 
 function same_tuple(t1,t2)
@@ -32,29 +18,29 @@ function same_tuple(t1,t2)
         all(==(0),t2[len+1:end])
 end
 
-@test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5)*1000,1))[1:4] == (2,3,4,5)
-@test timetuplefrac(Period((2*24*60*60  + 3*60*60 + 4*60  + 5),1000))[1:4] == (2,3,4,5)
+@test timetuplefrac(CFTime.Period((2*24*60*60  + 3*60*60 + 4*60  + 5)*1000,1))[1:4] == (2,3,4,5)
+@test timetuplefrac(CFTime.Period((2*24*60*60  + 3*60*60 + 4*60  + 5),1000))[1:4] == (2,3,4,5)
 
-@testset "Base methods on Period" begin
-    p = Period(10, 1)
+@testset "Base methods on CFTime.Period" begin
+    p = CFTime.Period(10, 1)
     @test abs(-p) == p
-    @test zero(p) == Period(0, 1)
-    @test one(p) == Period(1, 1)
+    @test zero(p) == CFTime.Period(0, 1)
+    @test one(p) == CFTime.Period(1, 1)
 end
 
 tuf = (2,3,4,5,6,7,8) # day, hour, minute, seconds, ...
 factor = 1
 exponent = -9
-p = Period(tuf,factor,exponent)
+p = CFTime.Period(tuf,factor,exponent)
 @test timetuplefrac(p)[1:length(tuf)] == tuf
 
 @test CFTime._type(p) == CFTime._type(typeof(p))
 
-@test one(p) == Period(1,factor,exponent)
+@test one(p) == CFTime.Period(1,factor,exponent)
 # test promotion rules
 
-p1 = Period(1,:second)
-p2 = Period(1000,:millisecond)
+p1 = CFTime.Period(1,:second)
+p2 = CFTime.Period(1000,:millisecond)
 
 @test promote_type(typeof(p1),typeof(p2)) == typeof(p2)
 
@@ -75,7 +61,7 @@ pp1,pp2 = promote(p1,Dates.Hour(1))
 
 # missing
 
-p = Period(1,:second)
+p = CFTime.Period(1,:second)
 @test ismissing(p == missing)
 @test ismissing(missing == p)
 @test ismissing(DateTimeStandard(2000,1,1) + missing)
@@ -83,17 +69,17 @@ p = Period(1,:second)
 
 # arithmetic
 
-p1 = Period(1,:microsecond)
-p2 = Period(10,:microsecond)
-@test p1+p2 == Period(11,:microsecond)
+p1 = CFTime.Period(1,:microsecond)
+p2 = CFTime.Period(10,:microsecond)
+@test p1+p2 == CFTime.Period(11,:microsecond)
 
 
-p1 = Period(1,:microsecond)
-p2 = Period(10,:nanosecond)
-@test p1+p2 == Period(1010,:nanosecond)
+p1 = CFTime.Period(1,:microsecond)
+p2 = CFTime.Period(10,:nanosecond)
+@test p1+p2 == CFTime.Period(1010,:nanosecond)
 
 # show and string
-p1 = Period(1,:second)
+p1 = CFTime.Period(1,:second)
 io = IOBuffer()
 show(io,p1)
 str = String(take!(io))
@@ -104,13 +90,13 @@ str = String(take!(io))
 @test Dates.Millisecond(p1) === Dates.Millisecond(1000)
 
 # conversion
-@test Dates.Hour(Period(60,:minute)) == Dates.Hour(1)
-@test_throws InexactError Dates.Hour(Period(61,:minute))
+@test Dates.Hour(CFTime.Period(60,:minute)) == Dates.Hour(1)
+@test_throws InexactError Dates.Hour(CFTime.Period(61,:minute))
 
 
-# unknown Period
-p1 = Period(1000,1,-21) # 1000 zeptosecond = 1 attosecond
-@test p1 == Period(1,:attosecond)
+# unknown CFTime.Period
+p1 = CFTime.Period(1000,1,-21) # 1000 zeptosecond = 1 attosecond
+@test p1 == CFTime.Period(1,:attosecond)
 @test occursin("-21",string(p1))
 @test occursin("-21",CFTime.units(p1))
 
@@ -206,12 +192,12 @@ dr = dt1:Dates.Microsecond(2):dt2;
 @test length(dr) == 6
 
 @test_throws ArgumentError dt1:Dates.Microsecond(0):dt2
-@test_throws ArgumentError Dates.len(dt1,dt2,Period(0,:nanosecond))
+@test_throws ArgumentError Dates.len(dt1,dt2,CFTime.Period(0,:nanosecond))
 
 
 #(dt2 - dt1) % Dates.Microsecond(2)
-Delta = convert(Period,Dates.Nanosecond(10_000))
-@test Delta == Period(10_000,:nanosecond)
+Delta = convert(CFTime.Period,Dates.Nanosecond(10_000))
+@test Delta == CFTime.Period(10_000,:nanosecond)
 
 
 
