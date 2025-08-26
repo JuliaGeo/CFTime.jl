@@ -33,10 +33,10 @@ Dates.format(dt0, "yyyymmdd-HHMMSS")
 # Year, month, day, etc. can be extracted from the DateTime structure using
 # the corresponding functions:
 
-year   = Dates.year(dt0);
-month  = Dates.month(dt0);
-day    = Dates.day(dt0);
-hour   = Dates.hour(dt0);
+year = Dates.year(dt0);
+month = Dates.month(dt0);
+day = Dates.day(dt0);
+hour = Dates.hour(dt0);
 minute = Dates.minute(dt0);
 second = Dates.second(dt0);
 
@@ -59,9 +59,9 @@ Dates.Second(dt1 - dt0)
 # is attoseconds). To avoid overflows, one can use `Int128` or `BigInt`
 # as storage types.
 
-y, m, d           = (2000, 1, 1)
+y, m, d = (2000, 1, 1)
 hour, minute, sec = (0, 0, 0)
-msec, µsec, nsec  = (0, 0, 1)
+msec, µsec, nsec = (0, 0, 1)
 
 dt = DateTimeStandard(
     Int128, y, m, d, hour, minute, sec, msec, µsec, nsec;

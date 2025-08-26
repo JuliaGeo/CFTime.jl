@@ -24,26 +24,26 @@ ds.attrib["Conventions"]
 # Get the calendar and units attribute of the variable time
 calendar = ds["time"].attrib["calendar"]
 units = ds["time"].attrib["units"]
-(calendar,units)
+(calendar, units)
 
 # Load the raw data representing the number of days since 1850-01-01 with the
 # no-leap calendar and decode the data. The variable `time` is a vector
 # of `DateTimeNoLeap`
 
 data = ds["time"].var[:];
-time = CFTime.timedecode(data,units,calendar);
+time = CFTime.timedecode(data, units, calendar);
 
 # Since CFTime is integrated in NCDatasets, this transformation above
 # is handled automatically by using:
 time = ds["time"][:];
 
 # Load the precipitation which is a variable of size 1 x 1 x 31025
-pr = ds["pr"][1,1,:];
+pr = ds["pr"][1, 1, :];
 pr_units = ds["pr"].attrib["units"];
 close(ds);
 
 # Check that the time resolution of the datasets is 1 day (and constant).
-@assert all(time[2:end]-time[1:end-1] .== Dates.Day(1))
+@assert all(time[2:end] - time[1:(end - 1)] .== Dates.Day(1))
 
 # Verify that the time series spans entire years (otherwise the yearly
 # statistics would be biased)
@@ -59,13 +59,15 @@ pr_yearly_std = [std(pr[Dates.year.(time) .== y]) for y in years];
 # Plot the result
 using CairoMakie
 fig = Figure()
-ax = Axis(fig[1, 1],
-          xlabel = "year",
-          ylabel = "precipitation ($(pr_units))",
-          title = "yearly mean and standard deviation of precipitation")
+ax = Axis(
+    fig[1, 1],
+    xlabel = "year",
+    ylabel = "precipitation ($(pr_units))",
+    title = "yearly mean and standard deviation of precipitation"
+)
 
 lines!(ax, years, pr_yearly_mean, label = "yearly mean")
 lines!(ax, years, pr_yearly_std, label = "yearly standard deviation")
 axislegend(ax, position = :lt)
-save("precipitation.png",fig); nothing #hide
+save("precipitation.png", fig); nothing #hide
 #md # ![](precipitation.png)

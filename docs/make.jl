@@ -6,10 +6,12 @@ using CFTime
 using Dates
 import Literate
 
-files = joinpath.(@__DIR__, "..", "examples", [
-    "basic_usage.jl",
-    "example_CMIP6.jl",
-])
+files = joinpath.(
+    @__DIR__, "..", "examples", [
+        "basic_usage.jl",
+        "example_CMIP6.jl",
+    ]
+)
 
 for file in files
     Literate.markdown(
@@ -35,7 +37,7 @@ makedocs(
         "Example" => [
             "basic_usage.md",
             "example_CMIP6.md",
-        ]
+        ],
     ],
     checkdocs = :none,
 )
