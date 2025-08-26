@@ -68,5 +68,5 @@ dt = DateTimeStandard(
     units = :nanosecond
 )
 
-# In the example above, `units = :nanosecond` can also be omitted as nanosecond
+# In the example above, `units = :nanosecond` can also be omitted as a nanosecond
 # argument (`nsec`) is provided.
