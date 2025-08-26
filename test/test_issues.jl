@@ -172,7 +172,7 @@ end
 @test timeencode(DateTime(2000,1,2), "days since 2000-01-01 00:00:00") == 1
 
 
-@test_logs (:warn,r".*cannot.*") @test_throws InexactError convert(DateTime,DateTimeStandard(2000,1,1,0,0,0,0,1,units = :microsecond))
+@test_throws InexactError convert(DateTime,DateTimeStandard(2000,1,1,0,0,0,0,1,units = :microsecond))
 
 
 @testset "zero" begin
@@ -206,3 +206,11 @@ dt1 = DateTimeJulian(2015,1,1)
 # issue #43
 
 @test_throws ErrorException DateTimeStandard(2001,1,1,12; units=:day)
+
+# issue #56
+
+dt = DateTimeStandard(2021,5,7, 5,4,17, 9,933)
+@test convert(DateTime, floor(dt, Hour(1))) == DateTime(2021,5,7, 5)
+
+dt = DateTimeStandard(2021,5,7, 5,4,17, 9,933)
+@test_throws InexactError convert(DateTime, dt)

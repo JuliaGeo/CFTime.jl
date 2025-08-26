@@ -462,12 +462,6 @@ For dates before 1582-10-15, the year, month and days are the same for
 the types [`DateTimeStandard`](@ref) and [`DateTimeJulian`](@ref).
 """
         function convert(::Type{DateTime}, dt::$CFDateTime)
-
-            if _exponent(dt.instant) < -3
-                @warn "CFTime Datetime with a base units of 10^($(_exponent(dt.instant))) seconds cannot be converted to Dates.DateTime"
-                throw(InexactError(:convert,DateTime,dt))
-            end
-
             origin = _origin_period(dt)
             ms = Dates.Millisecond(dt.instant + origin + DATETIME_OFFSET)
             return DateTime(UTInstant{Millisecond}(ms))
