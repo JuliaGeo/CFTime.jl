@@ -33,12 +33,12 @@ Dates.format(dt0, "yyyymmdd-HHMMSS")
 # Year, month, day, etc. can be extracted from the DateTime structure using
 # the corresponding functions:
 
-year   = Dates.year(dt0)
-month  = Dates.month(dt0)
-day    = Dates.day(dt0)
-hour   = Dates.hour(dt0)
-minute = Dates.minute(dt0)
-second = Dates.second(dt0)
+year   = Dates.year(dt0);
+month  = Dates.month(dt0);
+day    = Dates.day(dt0);
+hour   = Dates.hour(dt0);
+minute = Dates.minute(dt0);
+second = Dates.second(dt0);
 
 
 # Basic arithmetic operations are supported,
@@ -61,9 +61,12 @@ Dates.Second(dt1 - dt0)
 
 y, m, d           = (2000, 1, 1)
 hour, minute, sec = (0, 0, 0)
-µsec, msec, nsec  = (0, 0, 1)
+msec, µsec, nsec  = (0, 0, 1)
 
 dt = DateTimeStandard(
-    Int128, y, m, d, hour, minute, sec, µsec, msec, nsec;
+    Int128, y, m, d, hour, minute, sec, msec, µsec, nsec;
     units = :nanosecond
 )
+
+# In the example above, `units = :nanosecond` can also be omitted as nanosecond
+# argument (`nsec`) is provided.
