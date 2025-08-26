@@ -83,7 +83,7 @@ The following is a list of the main features of CFTime:
 
 # Acknowledgements
 
-I thank [all contributors](https://github.com/JuliaGeo/CFTime.jl/graphs/contributors) to this package, in particular Martijn Visser, Fabian Gans, Rafael Schouten and Yeesian Ng. I also acknowledge Jeff Whitaker for Python's [cftime](https://github.com/Unidata/cftime) which has helped the development of this package by providing reference values and a reference implementation for tests.
+I thank [all contributors](https://github.com/JuliaGeo/CFTime.jl/graphs/contributors) to this package, in particular Martijn Visser, Fabian Gans, Haakon Ludvig Langeland Ervik, Rafael Schouten and Yeesian Ng. I also acknowledge Jeff Whitaker for Python's [cftime](https://github.com/Unidata/cftime) which has helped the development of this package by providing reference values and a reference implementation for tests.
 
 # Funding
 
