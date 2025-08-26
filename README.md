@@ -177,6 +177,7 @@ Contributions such as code or documentation are very welcomed! Here is an overvi
 * create a new branch with a meaningful name 
 * implement the new feature or fix the issue 
 * add a test case and documentation for new features 
+* use the [formatting tool runic](https://github.com/fredrikekre/Runic.jl?tab=readme-ov-file#quick-start)
 * very that all tests pass locally 
 * open the pull request with a brief description of the improvements to the code
 
