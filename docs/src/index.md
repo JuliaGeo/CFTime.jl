@@ -295,7 +295,7 @@ DateTimeStandard(Int128,2000,1,1, units=:attosecond,origin=(1900,1,1))
 # DateTimeStandard(2000-01-01T00:00:00)
 ```
 
-Operations can typically be 2 to 4 time slower when using an `Int128` rather than an `Int64`.
+Operations can typically be 2 to 4 times slower when using an `Int128` rather than an `Int64`.
 
 It is important to note that when small durations are added to a time instances, then internal type promotion will also change the unit of the time instance (which is milliseconds since 1900-01-01):
 
@@ -345,12 +345,12 @@ For example, duration 3600000 milliseconds is represented as `duration = 3600000
 or the duration 1 hours is `duration = 1`,  `Tfactor = Val(3600)` and `Texponent = Val(0)` since:
 
 ```
-1 hour = 3600 * 1 * 10⁰ seconds
+1 hour = 1 * 3600 * 10⁰ seconds
 ```
 
 There is no normalization of the time duration per default as it could lead to under-/overflow.
 
-The type parameter `T2` of `DateTimeStandard` encodes the time origin as a tuple of integers starting with the year (year,month,day,hour,minute,seconds,...attoseconds).  Only the year, month and day need specified; all other default to zero.
+The type parameter `T2` of `DateTimeStandard` encodes the time origin as a tuple of integers starting with the year (year,month,day,hour,minute,seconds,...attoseconds).  Only the year, month and day need to be specified; all other default to zero.
 For example `T2` would be `Val((1970,1,1))` if the time origin is the 1st January 1970.
 
 By using value types as type parametes, the time origin, time resolution... are known to the compiler.
@@ -381,4 +381,4 @@ difference_numbers(v0,v1) = (v1-v0)*(86_400_000)
 ```
 
 The information in this section and any other information marked as internal or experimental is not part of the public API and not covered by the semantic versioning.
-Future version of CFTime might add or changing the meaning of type parameters as patch-level changes. However removing a type parameter would be considered as a breaking change.
+Future version of CFTime might add or changing the meaning of type parameters as patch-level changes. However, removing a type parameter would be considered as a breaking change.
