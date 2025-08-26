@@ -1,6 +1,6 @@
 # year upto attosecond
 
-for (i,func) in enumerate(TIME_NAMES)
+for (i, func) in enumerate(TIME_NAMES)
     modname = (i <= 9 ? "Dates" : "CFTime")
     @eval begin
         """
@@ -22,7 +22,7 @@ end
 # Day, Hour, ... Nanosecond constructors from Dates.
 # There is no Picosecond constructor in Dates.
 
-for (i,name) in enumerate(TIME_NAMES[1:9])
+for (i, name) in enumerate(TIME_NAMES[1:9])
     function_name = Symbol(uppercasefirst(String(name)))
 
     @eval begin
@@ -32,8 +32,7 @@ for (i,name) in enumerate(TIME_NAMES[1:9])
         The $($name) part of an `AbstractCFDateTime` as an `$($function_name)`.
         """
         @inline function $function_name(dt::AbstractCFDateTime)
-            $function_name(Dates.$name(dt)) # years and months are special
+            return $function_name(Dates.$name(dt)) # years and months are special
         end
     end
 end
-

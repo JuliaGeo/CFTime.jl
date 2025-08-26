@@ -87,17 +87,21 @@ export
     yearmonthday
 
 function __init__()
-    for CFDateTime in [DateTimeStandard,
-                       DateTimeJulian,
-                       DateTimeProlepticGregorian,
-                       DateTimeAllLeap,
-                       DateTimeNoLeap,
-                       DateTime360Day]
+    for CFDateTime in [
+            DateTimeStandard,
+            DateTimeJulian,
+            DateTimeProlepticGregorian,
+            DateTimeAllLeap,
+            DateTimeNoLeap,
+            DateTime360Day,
+        ]
         Dates.CONVERSION_TRANSLATIONS[CFDateTime] = (
             Dates.Year, Dates.Month, Dates.Day,
             Dates.Hour, Dates.Minute, Dates.Second,
-            Dates.Millisecond)
+            Dates.Millisecond,
+        )
     end
+    return
 end
 
 end

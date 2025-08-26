@@ -11,10 +11,10 @@ Gregorian or Julian Calendar.
 [1] Meeus, Jean (1998) Astronomical Algorithms (2nd Edition).
 Willmann-Bell,  Virginia. p. 63
 """
-function datenum_gregjulian(year,month,day,gregorian::Bool,has_year_zero = false)
+function datenum_gregjulian(year, month, day, gregorian::Bool, has_year_zero = false)
     # turn year equal to -1 (1 BC) into year = 0
     if (year < 0) && !has_year_zero
-        year = year+1
+        year = year + 1
     end
 
     if month <= 2
@@ -81,11 +81,10 @@ function datenum_gregjulian(year,month,day,gregorian::Bool,has_year_zero = false
     # 15   30    February (wrong, but not used, since it is the last month)
 
     # 4 years in the Julian calendar = 4*365 + 1 = 1461 days
-    Z = fld(1461 * (year + 4716), 4) + (153 * (month+1)) ÷ 5 + day + B - 2401525
+    Z = fld(1461 * (year + 4716), 4) + (153 * (month + 1)) ÷ 5 + day + B - 2401525
     # Modified Julan Day
     return Z + DATENUM_OFFSET
 end
-
 
 
 """
@@ -103,7 +102,7 @@ Algorithm:
 Meeus, Jean (1998) Astronomical Algorithms (2nd Edition). Willmann-Bell,
 Virginia. p. 63
 """
-function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where T
+function datetuple_gregjulian(Z0::T, gregorian::Bool, has_year_zero = false) where {T}
 
     # promote to at least Int64
     Z = promote_type(T, Int64)(Z0)
@@ -119,7 +118,7 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where
 
         # 400 years = 146097 days = (400 * 365 + 100 - 4 + 1) days
         # α number of centuries since 400-02-29
-        α = fld(4*Z - 7468865, 146097)
+        α = fld(4 * Z - 7468865, 146097)
 
         # +α: add leap days for 1700, 1800, 1900, 2000, 2100,
         # -fld(α, 4): remove leap days for 2000, 2400, ... (already included)
@@ -130,42 +129,40 @@ function datetuple_gregjulian(Z0::T,gregorian::Bool,has_year_zero = false) where
     B = A + 1524
 
     # 20 years = 5 * (4*365 + 1) = 7305 days in the Julian calendar
-    C = fld(20*B - 2442, 7305)
+    C = fld(20 * B - 2442, 7305)
     # 4 years = 4*365 + 1 = 1461 days
     D = fld(1461 * C, 4)
     # we use 306001/10000 = 30.6001 rather than 30.6 to avoid
     # a day 0, e.g. Feburary 0 instead of January 31
-    E = fld(10000 * (B-D), 306001)
+    E = fld(10000 * (B - D), 306001)
 
     day = B - D - fld(306001 * E, 10000)
 
     # shift to first month from March to January
-    month = (E < 14 ? E-1 : E-13)
+    month = (E < 14 ? E - 1 : E - 13)
     y = (month > 2 ? C - 4716 : C - 4715)
 
     # turn year 0 into year -1 (1 BC)
     if (y <= 0) && !has_year_zero
-        y = y-1
+        y = y - 1
     end
-    return y,month,day
+    return y, month, day
 end
 
-datetuple_ymd(::Type{DateTimeProlepticGregorian},Z::Number) =
-    datetuple_gregjulian(Z,true,_hasyear0(DateTimeProlepticGregorian))
+datetuple_ymd(::Type{DateTimeProlepticGregorian}, Z::Number) =
+    datetuple_gregjulian(Z, true, _hasyear0(DateTimeProlepticGregorian))
 
-datetuple_ymd(::Type{DateTimeJulian},Z::Number) =
-    datetuple_gregjulian(Z,false,_hasyear0(DateTimeJulian))
+datetuple_ymd(::Type{DateTimeJulian}, Z::Number) =
+    datetuple_gregjulian(Z, false, _hasyear0(DateTimeJulian))
 
-datetuple_ymd(::Type{DateTimeStandard},Z::Number) =
-    datetuple_gregjulian(Z,Z >= DN_GREGORIAN_CALENDAR,_hasyear0(DateTimeStandard))
+datetuple_ymd(::Type{DateTimeStandard}, Z::Number) =
+    datetuple_gregjulian(Z, Z >= DN_GREGORIAN_CALENDAR, _hasyear0(DateTimeStandard))
 
-datenum(::Type{DateTimeProlepticGregorian},y,m,d) =
-    datenum_gregjulian(y,m,d,true,_hasyear0(DateTimeProlepticGregorian))
+datenum(::Type{DateTimeProlepticGregorian}, y, m, d) =
+    datenum_gregjulian(y, m, d, true, _hasyear0(DateTimeProlepticGregorian))
 
-datenum(::Type{DateTimeJulian},y,m,d) =
-    datenum_gregjulian(y,m,d,false,_hasyear0(DateTimeJulian))
+datenum(::Type{DateTimeJulian}, y, m, d) =
+    datenum_gregjulian(y, m, d, false, _hasyear0(DateTimeJulian))
 
-datenum(::Type{DateTimeStandard},y,m,d) =
-    datenum_gregjulian(y,m,d,(y,m,d) >= GREGORIAN_CALENDAR,_hasyear0(DateTimeStandard))
-
-
+datenum(::Type{DateTimeStandard}, y, m, d) =
+    datenum_gregjulian(y, m, d, (y, m, d) >= GREGORIAN_CALENDAR, _hasyear0(DateTimeStandard))

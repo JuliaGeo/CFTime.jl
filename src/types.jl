@@ -12,7 +12,7 @@ The type parameter `T` and `Torigintuple` are considered as internal API.
 Only reducing the number of type parameters of `AbstractCFDateTime` will be
 considered as a breaking change.
 """
-abstract type AbstractCFDateTime{T,Torigintuple} <: Dates.TimeType
+abstract type AbstractCFDateTime{T, Torigintuple} <: Dates.TimeType
 end
 
 
@@ -25,23 +25,24 @@ Period wraps a number duration of type `T` where
 
 represents the time in seconds
 """
-struct Period{T,Tfactor,Texponent}
+struct Period{T, Tfactor, Texponent}
     duration::T
 end
 
 
-for (CFDateTime,calendar) in [(:DateTimeStandard,"standard"),
-                              (:DateTimeJulian,"julian"),
-                              (:DateTimeProlepticGregorian,"prolepticgregorian"),
-                              (:DateTimeAllLeap,"allleap"),
-                              (:DateTimeNoLeap,"noleap"),
-                              (:DateTime360Day,"360day"),
-                              (:DateTimeUTC,"utc"),
-                              (:DateTimeTAI,"tai"),
+for (CFDateTime, calendar) in [
+        (:DateTimeStandard, "standard"),
+        (:DateTimeJulian, "julian"),
+        (:DateTimeProlepticGregorian, "prolepticgregorian"),
+        (:DateTimeAllLeap, "allleap"),
+        (:DateTimeNoLeap, "noleap"),
+        (:DateTime360Day, "360day"),
+        (:DateTimeUTC, "utc"),
+        (:DateTimeTAI, "tai"),
 
-                              ]
+    ]
     @eval begin
-        struct $CFDateTime{T,Torigintuple} <: AbstractCFDateTime{T,Torigintuple}
+        struct $CFDateTime{T, Torigintuple} <: AbstractCFDateTime{T, Torigintuple}
             instant::T
         end
 

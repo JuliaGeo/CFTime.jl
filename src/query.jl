@@ -2,9 +2,8 @@
 
 # https://web.archive.org/web/20240304171516/https://unidata.github.io/cftime/api.html
 # https://github.com/cf-convention/cf-conventions/issues/298
-@inline _hasyear0(::Type{T}) where T <: Union{DateTimeJulian,DateTimeStandard} = false
-@inline _hasyear0(::Type{T}) where T <: AbstractCFDateTime = true
-
+@inline _hasyear0(::Type{T}) where {T <: Union{DateTimeJulian, DateTimeStandard}} = false
+@inline _hasyear0(::Type{T}) where {T <: AbstractCFDateTime} = true
 
 
 """
@@ -20,9 +19,9 @@ julia> daysinmonth(DateTimeAllLeap,2001,2)
 ```
 
 """
-function daysinmonth(::Type{DT},y,m) where DT <: AbstractCFDateTime
-    t = DT(y,m,1)
-    return Dates.value((t + Dates.Month(1)) - t) ÷ (24*60*60*1000)
+function daysinmonth(::Type{DT}, y, m) where {DT <: AbstractCFDateTime}
+    t = DT(y, m, 1)
+    return Dates.value((t + Dates.Month(1)) - t) ÷ (24 * 60 * 60 * 1000)
 end
 
 """
@@ -36,8 +35,8 @@ julia> daysinmonth(DateTimeAllLeap(2001,2,1))
 29
 ```
 """
-function daysinmonth(t::DT) where DT <: AbstractCFDateTime
-    return daysinmonth(DT,Dates.year(t),Dates.month(t))
+function daysinmonth(t::DT) where {DT <: AbstractCFDateTime}
+    return daysinmonth(DT, Dates.year(t), Dates.month(t))
 end
 
 """
@@ -53,9 +52,9 @@ julia> daysinyear(DateTimeAllLeap,2001,2)
 ```
 
 """
-function daysinyear(::Type{DT},y) where DT <: AbstractCFDateTime
-    t = DT(y,1,1)
-    return Dates.value((t + Dates.Year(1)) - t) ÷ (24*60*60*1000)
+function daysinyear(::Type{DT}, y) where {DT <: AbstractCFDateTime}
+    t = DT(y, 1, 1)
+    return Dates.value((t + Dates.Year(1)) - t) ÷ (24 * 60 * 60 * 1000)
 end
 
 """
@@ -69,8 +68,8 @@ julia> daysinyear(DateTimeAllLeap(2001,2,1))
 366
 ```
 """
-function daysinyear(t::DT) where DT <: AbstractCFDateTime
-    return daysinyear(DT,Dates.year(t))
+function daysinyear(t::DT) where {DT <: AbstractCFDateTime}
+    return daysinyear(DT, Dates.year(t))
 end
 
 """
@@ -100,7 +99,7 @@ monthday(dt::AbstractCFDateTime) = _datetuple(dt)[2:3]
 
 Return the first day of the year including the date `dt`
 """
-@inline firstdayofyear(dt::T) where T <: AbstractCFDateTime = T(Dates.year(dt),1,1,0,0,0)
+@inline firstdayofyear(dt::T) where {T <: AbstractCFDateTime} = T(Dates.year(dt), 1, 1, 0, 0, 0)
 
 
 """
@@ -110,5 +109,5 @@ Return the day of the year for dt with January 1st being day 1.
 """
 function dayofyear(dt::AbstractCFDateTime)
     t0 = firstdayofyear(dt)
-    return Dates.value(floor(dt-t0,Dates.Day)) + 1
+    return Dates.value(floor(dt - t0, Dates.Day)) + 1
 end
