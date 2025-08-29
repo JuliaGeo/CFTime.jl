@@ -168,7 +168,7 @@ Pkg.installed()["CFTime"]
 ```
 
 For questions about the usage of CFTime, please create a topic in the Geo section of the Julia forum
-https://discourse.julialang.org/c/domain/geo/
+https://discourse.julialang.org/c/domain/geo/.
 Feel free to include `CC @Alexander-Barth` in your topic.
 
 Contributions such as code or documentation are very welcomed! Here is an overview of the involved steps:
