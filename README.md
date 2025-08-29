@@ -93,8 +93,8 @@ For example, the 1 January 2000 + 1 ns would be:
 ```julia
 y,m,d = (2000,1,1)
 hour,minute,sec = (0,0,0)
-µsec,msec,nsec = (0,0,1)
-DateTimeStandard(y,m,d,hour,minute,sec,µsec,msec,nsec; units=:nanosecond)
+msec,µsec,nsec = (0,0,1)
+DateTimeStandard(y,m,d,hour,minute,sec,msec,µsec,nsec; units=:nanosecond)
 # DateTimeStandard(2000-01-01T00:00:00.000000001)
 ```
 
@@ -103,19 +103,19 @@ The duration are encoded internally as a 64-bit signed integer. High precision i
 
 
 ```julia
-DateTimeStandard(Int128,y,m,d,hour,minute,sec,µsec,msec,nsec; units=:nanosecond)
+DateTimeStandard(Int128,y,m,d,hour,minute,sec,msec,µsec,nsec; units=:nanosecond)
 ```
 
 The default time origin is currently 1 January 1900 00:00:00. A different time origin can be used by setting the origin parameter:
 
 ```julia
-DateTimeStandard(Int128,y,m,d,hour,minute,sec,µsec,msec,nsec; units=:nanosecond, origin=(1970,1,1))
+DateTimeStandard(Int128,y,m,d,hour,minute,sec,msec,µsec,nsec; units=:nanosecond, origin=(1970,1,1))
 ```
 
 The units and origin argument can be wrapped as a `Val` to ensure that these values are known at compile-time:
 
 ```julia
-DateTimeStandard(Int128,y,m,d,hour,minute,sec,µsec,msec,nsec; units=Val(:nanosecond), origin=Val((1970,1,1)))
+DateTimeStandard(Int128,y,m,d,hour,minute,sec,msec,µsec,nsec; units=Val(:nanosecond), origin=Val((1970,1,1)))
 ```
 
 Several compile-time optimization have been implemented for the particular but common case where date have the same time origin and/or the same time resolution.
