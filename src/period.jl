@@ -258,12 +258,13 @@ end
 # operations between CFTime.Period and a number
 for op in (:*, :/, :div)
     @eval begin
-        function $op(p::Period{T, Tfactor, Texponent}, v::T2) where {T, Tfactor, Texponent, T2 <: Number}
+        function $op(p::Period{T, Tfactor, Texponent}, v::Number) where {T, Tfactor, Texponent}
             pv = $op(p.duration, v)
             return Period{typeof(pv), Tfactor, Texponent}(pv)
         end
     end
 end
+*(v::Number,p::Period) = p*v
 
 function -(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
     return Period{T, Tfactor, Texponent}(-p.duration)

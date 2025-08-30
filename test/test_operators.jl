@@ -1,4 +1,6 @@
 using CFTime
+using Test
+using Dates
 
 # check adding durations
 
@@ -35,3 +37,8 @@ D = dt1 - dt0
 @test D ÷ CFTime.Picosecond(1) == 24 * 60 * 60 * 10^12
 @test D / CFTime.Picosecond(1) ≈ 24 * 60 * 60 * 10^12
 @test D / (24 * 60 * 60) == Dates.Second(1)
+
+# issue #58
+
+@test CFTime.Picosecond(1) * 2 == CFTime.Picosecond(2)
+@test 2 * CFTime.Picosecond(1) == CFTime.Picosecond(2)
