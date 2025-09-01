@@ -264,7 +264,7 @@ for op in (:*, :/, :div)
         end
     end
 end
-*(v::Number,p::Period) = p*v
+*(v::Number, p::Period) = p * v
 
 function -(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
     return Period{T, Tfactor, Texponent}(-p.duration)
