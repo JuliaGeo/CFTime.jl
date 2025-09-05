@@ -375,3 +375,6 @@ end
 typemax(::Type{Period{T, Tfactor, Texponent}}) where {T, Tfactor, Texponent} = Period{T, Tfactor, Texponent}(typemax(T))
 
 typemin(::Type{Period{T, Tfactor, Texponent}}) where {T, Tfactor, Texponent} = Period{T, Tfactor, Texponent}(typemin(T))
+
+typemax(p::T) where {T <: Period} = typemax(T)
+typemin(p::T) where {T <: Period} = typemin(T)

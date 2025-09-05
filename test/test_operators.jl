@@ -18,6 +18,14 @@ dt = DateTimeNoLeap(1959, 12, 31, 23, 39, 59, 123)
 @test dt - Dates.Month(24) == DateTimeNoLeap(1957, 12, 31, 23, 39, 59, 123)
 @test dt - Dates.Year(7) == DateTimeNoLeap(1952, 12, 31, 23, 39, 59, 123)
 
+
+# difference between time instances
+@test DateTimeStandard(2000, 01, 02) - DateTimeStandard(2000, 01, 01) == Dates.Day(1)
+
+@test DateTimeStandard(2000, 01, 02) - DateTimeStandard(2000, 01, 01, units = :day) == Dates.Day(1)
+
+@test CFTime.units(DateTimeStandard(2000, 01, 01, units = :day, origin = (1970, 1, 1))) == "days since 1970-01-01"
+
 # check ordering
 
 @test DateTimeStandard(2000, 01, 01) < DateTimeStandard(2000, 01, 02)

@@ -295,20 +295,19 @@ for CFDateTime in (
     @eval @inline function -(dt1::$CFDateTime, dt2::$CFDateTime)
         return (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
     end
+
+    # fast case if the same resolution and time origin is used
+    @eval @inline function -(dt1::$CFDateTime{T, Torigintuple}, dt2::$CFDateTime{T, Torigintuple}) where {T, Torigintuple}
+        return dt1.instant - dt2.instant
+    end
 end
 
-@eval @inline function -(
-        dt1::Union{DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian},
-        dt2::Union{DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian}
+@inline function -(
+    dt1::Union{DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian},
+    dt2::Union{DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian}
     )
     return (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
 end
-
-# fast case if the same resolution and time origin is used
-@inline function -(dt1::DT, dt2::DT) where {DT <: AbstractCFDateTime{T, Torigintuple}} where {T, Torigintuple}
-    return dt1.instant - dt2.instant
-end
-
 
 function -(dt1::AbstractCFDateTime, dt2::DateTime)
     return dt1 - convert(DateTimeProlepticGregorian, dt2)
