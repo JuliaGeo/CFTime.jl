@@ -296,8 +296,8 @@ for CFDateTime in (
         return (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
     end
 
-    # fast case if the same resolution and time origin is used
-    @eval @inline function -(dt1::$CFDateTime{T, Torigintuple}, dt2::$CFDateTime{T, Torigintuple}) where {T, Torigintuple}
+    # fast case if the same time origin is used
+    @eval @inline function -(dt1::$CFDateTime{T1, Torigintuple}, dt2::$CFDateTime{T2, Torigintuple}) where {T1, T2, Torigintuple}
         return dt1.instant - dt2.instant
     end
 end
@@ -318,8 +318,7 @@ function -(dt1::DateTime, dt2::AbstractCFDateTime)
 end
 
 -(dt::AbstractCFDateTime, Δ::Period) = dt + (-Δ)
--(dt::AbstractCFDateTime, Δ::Dates.CompoundPeriod) = dt + (-Δ)
--(dt::AbstractCFDateTime, Δ) = dt + (-Δ)
+-(dt::AbstractCFDateTime, Δ::Dates.Period) = dt + (-Δ)
 
 function ==(dt1::AbstractCFDateTime, dt2::AbstractCFDateTime)
     return Dates.value(dt1 - dt2) == 0

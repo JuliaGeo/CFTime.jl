@@ -20,19 +20,24 @@ dt = DateTimeNoLeap(1959, 12, 31, 23, 39, 59, 123)
 
 
 # difference between time instances
-@test DateTimeStandard(2000, 01, 02) - DateTimeStandard(2000, 01, 01) == Dates.Day(1)
+@test DateTimeStandard(2000, 1, 2) - DateTimeStandard(2000, 1, 1) == Dates.Day(1)
 
-@test DateTimeStandard(2000, 01, 02) - DateTimeStandard(2000, 01, 01, units = :day) == Dates.Day(1)
+@test DateTimeStandard(2000, 1, 2) - DateTimeStandard(2000, 1, 1, units = :day) == Dates.Day(1)
 
-@test CFTime.units(DateTimeStandard(2000, 01, 01, units = :day, origin = (1970, 1, 1))) == "days since 1970-01-01"
+@test (
+    DateTimeStandard(2000, 1, 2) -
+        DateTimeStandard(2000, 1, 1, origin = (1970, 1, 1))
+) == Dates.Day(1)
+
+@test CFTime.units(DateTimeStandard(2000, 1, 1, units = :day, origin = (1970, 1, 1))) == "days since 1970-01-01"
 
 # check ordering
 
-@test DateTimeStandard(2000, 01, 01) < DateTimeStandard(2000, 01, 02)
-@test DateTimeStandard(2000, 01, 01) ≤ DateTimeStandard(2000, 01, 01)
+@test DateTimeStandard(2000, 1, 1) < DateTimeStandard(2000, 1, 2)
+@test DateTimeStandard(2000, 1, 1) ≤ DateTimeStandard(2000, 1, 1)
 
-@test DateTimeStandard(2000, 01, 03) > DateTimeStandard(2000, 01, 02)
-@test DateTimeStandard(2000, 01, 03) ≥ DateTimeStandard(2000, 01, 01)
+@test DateTimeStandard(2000, 1, 03) > DateTimeStandard(2000, 1, 2)
+@test DateTimeStandard(2000, 1, 03) ≥ DateTimeStandard(2000, 1, 1)
 
 # issue #55
 
