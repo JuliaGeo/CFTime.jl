@@ -13,13 +13,13 @@ Features of CFTime include:
 
 * Time instances as defined [Climate and Forecasting (CF) conventions](https://cfconventions.org/)
 * Supporting a wide range of the time resolutions, from days down to attoseconds (for feature parity with NumPy's date time type)
-* Supporting arbitrary time origins. For CFTime.jl the time origin is part of the parametric type definition and not an additional field of the time data structure. As a consequence, a large array of date times with common time origin only need to store the time counter (64-bit integer by default) for every element, which makes this case as memory efficient as NumPy's or Julia's default date time for this common use case.
+* Supporting arbitrary time origins. For CFTime.jl, the time origin is part of the parametric type definition and not an additional field of the time data structure. As a consequence, a large array of date times with common time origin only need to store the time counter (64-bit integer by default) for every element, which makes this case as memory efficient as NumPy's or Julia's default date time for this common use case.
 * By default, the time counter is a 64-bit integer, but other integers types (such as `Int32`, `Int128` or `BigInt`) or floating-point types can be used. Using an integer to encode a time instance is recommended for most applications, as it makes reasoning about the time resolution easier.
 * Basic arithmetic such as computing the duration between two time instances
 * Conversion function between CFTime types and Julia's `DateTime`.
 * Regular time range based on Julia's range type. A time range is a vector of date time elements, but only the start time, the end time and the steps need to be stored in memory.
 
-CFTime currently does not support leap seconds, which were standardized as part of CF conventions version 1.12, released in December 2024.
+CFTime currently does not support leap seconds, which were standardized as part of CF conventions version 1.12, released in December 2024 and time zones.
 
 ## Installation
 
