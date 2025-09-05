@@ -303,8 +303,8 @@ for CFDateTime in (
 end
 
 @inline function -(
-    dt1::Union{DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian},
-    dt2::Union{DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian}
+        dt1::Union{DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian},
+        dt2::Union{DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian}
     )
     return (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
 end
