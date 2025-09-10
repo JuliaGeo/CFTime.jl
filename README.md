@@ -183,6 +183,10 @@ Contributions such as code or documentation are very welcomed! Here is an overvi
 
 For larger changes, it is recommended to open an issue first to better explain the purpose of the pull request.
 
+## Trivia
+
+[Microsoft Excel incorrectly considers 1900 as leap year](https://learn.microsoft.com/en-us/troubleshoot/microsoft-365-apps/excel/wrongly-assumes-1900-is-leap-year). For example, the difference between the dates 1-Jan-2000 and 1-Jan-1900 are off by one day. This bug was subsequently preserved for compatibility and codified in the ISO/IEC 29500:2008 standard.
+
 ## Alternatives
 
 Julia packages:
