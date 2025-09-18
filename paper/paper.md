@@ -77,8 +77,8 @@ Additionally, underflows and overflows are easier to predict and handle with int
 The following is a list of the main features of `CFTime`:
 
 * Basic arithmetic, such as subtracting two time instances to compute their duration, or adding a duration to a time instance.
-* Supporting a wide range of time resolutions, from days down to attoseconds for feature parity with NumPy date time type [@harris2020array; @numpy].
-* Supporting arbitrary time origins. Since the time origin for NumPy date time type is fixed to be 1 January 1970 at 00:00, the usefulness of some time units is limited. As an extreme example, with attoseconds, all NumPy date times can only express a time span of +/- 9.2 s around the time origin since a 64-bit integer is used internally.
+* Support for a wide range of time resolutions, from days down to attoseconds, for feature parity with NumPy's `datetime64` type [@harris2020array; @numpy].
+* Support for arbitrary time origins. Since the time origin for NumPy's `datetime64` type is fixed to 1 January 1970 at 00:00, the usefulness of some time units is limited. As an extreme example, with attoseconds, only a time span of ±9.2 s around the time origin can be represented since a 64-bit integer is used internally.
 * By default, the time counter is a 64-bit integer, but other integer types or floating-point types can be used.
 
 # Acknowledgements
