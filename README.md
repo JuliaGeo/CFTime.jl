@@ -1,9 +1,11 @@
 # CFTime
 
-[![Build Status](https://github.com/JuliaGeo/CFTime.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaGeo/CFTime.jl/actions)
-[![codecov](https://codecov.io/gh/JuliaGeo/CFTime.jl/graph/badge.svg?token=A6XMcOvIFr)](https://codecov.io/gh/JuliaGeo/CFTime.jl)
 [![documentation stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliageo.github.io/CFTime.jl/stable/)
 [![documentation latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliageo.github.io/CFTime.jl/latest/)
+
+[![Build Status](https://github.com/JuliaGeo/CFTime.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaGeo/CFTime.jl/actions)
+[![codecov](https://codecov.io/gh/JuliaGeo/CFTime.jl/graph/badge.svg?token=A6XMcOvIFr)](https://codecov.io/gh/JuliaGeo/CFTime.jl)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.08487/status.svg)](https://doi.org/10.21105/joss.08487)
 
 
 `CFTime` encodes and decodes time units conforming to the [Climate and Forecasting (CF) conventions](https://cfconventions.org/).
@@ -200,6 +202,7 @@ Outside of the julia ecosystem:
 * [cftime](https://unidata.github.io/cftime/) for python
 * [CFtime](https://CRAN.R-project.org/package=CFtime) for R
 * [cftime-rs](https://github.com/antscloud/cftime-rs) for rust with python bindings
+
 
 ## Acknowledgments
 
