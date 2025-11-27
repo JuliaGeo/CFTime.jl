@@ -70,7 +70,7 @@ sum(_timetuple(1234567,divi) .* divi) == 1234567
 # true
 ```
 """
-@inline function _timetuple(time, divi)
+function _timetuple(time, divi)
     return __tf((), time, divi...)
 end
 
