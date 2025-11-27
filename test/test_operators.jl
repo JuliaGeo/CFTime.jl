@@ -24,6 +24,13 @@ dt = DateTimeNoLeap(1959, 12, 31, 23, 39, 59, 123)
 
 @test DateTimeStandard(2000, 1, 2) - DateTimeStandard(2000, 1, 1, units = :day) == Dates.Day(1)
 
+
+@test DateTimeStandard(2000, 1, 2) - DateTime(2000, 1, 1) == Dates.Day(1)
+@test DateTime(2000, 1, 2) - DateTimeStandard(2000, 1, 1) == Dates.Day(1)
+
+@test DateTimeStandard(2000, 1, 2) - Date(2000, 1, 1) == Dates.Day(1)
+@test Date(2000, 1, 2) - DateTimeStandard(2000, 1, 1) == Dates.Day(1)
+
 @test (
     DateTimeStandard(2000, 1, 2) -
         DateTimeStandard(2000, 1, 1, origin = (1970, 1, 1))

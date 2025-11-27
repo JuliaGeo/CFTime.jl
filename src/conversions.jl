@@ -476,10 +476,13 @@ for CFDateTime in [
             return DateTime(UTInstant{Millisecond}(ms))
         end
 
-        function convert(::Type{$CFDateTime}, dt::DateTime)
+        function convert(::Type{$CFDateTime}, dt::Union{DateTime, Date})
+            _origin(dt::DateTime) = DateTime(UTInstant{Millisecond}(Millisecond(0)))
+            _origin(dt::Date) = Date(UTInstant{Day}(Day(0)))
+
             T = $CFDateTime
 
-            origin = DateTime(UTInstant{Millisecond}(Millisecond(0)))
+            origin = _origin(dt)
             y, mdHMS... = (Dates.year(origin), Dates.month(origin), Dates.day(origin))
 
             if !_hasyear0(DateTimeProlepticGregorian) && y <= 0

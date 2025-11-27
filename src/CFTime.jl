@@ -19,7 +19,7 @@ module CFTime
 
 using Printf
 import Dates
-import Dates: UTInstant, Millisecond, DateTime, DateFormat
+import Dates: UTInstant, Millisecond, DateTime, Date, DateFormat
 import Dates:
     year,
     month,

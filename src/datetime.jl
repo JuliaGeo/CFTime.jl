@@ -309,11 +309,11 @@ end
     return (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
 end
 
-function -(dt1::AbstractCFDateTime, dt2::DateTime)
+function -(dt1::AbstractCFDateTime, dt2::Union{DateTime, Date})
     return dt1 - convert(DateTimeProlepticGregorian, dt2)
 end
 
-function -(dt1::DateTime, dt2::AbstractCFDateTime)
+function -(dt1::Union{DateTime, Date}, dt2::AbstractCFDateTime)
     return convert(DateTimeProlepticGregorian, dt1) - dt2
 end
 
