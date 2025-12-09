@@ -9,14 +9,15 @@ import sys
 import cftime
 import datetime
 
-def compute(n):
-    t0 = cftime.num2date(np.arange(n),"milliseconds since 1900-01-1",calendar="proleptic_gregorian")
-    t1 = cftime.num2date(np.arange(n),"milliseconds since 2000-01-1",calendar="proleptic_gregorian")
+def compute(offset):
+    t0 = cftime.num2date(offset,"seconds since 1900-01-1",calendar="proleptic_gregorian")
+    t1 = cftime.num2date(offset,"seconds since 2000-01-1",calendar="proleptic_gregorian")
 
     diff = t1 - np.flip(t0)
 
     mean_total_seconds = np.vectorize(lambda d: d.total_seconds(),otypes = [int])(diff).mean()
-    return mean_total_seconds
+    mean_month = np.vectorize(lambda d: d.month,otypes = [int])(t0).mean()
+    return mean_total_seconds, mean_month
 
 
 if __name__ == "__main__":
@@ -24,11 +25,13 @@ if __name__ == "__main__":
     print("cftime: ",cftime.__version__)
     n = 1_000_000
 #    n = 100_000
-    mean_total_seconds = compute(n)
+    offset = np.arange(0,n)
+
+    mean_total_seconds = compute(offset)
     print("mean_total_seconds: ", mean_total_seconds)
 
     setup = "from __main__ import compute"
-    benchtime = timeit.repeat(lambda: compute(n), setup=setup,number = 1, repeat = 100)
+    benchtime = timeit.repeat(lambda: compute(offset), setup=setup,number = 1, repeat = 100)
 
     print("min time: ",min(benchtime))
 

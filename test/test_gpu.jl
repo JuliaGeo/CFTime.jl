@@ -96,17 +96,19 @@ diff = @benchmark dt1 - dt2;
 
 
 
-year = rand(1:1000,N)
+year = rand(1:2000,N)
 month = rand(1:12,N)
 day = rand(1:20,N)
 
 dt1 = @btime DateTimeStandard.(year,month,day)
 # 829.393 ms (4 allocations: 762.94 MiB)
+# 787.279 ms (4 allocations: 762.94 MiB)
 
 year_d, month_d, day_d = gpu.((year, month, day))
 
 dt1_d = @btime DateTimeStandard.(year_d,month_d,day_d)
 #  22.885 μs (100 allocations: 3.83 KiB)
+#  14.448 μs (105 allocations: 4.20 KiB)
 
 @test Array(dt1_d) == Array(dt1)
 
