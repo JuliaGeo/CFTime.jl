@@ -46,11 +46,12 @@ Base.signbit(x::Period) = signbit(value(x))
 @inline function __tf(result, time::T, d1, dn...) where {T}
     Ti = promote_type(Int64, T)
 
-    return if d1 == 0
-        __tf((result..., Ti(0)), 0, dn...)
+    # divrem is slow -> check if time is zero
+    if (time == 0) || (d1 == 0)
+        return __tf((result..., Ti(0)), 0, dn...)
     else
         p, time2 = divrem(time, d1, RoundDown)
-        __tf((result..., Ti(p)), time2, dn...)
+        return __tf((result..., Ti(p)), time2, dn...)
     end
 end
 
