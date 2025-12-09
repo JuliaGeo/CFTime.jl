@@ -8,7 +8,7 @@ using Pkg
 cpu(x) = x
 devices = (cpu,)
 
-#using AMDGPU; gpu(x) = roc(x); devices = (cpu,gpu)
+using AMDGPU; gpu(x) = roc(x); devices = (cpu,gpu)
 
 
 

@@ -71,7 +71,7 @@ sum(_timetuple(1234567,divi) .* divi) == 1234567
 # true
 ```
 """
-function _timetuple(time, divi)
+@inline function _timetuple(time, divi)
     return __tf((), time, divi...)
 end
 
@@ -115,7 +115,7 @@ end
 Return a tuple with the number of whole days, hours (`h`), minutes (`mi`),
 seconds (`s`) and millisecods (`ms`),... from the time period `t`.
 """
-function timetuplefrac(t::Period{T, Tfactor}) where {T, Tfactor}
+@inline function timetuplefrac(t::Period{T, Tfactor}) where {T, Tfactor}
     # for integers
     factor = _factor(t)
     exponent = _exponent(t)
