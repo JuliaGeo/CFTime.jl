@@ -33,8 +33,8 @@ t = CFTime.Period.([1], :second);
 
 # datetime
 
-dt = [DateTimeStandard(2000,1,1)];
-dt2 =  [DateTimeStandard(2001,1,1)];
+dt = [DateTimeStandard(2000, 1, 1)];
+dt2 = [DateTimeStandard(2001, 1, 1)];
 
 @test dt2 - dt == Array(gpu(dt2) - gpu(dt))
 
@@ -45,13 +45,10 @@ dt2 =  [DateTimeStandard(2001,1,1)];
 @test Array(Dates.minute.(gpu(dt))) == Dates.minute.(dt)
 
 
-
-
-
 N = 10_000_0000
 
-dt1 = DateTimeStandard(2000, 1, 1) .+ Dates.Day.(rand(1:10000,N));
-dt2 = DateTimeStandard(2000, 1, 1) .+ Dates.Day.(rand(1:10000,N));
+dt1 = DateTimeStandard(2000, 1, 1) .+ Dates.Day.(rand(1:10000, N));
+dt2 = DateTimeStandard(2000, 1, 1) .+ Dates.Day.(rand(1:10000, N));
 
 dt1_d = gpu(dt1);
 dt2_d = gpu(dt2);
@@ -95,20 +92,18 @@ diff = @benchmark dt1 - dt2;
 #  Memory estimate: 10.06 KiB, allocs estimate: 403.
 
 
+year = rand(1:2000, N)
+month = rand(1:12, N)
+day = rand(1:20, N)
 
-year = rand(1:2000,N)
-month = rand(1:12,N)
-day = rand(1:20,N)
-
-dt1 = @btime DateTimeStandard.(year,month,day)
+dt1 = @btime DateTimeStandard.(year, month, day)
 # 829.393 ms (4 allocations: 762.94 MiB)
 # 787.279 ms (4 allocations: 762.94 MiB)
 
 year_d, month_d, day_d = gpu.((year, month, day))
 
-dt1_d = @btime DateTimeStandard.(year_d,month_d,day_d)
+dt1_d = @btime DateTimeStandard.(year_d, month_d, day_d)
 #  22.885 μs (100 allocations: 3.83 KiB)
 #  14.448 μs (105 allocations: 4.20 KiB)
 
 @test Array(dt1_d) == Array(dt1)
-

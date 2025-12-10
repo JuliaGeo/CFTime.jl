@@ -21,7 +21,7 @@ println("Dates: ", m[findfirst(v -> v.name == pkg_name, m)].version)
 
 n = 1_000_000
 #n = 100_000
-offset = collect(0:(n-1))
+offset = collect(0:(n - 1))
 println("mean_total_seconds: ", compute(offset))
 
 bm = run(@benchmarkable compute(offset) samples = 100 seconds = 60)

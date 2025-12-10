@@ -11,7 +11,6 @@ devices = (cpu,)
 #using AMDGPU; gpu(x) = roc(x); devices = (cpu,gpu)
 
 
-
 function compute(offset)
     t0 = DateTimeProlepticGregorian(1900, 1, 1) .+ Dates.Second.(offset)
     t1 = DateTimeProlepticGregorian(2000, 1, 1) .+ Dates.Second.(offset)
@@ -30,8 +29,8 @@ println("CFTime: ", m[findfirst(v -> v.name == pkg_name, m)].version)
 n = 1_000_000
 #n = 100_000
 
-for device = devices
-    offset = device(collect(0:(n-1)))
+for device in devices
+    offset = device(collect(0:(n - 1)))
     #println("mean_total_seconds: ", compute(offset))
 
     bm = run(@benchmarkable compute($offset) samples = 100 seconds = 60)
