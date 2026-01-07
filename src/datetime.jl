@@ -295,32 +295,30 @@ for CFDateTime in (
     @eval @inline function -(dt1::$CFDateTime, dt2::$CFDateTime)
         return (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
     end
+
+    # fast case if the same time origin is used
+    @eval @inline function -(dt1::$CFDateTime{T1, Torigintuple}, dt2::$CFDateTime{T2, Torigintuple}) where {T1, T2, Torigintuple}
+        return dt1.instant - dt2.instant
+    end
 end
 
-@eval @inline function -(
+@inline function -(
         dt1::Union{DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian},
         dt2::Union{DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian}
     )
     return (_origin_period(dt1) - _origin_period(dt2)) + (dt1.instant - dt2.instant)
 end
 
-# fast case if the same resolution and time origin is used
-@inline function -(dt1::DT, dt2::DT) where {DT <: AbstractCFDateTime{T, Torigintuple}} where {T, Torigintuple}
-    return dt1.instant - dt2.instant
-end
-
-
-function -(dt1::AbstractCFDateTime, dt2::DateTime)
+function -(dt1::AbstractCFDateTime, dt2::Union{DateTime, Date})
     return dt1 - convert(DateTimeProlepticGregorian, dt2)
 end
 
-function -(dt1::DateTime, dt2::AbstractCFDateTime)
+function -(dt1::Union{DateTime, Date}, dt2::AbstractCFDateTime)
     return convert(DateTimeProlepticGregorian, dt1) - dt2
 end
 
 -(dt::AbstractCFDateTime, Δ::Period) = dt + (-Δ)
--(dt::AbstractCFDateTime, Δ::Dates.CompoundPeriod) = dt + (-Δ)
--(dt::AbstractCFDateTime, Δ) = dt + (-Δ)
+-(dt::AbstractCFDateTime, Δ::Dates.Period) = dt + (-Δ)
 
 function ==(dt1::AbstractCFDateTime, dt2::AbstractCFDateTime)
     return Dates.value(dt1 - dt2) == 0

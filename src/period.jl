@@ -24,6 +24,8 @@ _type(::Type{Period{T, Tfactor, Texponent}}) where {T, Tfactor, Texponent} = T
 _factor(::Type{Period{T, Tfactor, Texponent}}) where {T, Tfactor, Texponent} = unwrap(Tfactor)
 _exponent(::Type{Period{T, Tfactor, Texponent}}) where {T, Tfactor, Texponent} = unwrap(Texponent)
 
+Dates.value(p::Period) = p.duration
+
 function Base.zero(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
     return Period{T, Tfactor, Texponent}(0)
 end
@@ -33,11 +35,11 @@ function Base.one(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent
 end
 
 function Base.abs(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
-    return Period{T, Tfactor, Texponent}(abs(Dates.value(p)))
+    return Period{T, Tfactor, Texponent}(abs(value(p)))
 end
 
-
-Dates.value(p::Period) = p.duration
+Base.sign(x::Period) = sign(value(x))
+Base.signbit(x::Period) = signbit(value(x))
 
 # helper functions for _timetuple
 @inline __tf(result, time) = result
@@ -68,7 +70,7 @@ sum(_timetuple(1234567,divi) .* divi) == 1234567
 # true
 ```
 """
-@inline function _timetuple(time, divi)
+function _timetuple(time, divi)
     return __tf((), time, divi...)
 end
 
@@ -228,8 +230,8 @@ end
 
 # operations between two CFTime.Periods (or Dates.Period)
 
-#   operators returning a CFTime.Period
-for op in (:+, :-, :mod)
+# operators returning a CFTime.Period
+for op in (:+, :-, :mod, :lcm, :gcd, :rem)
     @eval begin
         function $op(p1::Period{T, Tfactor, Texponent}, p2::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
             return Period{T, Tfactor, Texponent}($op(p1.duration, p2.duration))
@@ -237,7 +239,12 @@ for op in (:+, :-, :mod)
     end
 end
 
-#   divisions and boolean functions
+function Base.gcdx(a::T, b::T) where {T <: Period}
+    (g, x, y) = gcdx(value(a), value(b))
+    return (T(g), x, y)
+end
+
+# operators not returning a CFTime.Period
 for op in (:/, :div, :(==), :isless)
     @eval begin
         function $op(p1::Period{T, Tfactor, Texponent}, p2::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
@@ -247,7 +254,7 @@ for op in (:/, :div, :(==), :isless)
 end
 
 
-for op in (:+, :-, :/, :div, :mod, :(==), :isless)
+for op in (:+, :-, :/, :div, :mod, :(==), :isless, :lcm, :gcd, :gcdx, :rem)
     @eval begin
         $op(p1::Period, p2::Period) = $op(promote(p1, p2)...)
         $op(p1::Period, p2::Dates.Period) = $op(promote(p1, p2)...)
@@ -258,12 +265,14 @@ end
 # operations between CFTime.Period and a number
 for op in (:*, :/, :div)
     @eval begin
-        function $op(p::Period{T, Tfactor, Texponent}, v::T2) where {T, Tfactor, Texponent, T2 <: Number}
+        function $op(p::Period{T, Tfactor, Texponent}, v::Number) where {T, Tfactor, Texponent}
             pv = $op(p.duration, v)
             return Period{typeof(pv), Tfactor, Texponent}(pv)
         end
     end
 end
+
+*(v::Number, p::Period) = p * v
 
 function -(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
     return Period{T, Tfactor, Texponent}(-p.duration)
@@ -366,3 +375,6 @@ end
 typemax(::Type{Period{T, Tfactor, Texponent}}) where {T, Tfactor, Texponent} = Period{T, Tfactor, Texponent}(typemax(T))
 
 typemin(::Type{Period{T, Tfactor, Texponent}}) where {T, Tfactor, Texponent} = Period{T, Tfactor, Texponent}(typemin(T))
+
+typemax(p::T) where {T <: Period} = typemax(T)
+typemin(p::T) where {T <: Period} = typemin(T)

@@ -1,9 +1,11 @@
 # CFTime
 
-[![Build Status](https://github.com/JuliaGeo/CFTime.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaGeo/CFTime.jl/actions)
-[![codecov](https://codecov.io/gh/JuliaGeo/CFTime.jl/graph/badge.svg?token=A6XMcOvIFr)](https://codecov.io/gh/JuliaGeo/CFTime.jl)
 [![documentation stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliageo.github.io/CFTime.jl/stable/)
 [![documentation latest](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliageo.github.io/CFTime.jl/latest/)
+
+[![Build Status](https://github.com/JuliaGeo/CFTime.jl/actions/workflows/CI.yml/badge.svg)](https://github.com/JuliaGeo/CFTime.jl/actions)
+[![codecov](https://codecov.io/gh/JuliaGeo/CFTime.jl/graph/badge.svg?token=A6XMcOvIFr)](https://codecov.io/gh/JuliaGeo/CFTime.jl)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.08487/status.svg)](https://doi.org/10.21105/joss.08487)
 
 
 `CFTime` encodes and decodes time units conforming to the [Climate and Forecasting (CF) conventions](https://cfconventions.org/).
@@ -13,13 +15,13 @@ Features of CFTime include:
 
 * Time instances as defined [Climate and Forecasting (CF) conventions](https://cfconventions.org/)
 * Supporting a wide range of the time resolutions, from days down to attoseconds (for feature parity with NumPy's date time type)
-* Supporting arbitrary time origins. For CFTime.jl the time origin is part of the parametric type definition and not an additional field of the time data structure. As a consequence, a large array of date times with common time origin only need to store the time counter (64-bit integer by default) for every element, which makes this case as memory efficient as NumPy's or Julia's default date time for this common use case.
+* Supporting arbitrary time origins. For CFTime.jl, the time origin is part of the parametric type definition and not an additional field of the time data structure. As a consequence, a large array of date times with common time origin only need to store the time counter (64-bit integer by default) for every element, which makes this case as memory efficient as NumPy's or Julia's default date time for this common use case.
 * By default, the time counter is a 64-bit integer, but other integers types (such as `Int32`, `Int128` or `BigInt`) or floating-point types can be used. Using an integer to encode a time instance is recommended for most applications, as it makes reasoning about the time resolution easier.
 * Basic arithmetic such as computing the duration between two time instances
 * Conversion function between CFTime types and Julia's `DateTime`.
 * Regular time range based on Julia's range type. A time range is a vector of date time elements, but only the start time, the end time and the steps need to be stored in memory.
 
-CFTime currently does not support leap seconds, which were standardized as part of CF conventions version 1.12, released in December 2024.
+CFTime currently does not support leap seconds, which were standardized as part of CF conventions version 1.12, released in December 2024 and time zones.
 
 ## Installation
 
@@ -93,8 +95,8 @@ For example, the 1 January 2000 + 1 ns would be:
 ```julia
 y,m,d = (2000,1,1)
 hour,minute,sec = (0,0,0)
-µsec,msec,nsec = (0,0,1)
-DateTimeStandard(y,m,d,hour,minute,sec,µsec,msec,nsec; units=:nanosecond)
+msec,µsec,nsec = (0,0,1)
+DateTimeStandard(y,m,d,hour,minute,sec,msec,µsec,nsec; units=:nanosecond)
 # DateTimeStandard(2000-01-01T00:00:00.000000001)
 ```
 
@@ -103,19 +105,19 @@ The duration are encoded internally as a 64-bit signed integer. High precision i
 
 
 ```julia
-DateTimeStandard(Int128,y,m,d,hour,minute,sec,µsec,msec,nsec; units=:nanosecond)
+DateTimeStandard(Int128,y,m,d,hour,minute,sec,msec,µsec,nsec; units=:nanosecond)
 ```
 
 The default time origin is currently 1 January 1900 00:00:00. A different time origin can be used by setting the origin parameter:
 
 ```julia
-DateTimeStandard(Int128,y,m,d,hour,minute,sec,µsec,msec,nsec; units=:nanosecond, origin=(1970,1,1))
+DateTimeStandard(Int128,y,m,d,hour,minute,sec,msec,µsec,nsec; units=:nanosecond, origin=(1970,1,1))
 ```
 
 The units and origin argument can be wrapped as a `Val` to ensure that these values are known at compile-time:
 
 ```julia
-DateTimeStandard(Int128,y,m,d,hour,minute,sec,µsec,msec,nsec; units=Val(:nanosecond), origin=Val((1970,1,1)))
+DateTimeStandard(Int128,y,m,d,hour,minute,sec,msec,µsec,nsec; units=Val(:nanosecond), origin=Val((1970,1,1)))
 ```
 
 Several compile-time optimization have been implemented for the particular but common case where date have the same time origin and/or the same time resolution.
@@ -168,7 +170,7 @@ Pkg.installed()["CFTime"]
 ```
 
 For questions about the usage of CFTime, please create a topic in the Geo section of the Julia forum
-https://discourse.julialang.org/c/domain/geo/
+https://discourse.julialang.org/c/domain/geo/.
 Feel free to include `CC @Alexander-Barth` in your topic.
 
 Contributions such as code or documentation are very welcomed! Here is an overview of the involved steps:
@@ -183,6 +185,10 @@ Contributions such as code or documentation are very welcomed! Here is an overvi
 
 For larger changes, it is recommended to open an issue first to better explain the purpose of the pull request.
 
+## Trivia
+
+[Microsoft Excel incorrectly considers 1900 as leap year](https://learn.microsoft.com/en-us/troubleshoot/microsoft-365-apps/excel/wrongly-assumes-1900-is-leap-year). For example, the difference between the dates 1-Jan-2000 and 1-Jan-1900 are off by one day. This bug was subsequently preserved for compatibility and codified in the ISO/IEC 29500:2008 standard.
+
 ## Alternatives
 
 Julia packages:
@@ -196,6 +202,7 @@ Outside of the julia ecosystem:
 * [cftime](https://unidata.github.io/cftime/) for python
 * [CFtime](https://CRAN.R-project.org/package=CFtime) for R
 * [cftime-rs](https://github.com/antscloud/cftime-rs) for rust with python bindings
+
 
 ## Acknowledgments
 

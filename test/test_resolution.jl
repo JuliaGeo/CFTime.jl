@@ -65,6 +65,7 @@ p = CFTime.Period(1, :second)
 @test ismissing(p == missing)
 @test ismissing(missing == p)
 @test ismissing(DateTimeStandard(2000, 1, 1) + missing)
+@test ismissing(DateTimeStandard(2000, 1, 1) - missing)
 @test ismissing(missing + DateTimeStandard(2000, 1, 1))
 
 # arithmetic
@@ -77,6 +78,14 @@ p2 = CFTime.Period(10, :microsecond)
 p1 = CFTime.Period(1, :microsecond)
 p2 = CFTime.Period(10, :nanosecond)
 @test p1 + p2 == CFTime.Period(1010, :nanosecond)
+
+
+Δt = DateTimeStandard(Int64, 2000, 1, 2) - DateTimeStandard(Int64, 2000, 1, 1)
+@test Dates.value(typemax(typeof(Δt))) == typemax(Int64)
+@test Dates.value(typemax(Δt)) == typemax(Int64)
+
+@test Dates.value(typemin(typeof(Δt))) == typemin(Int64)
+@test Dates.value(typemin(Δt)) == typemin(Int64)
 
 # show and string
 p1 = CFTime.Period(1, :second)

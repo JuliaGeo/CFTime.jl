@@ -219,3 +219,26 @@ dt = DateTimeStandard(2021, 5, 7, 5, 4, 17, 9, 933)
 
 dt = DateTimeStandard(2021, 5, 7, 5, 4, 17, 9, 933)
 @test_throws InexactError convert(DateTime, dt)
+
+# issue #60
+
+@test sign(CFTime.Picosecond(-7)) == -1
+@test signbit(CFTime.Picosecond(-7)) == true
+@test abs(CFTime.Picosecond(-7)) == abs(CFTime.Picosecond(7))
+
+@test rem(CFTime.Picosecond(7), CFTime.Picosecond(3)) == CFTime.Picosecond(1)
+@test CFTime.Picosecond(7) % CFTime.Picosecond(3) == CFTime.Picosecond(1)
+
+@test lcm(CFTime.Picosecond(3), CFTime.Picosecond(4)) == CFTime.Picosecond(12)
+@test lcm(CFTime.Picosecond(3), Dates.Microsecond(4)) == CFTime.Picosecond(12_000_000)
+@test lcm(CFTime.Picosecond(3), CFTime.Femtosecond(4)) == CFTime.Femtosecond(3000)
+
+@test gcd(CFTime.Picosecond(12), CFTime.Picosecond(28)) == CFTime.Picosecond(4)
+
+a, b = CFTime.Picosecond(12), CFTime.Picosecond(28)
+(d, u, v) = gcdx(a, b)
+@test u * a + v * b == d
+
+a, b = CFTime.Picosecond(12), Dates.Microsecond(28)
+(d, u, v) = gcdx(a, b)
+@test u * a + v * b == d

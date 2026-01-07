@@ -1,4 +1,6 @@
 using CFTime
+using Test
+using Dates
 
 # check adding durations
 
@@ -16,13 +18,33 @@ dt = DateTimeNoLeap(1959, 12, 31, 23, 39, 59, 123)
 @test dt - Dates.Month(24) == DateTimeNoLeap(1957, 12, 31, 23, 39, 59, 123)
 @test dt - Dates.Year(7) == DateTimeNoLeap(1952, 12, 31, 23, 39, 59, 123)
 
+
+# difference between time instances
+@test DateTimeStandard(2000, 1, 2) - DateTimeStandard(2000, 1, 1) == Dates.Day(1)
+
+@test DateTimeStandard(2000, 1, 2) - DateTimeStandard(2000, 1, 1, units = :day) == Dates.Day(1)
+
+
+@test DateTimeStandard(2000, 1, 2) - DateTime(2000, 1, 1) == Dates.Day(1)
+@test DateTime(2000, 1, 2) - DateTimeStandard(2000, 1, 1) == Dates.Day(1)
+
+@test DateTimeStandard(2000, 1, 2) - Date(2000, 1, 1) == Dates.Day(1)
+@test Date(2000, 1, 2) - DateTimeStandard(2000, 1, 1) == Dates.Day(1)
+
+@test (
+    DateTimeStandard(2000, 1, 2) -
+        DateTimeStandard(2000, 1, 1, origin = (1970, 1, 1))
+) == Dates.Day(1)
+
+@test CFTime.units(DateTimeStandard(2000, 1, 1, units = :day, origin = (1970, 1, 1))) == "days since 1970-01-01"
+
 # check ordering
 
-@test DateTimeStandard(2000, 01, 01) < DateTimeStandard(2000, 01, 02)
-@test DateTimeStandard(2000, 01, 01) ≤ DateTimeStandard(2000, 01, 01)
+@test DateTimeStandard(2000, 1, 1) < DateTimeStandard(2000, 1, 2)
+@test DateTimeStandard(2000, 1, 1) ≤ DateTimeStandard(2000, 1, 1)
 
-@test DateTimeStandard(2000, 01, 03) > DateTimeStandard(2000, 01, 02)
-@test DateTimeStandard(2000, 01, 03) ≥ DateTimeStandard(2000, 01, 01)
+@test DateTimeStandard(2000, 1, 03) > DateTimeStandard(2000, 1, 2)
+@test DateTimeStandard(2000, 1, 03) ≥ DateTimeStandard(2000, 1, 1)
 
 # issue #55
 
@@ -35,3 +57,8 @@ D = dt1 - dt0
 @test D ÷ CFTime.Picosecond(1) == 24 * 60 * 60 * 10^12
 @test D / CFTime.Picosecond(1) ≈ 24 * 60 * 60 * 10^12
 @test D / (24 * 60 * 60) == Dates.Second(1)
+
+# issue #58
+
+@test CFTime.Picosecond(1) * 2 == CFTime.Picosecond(2)
+@test 2 * CFTime.Picosecond(1) == CFTime.Picosecond(2)

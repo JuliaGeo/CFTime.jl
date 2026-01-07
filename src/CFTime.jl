@@ -19,7 +19,7 @@ module CFTime
 
 using Printf
 import Dates
-import Dates: UTInstant, Millisecond, DateTime, DateFormat
+import Dates: UTInstant, Millisecond, DateTime, Date, DateFormat
 import Dates:
     year,
     month,
@@ -50,9 +50,12 @@ import Dates:
     len,
     monthday,
     yearmonth,
-    yearmonthday
+    yearmonthday,
+    value
 
-import Base: +, -, *, /, div, isless, string, show, convert, reinterpret, ==,
+import Base: +, -, *, /, div, rem, lcm, gcd, gcdx, isless,
+    abs, sign, signbit,
+    string, show, convert, reinterpret, ==,
     promote_rule, floor, mod, round, typemax, typemin
 
 include("constants.jl")
