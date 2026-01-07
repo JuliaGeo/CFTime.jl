@@ -8,7 +8,7 @@
 # data is downloaded automatically.
 #
 # This example can also be downloaded as a Julia source file
-# [example_CMIP6.jl](https://github.com/JuliaGeo/CFTime.jl/blob/master/examples/example_CMIP6.jl).
+# [example_CMIP6.jl](https://github.com/JuliaGeo/CFTime.jl/blob/main/examples/example_CMIP6.jl).
 
 using NCDatasets, CFTime, Dates, Statistics
 using Downloads: download
