@@ -242,3 +242,11 @@ a, b = CFTime.Picosecond(12), CFTime.Picosecond(28)
 a, b = CFTime.Picosecond(12), Dates.Microsecond(28)
 (d, u, v) = gcdx(a, b)
 @test u * a + v * b == d
+
+
+#  issue #66
+
+units = "nanoseconds since 2025-06-26T00:00:00.000001"
+cal = "proleptic_gregorian"
+date = timedecode(1, units, cal)
+@test date == timedecode(timeencode(date, units), units, cal)

@@ -431,7 +431,7 @@ function timeencode(
             error("It is not possible to convert from $(DT) to $(DT2)")
         end
 
-        return Dates.value(tmp - t0) / plength
+        return ((tmp - t0) / Dates.Millisecond(1)) / plength
     end
     return encode.(data)
 end
