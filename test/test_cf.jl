@@ -170,4 +170,10 @@ end
 
     t = CFTime.timedecode(1.0e9, "nanoseconds since 2000-01-01 00:00:00.001", "proleptic_gregorian")
     @test CFTime.second(t) == 1
+
+    t = CFTime.timedecode(1, "nanoseconds since 2000-01-01 00:00:00.001", "proleptic_gregorian")
+    @test typeof(timeencode(t, "nanoseconds since 2000-01-01T00:00:00.001", "proleptic_gregorian")) == Int
+
+     t = CFTime.timedecode(1.0, "nanoseconds since 2000-01-01 00:00:00.001", "proleptic_gregorian")
+    @test typeof(timeencode(t, "nanoseconds since 2000-01-01T00:00:00.001", "proleptic_gregorian")) == Float64
 end

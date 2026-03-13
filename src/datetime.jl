@@ -285,6 +285,8 @@ function units(dt::AbstractCFDateTime{T, Torigintuple}) where {T, Torigintuple}
         format_datetuple(unwrap(Torigintuple))
     )
 end
+units(::DateTime) = nothing
+units(::Missing) = nothing
 
 +(dt::AbstractCFDateTime, p::Union{Dates.TimePeriod, Dates.Day}) = dt + convert(CFTime.Period, p)
 
