@@ -414,7 +414,7 @@ CFTime.timeencode(dt,"days since 2000-01-01 00:00:00")
 function timeencode(
         data::AbstractArray{DT, N}, units,
         calendar = "standard"
-    ) where {N} where {DT <: Union{DateTime, AbstractCFDateTime, Union{DateTime, AbstractCFDateTime, Missing}}}
+    ) where {N} where {DT <: Union{DateTime, AbstractCFDateTime, Missing}}
 
     DT2 = timetype(calendar)
     t0, plength = timeunits(DT2, units)
