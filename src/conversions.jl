@@ -424,14 +424,7 @@ function timeencode(
             return missing
         end
 
-        tmp =
-        try
-            convert.(DT2, dt)
-        catch
-            error("It is not possible to convert from $(DT) to $(DT2)")
-        end
-
-        return ((tmp - t0) / Dates.Millisecond(1)) / plength
+        return ((dt - t0) / Dates.Millisecond(1)) / plength
     end
     return encode.(data)
 end
