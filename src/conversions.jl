@@ -300,15 +300,17 @@ _better_than_Float32(data) = data
 
 
 function timedecode(::Type{DT}, data, units) where {DT <: AbstractCFDateTime}
-    _convert(DTP, DDT, x) = DTP(DDT(x))
-    _convert(DTP, DDT, x::Missing) = missing
+    function _convert(x, t0, Δt)
+        DDT = typeof(Δt)
+        DTP = typeof(t0)
+        return DTP(DDT(x))
+    end
+    _convert(x::Missing, t0, Δt) = missing
 
     T = nonmissingtype(eltype(data))
-    origintuple, Δt = _timeunits(Tuple, units, T)
-    DDT = typeof(Δt)
-    DTP = DT{DDT, Val(chop0(origintuple, 3))}
+    t0, Δt = _timeunits(DT, units, T)
 
-    return @. _convert(DTP, DDT, _better_than_Float32(data))
+    return _convert.(_better_than_Float32.(data), Ref(t0), Ref(Δt))
 end
 
 
