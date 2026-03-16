@@ -211,26 +211,27 @@ function timeunits(::Type{DT}, units) where {DT}
 end
 
 function _timeunits(::Type{DT}, units, T = Int64) where {DT}
-    tunit_mixedcase, starttime = strip.(split(units, " since "))
-    tunit = lowercase(tunit_mixedcase)
+    tunits_mixedcase, starttime = strip.(split(units, " since "))
+    tunits = lowercase(tunits_mixedcase)
+    tunit = rstrip(tunits,'s') # singular
 
     found = false
 
     # make sure that plength is 64-bit on 32-bit platforms
     # plength is duration is *milliseconds*
-    if (tunit == "years") || (tunit == "year")
+    if tunit == "year"
         # SOLAR_YEAR is in ms
         factor = SOLAR_YEAR
         exponent = -3
         found = true
-    elseif (tunit == "months") || (tunit == "month")
+    elseif tunit == "month"
         factor = SOLAR_YEAR ÷ 12
         exponent = -3
         found = true
     else
         for i in eachindex(TIME_DIVISION)
             (name, factor, exponent) = TIME_DIVISION[i]
-            if tunit == string(name, "s") || (tunit == string(name))
+            if tunit == string(name)
                 found = true
                 break
             end
@@ -238,16 +239,19 @@ function _timeunits(::Type{DT}, units, T = Int64) where {DT}
     end
 
     if !found
-        error("unknown units \"$(tunit)\"")
+        error("unknown units \"$(tunits_mixedcase)\"")
     end
 
     if DT <: DateTime || DT <: Tuple
         t0 = parseDT(DT, starttime)
     else
-        t0 = DT(Period(T(0),rstrip(tunit,'s')), parseDT(Tuple,starttime))
+        z = Period{T,Val(factor),Val(exponent)}(zero(T))
+        t0 = DT(z, parseDT(Tuple,starttime))
     end
 
-    return (t0,factor,exponent)
+    Δt = Period{T,Val(factor),Val(exponent)}(one(T))
+
+    return (t0,factor,exponent,Δt)
 end
 
 
@@ -433,15 +437,13 @@ function timeencode(
     ) where {N} where {DT <: Union{DateTime, AbstractCFDateTime, Missing}}
 
     DT2 = timetype(calendar)
-    t0, plength = timeunits(DT2, units)
+    t0, factor, exponent, Δt = _timeunits(DT2, units)
 
+    encode(dt::Missing) = missing
     function encode(dt)
-        if ismissing(dt)
-            return missing
-        end
-
-        return ((dt - t0) / Dates.Millisecond(1)) / plength
+        return (dt - t0) / Δt
     end
+
     return encode.(data)
 end
 
