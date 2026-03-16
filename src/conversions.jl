@@ -197,7 +197,7 @@ end
 
 # deprecated, but exported
 function timeunits(::Type{DT}, units) where {DT}
-    t0, factor, exponent = _timeunits(DT, units)
+    t0, factor, exponent = _timeunits(DT, units, Int64)
 
     exponent = exponent + 3
 
@@ -300,7 +300,7 @@ function timedecode(::Type{DT}, data, units) where {DT <: AbstractCFDateTime}
     _convert(DTP, DDT, x::Missing) = missing
 
     T = nonmissingtype(eltype(data))
-    origintuple, factor, exponent = _timeunits(Tuple, units)
+    origintuple, factor, exponent = _timeunits(Tuple, units, T)
     DDT = Period{T, Val(factor), Val(exponent)}
     DTP = DT{DDT, Val(chop0(origintuple, 3))}
 
