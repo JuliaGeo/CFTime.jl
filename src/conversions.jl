@@ -210,28 +210,44 @@ function timeunits(::Type{DT}, units) where {DT}
     return t0, plength
 end
 
-function _timeunits(::Type{DT}, units) where {DT}
+function _timeunits(::Type{DT}, units, T = Int64) where {DT}
     tunit_mixedcase, starttime = strip.(split(units, " since "))
     tunit = lowercase(tunit_mixedcase)
 
-    t0 = parseDT(DT, starttime)
+    found = false
 
     # make sure that plength is 64-bit on 32-bit platforms
     # plength is duration is *milliseconds*
     if (tunit == "years") || (tunit == "year")
         # SOLAR_YEAR is in ms
-        return t0, SOLAR_YEAR, -3
+        factor = SOLAR_YEAR
+        exponent = -3
+        found = true
     elseif (tunit == "months") || (tunit == "month")
-        return t0, SOLAR_YEAR ÷ 12, -3
+        factor = SOLAR_YEAR ÷ 12
+        exponent = -3
+        found = true
     else
-        for (name, factor, exponent) in TIME_DIVISION
+        for i in eachindex(TIME_DIVISION)
+            (name, factor, exponent) = TIME_DIVISION[i]
             if tunit == string(name, "s") || (tunit == string(name))
-                return t0, factor, exponent
+                found = true
+                break
             end
         end
     end
 
-    error("unknown units \"$(tunit)\"")
+    if !found
+        error("unknown units \"$(tunit)\"")
+    end
+
+    if DT <: DateTime || DT <: Tuple
+        t0 = parseDT(DT, starttime)
+    else
+        t0 = DT(Period(T(0),rstrip(tunit,'s')), parseDT(Tuple,starttime))
+    end
+
+    return (t0,factor,exponent)
 end
 
 
