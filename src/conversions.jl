@@ -451,7 +451,20 @@ function timeencode(
     ) where DT <: Union{DateTime, AbstractCFDateTime, Missing}
 
     DT2 = timetype(calendar)
-    t0, Δt = _timeunits(DT2, units, Int64)
+    T = Int64 # use type promotion?
+    t0, Δt = _timeunits(DT2, units, T)
+
+    return _timeencode.(data, Ref(t0), Ref(Δt))
+end
+
+# homogenous array should preserve the type of the underlying duration
+function timeencode(
+        data::AbstractArray{DT}, units,
+        calendar = "standard"
+    ) where DT <: AbstractCFDateTime{TPeriod} where TPeriod <: Period{T} where T
+
+    DT2 = timetype(calendar)
+    t0, Δt = _timeunits(DT2, units, T)
 
     return _timeencode.(data, Ref(t0), Ref(Δt))
 end
