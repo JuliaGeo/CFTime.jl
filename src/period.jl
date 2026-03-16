@@ -114,7 +114,7 @@ end
 Return a tuple with the number of whole days, hours (`h`), minutes (`mi`),
 seconds (`s`) and millisecods (`ms`),... from the time period `t`.
 """
-function timetuplefrac(t::Period{T, Tfactor}) where {T, Tfactor}
+function timetuplefrac(t::Period{T}) where T
     # for integers
     factor = _factor(t)
     exponent = _exponent(t)
