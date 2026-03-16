@@ -400,6 +400,16 @@ function timedecode(data, units, calendar = "standard"; prefer_datetime = true)
 end
 
 
+
+_timeencode(dt::Missing, t0, Δt) = missing
+# fast pass, prevent type promotion in division
+function _timeencode(dt::DT2, t0::DT2, Δt::Tperiod) where DT2 <: AbstractCFDateTime{Tperiod} where Tperiod
+    return Dates.value(dt)
+end
+function _timeencode(dt, t0, Δt)
+    return (dt - t0) / Δt
+end
+
 """
     data = timeencode(dt,units,calendar = "standard")
 
@@ -439,12 +449,7 @@ function timeencode(
     DT2 = timetype(calendar)
     t0, factor, exponent, Δt = _timeunits(DT2, units)
 
-    encode(dt::Missing) = missing
-    function encode(dt)
-        return (dt - t0) / Δt
-    end
-
-    return encode.(data)
+    return _timeencode.(data, Ref(t0), Ref(Δt))
 end
 
 
