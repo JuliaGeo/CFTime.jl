@@ -1,5 +1,6 @@
 using CFTime
-
+using Test
+using Dates
 
 # time units
 @testset "CF time units" begin
@@ -168,6 +169,13 @@ end
     t = CFTime.timedecode(1.0e9, "nanoseconds since 2000-01-01 00:00:00.001", "proleptic_gregorian", prefer_datetime = false)
     @test CFTime.second(t) == 1
 
+
+    # see
+    # https://github.com/JuliaGeo/CFTime.jl/pull/68/changes#diff-319f6895319eb78578eb8091872ce5a2188ab92504cc10cc987b34978bf1a8db
+
     t = CFTime.timedecode(1.0e9, "nanoseconds since 2000-01-01 00:00:00.001", "proleptic_gregorian")
     @test CFTime.second(t) == 1
+
+    t = CFTime.timedecode(1.0, "nanoseconds since 2000-01-01 00:00:00.001", "proleptic_gregorian")
+    @test typeof(timeencode(t, "nanoseconds since 2000-01-01T00:00:00.001", "proleptic_gregorian")) == Float64
 end
