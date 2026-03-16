@@ -197,7 +197,9 @@ end
 
 # deprecated, but exported
 function timeunits(::Type{DT}, units) where {DT}
-    t0, factor, exponent = _timeunits(DT, units, Int64)
+    t0, Δt = _timeunits(DT, units, Int64)
+    factor = _factor(Δt)
+    exponent = _exponent(Δt)
 
     exponent = exponent + 3
 
@@ -246,12 +248,14 @@ function _timeunits(::Type{DT}, units, T = Int64) where {DT}
         t0 = parseDT(DT, starttime)
     else
         z = Period{T,Val(factor),Val(exponent)}(zero(T))
-        t0 = DT(z, parseDT(Tuple,starttime))
+        origintuple = parseDT(Tuple,starttime)
+        origintuple3 = chop0(origintuple, 3)
+        t0 = DT(z, origintuple3)
     end
 
     Δt = Period{T,Val(factor),Val(exponent)}(one(T))
 
-    return (t0,factor,exponent,Δt)
+    return (t0,Δt)
 end
 
 
@@ -300,8 +304,8 @@ function timedecode(::Type{DT}, data, units) where {DT <: AbstractCFDateTime}
     _convert(DTP, DDT, x::Missing) = missing
 
     T = nonmissingtype(eltype(data))
-    origintuple, factor, exponent = _timeunits(Tuple, units, T)
-    DDT = Period{T, Val(factor), Val(exponent)}
+    origintuple, Δt = _timeunits(Tuple, units, T)
+    DDT = typeof(Δt)
     DTP = DT{DDT, Val(chop0(origintuple, 3))}
 
     return @. _convert(DTP, DDT, _better_than_Float32(data))
@@ -446,8 +450,9 @@ function timeencode(
         calendar = "standard"
     ) where {N} where {DT <: Union{DateTime, AbstractCFDateTime, Missing}}
 
+
     DT2 = timetype(calendar)
-    t0, factor, exponent, Δt = _timeunits(DT2, units)
+    t0, Δt = _timeunits(DT2, units, Int64)
 
     return _timeencode.(data, Ref(t0), Ref(Δt))
 end
