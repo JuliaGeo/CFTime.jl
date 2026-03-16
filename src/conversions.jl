@@ -215,7 +215,7 @@ end
 function _timeunits(::Type{DT}, units, T = Int64) where {DT}
     tunits_mixedcase, starttime = strip.(split(units, " since "))
     tunits = lowercase(tunits_mixedcase)
-    tunit = rstrip(tunits,'s') # singular
+    tunit = rstrip(tunits, 's') # singular
 
     found = false
 
@@ -247,15 +247,15 @@ function _timeunits(::Type{DT}, units, T = Int64) where {DT}
     if DT <: DateTime || DT <: Tuple
         t0 = parseDT(DT, starttime)
     else
-        z = Period{T,Val(factor),Val(exponent)}(zero(T))
-        origintuple = parseDT(Tuple,starttime)
+        z = Period{T, Val(factor), Val(exponent)}(zero(T))
+        origintuple = parseDT(Tuple, starttime)
         origintuple3 = chop0(origintuple, 3)
         t0 = DT(z, origintuple3)
     end
 
-    Δt = Period{T,Val(factor),Val(exponent)}(one(T))
+    Δt = Period{T, Val(factor), Val(exponent)}(one(T))
 
-    return (t0,Δt)
+    return (t0, Δt)
 end
 
 
@@ -406,10 +406,9 @@ function timedecode(data, units, calendar = "standard"; prefer_datetime = true)
 end
 
 
-
 _timeencode(dt::Missing, t0, Δt) = missing
 # fast pass, prevent type promotion in division
-function _timeencode(dt::DT2, t0::DT2, Δt::Tperiod) where DT2 <: AbstractCFDateTime{Tperiod} where Tperiod
+function _timeencode(dt::DT2, t0::DT2, Δt::Tperiod) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod}
     return Dates.value(dt)
 end
 function _timeencode(dt, t0, Δt)
@@ -450,7 +449,7 @@ CFTime.timeencode(dt,"days since 2000-01-01 00:00:00")
 function timeencode(
         data::AbstractArray{DT}, units,
         calendar = "standard"
-    ) where DT <: Union{DateTime, AbstractCFDateTime, Missing}
+    ) where {DT <: Union{DateTime, AbstractCFDateTime, Missing}}
 
     DT2 = timetype(calendar)
     T = Int64 # use type promotion?
@@ -463,7 +462,7 @@ end
 function timeencode(
         data::AbstractArray{DT}, units,
         calendar = "standard"
-    ) where DT <: AbstractCFDateTime{TPeriod} where TPeriod <: Period{T} where T
+    ) where {DT <: AbstractCFDateTime{TPeriod}} where {TPeriod <: Period{T}} where {T}
 
     DT2 = timetype(calendar)
     t0, Δt = _timeunits(DT2, units, T)
@@ -475,7 +474,7 @@ end
 function timeencode(
         data::DT, units,
         calendar = "standard"
-    ) where DT <: Union{DateTime, AbstractCFDateTime}
+    ) where {DT <: Union{DateTime, AbstractCFDateTime}}
     return timeencode([data], units, calendar)[1]
 end
 

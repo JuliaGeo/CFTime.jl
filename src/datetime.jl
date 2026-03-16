@@ -143,7 +143,7 @@ for (CFDateTime, calendar) in [
             return DT{T, Torigin}(args...)
         end
 
-        function $CFDateTime(t::T, units::AbstractString) where T <: Number
+        function $CFDateTime(t::T, units::AbstractString) where {T <: Number}
             DT = $CFDateTime
             t0, Δt = _timeunits(DT, units, T)
             # essentially t0 + t * Δt
