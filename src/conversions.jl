@@ -294,14 +294,14 @@ function timeunits(units, calendar = "standard")
     return timeunits(DT, units)
 end
 
-function parseunits(units::AbstractString,::Type{DT},T::Type{<:Number} = Int64) where {DT <: Union{DateTime,AbstractCFDateTime}}
+function parseunits(units::AbstractString, ::Type{DT}, T::Type{<:Number} = Int64) where {DT <: Union{DateTime, AbstractCFDateTime}}
     t0, Δt = _timeunits(DT, units, T)
     return (t0, Δt)
 end
 
-function parseunits(units::AbstractString,calendar::AbstractString = "standard",T::Type{<:Number} = Int64)
+function parseunits(units::AbstractString, calendar::AbstractString = "standard", T::Type{<:Number} = Int64)
     DT = timetype(calendar)
-    return parseunits(units,DT,T)
+    return parseunits(units, DT, T)
 end
 
 
@@ -322,8 +322,8 @@ _timedecode(x::Missing, t0::DateTime, Δt) = missing
 
 function _timedecode(x_, t0::DateTime, Δt)
     x = _better_than_Float32(x_)
-    plength = Dates.value(round(Δt,Dates.Millisecond))
-    return t0 + Dates.Millisecond(round(Int64,plength * x))
+    plength = Dates.value(round(Δt, Dates.Millisecond))
+    return t0 + Dates.Millisecond(round(Int64, plength * x))
 end
 
 
@@ -467,22 +467,22 @@ function timeencode(
         calendar = "standard"
     ) where {DT <: Union{DateTime, AbstractCFDateTime, Missing}}
     T = Int64 # use type promotion?
-    (t0, Δt) = parseunits(units,calendar,T)
+    (t0, Δt) = parseunits(units, calendar, T)
     return _timeencode.(data, t0, Δt)
 end
 
 # homogenous array should preserve the type of the underlying duration
 function timeencode(
-        data::Union{DT,AbstractArray{DT}}, units,
+        data::Union{DT, AbstractArray{DT}}, units,
         calendar = "standard"
     ) where {DT <: AbstractCFDateTime{TPeriod}} where {TPeriod <: Period{T}} where {T}
-    (t0, Δt) = parseunits(units,calendar,T)
+    (t0, Δt) = parseunits(units, calendar, T)
     return _timeencode.(data, t0, Δt)
 end
 
 
 function timeencode(data::DateTime, units, calendar = "standard")
-    (t0, Δt) = parseunits(units,calendar,Int64)
+    (t0, Δt) = parseunits(units, calendar, Int64)
     return _timeencode.(data, t0, Δt)
 end
 

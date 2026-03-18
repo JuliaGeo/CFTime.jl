@@ -39,12 +39,12 @@ for DT in (DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian, DateTim
     end
 end
 
-p1 = CFTime.Period(2,:day) + CFTime.Period(1,:second)
-p2 = Dates.Second(2*24*60*60) + Dates.Second(1)
+p1 = CFTime.Period(2, :day) + CFTime.Period(1, :second)
+p2 = Dates.Second(2 * 24 * 60 * 60) + Dates.Second(1)
 
 
 for p in (p1, p2)
-    for pre in (CFTime.Period(1,:day), Dates.Day(1))
+    for pre in (CFTime.Period(1, :day), Dates.Day(1))
         for precision in (pre, typeof(pre))
             @test floor(p, precision) == Dates.Day(2)
             @test round(p, precision) == Dates.Day(2)
@@ -53,5 +53,5 @@ for p in (p1, p2)
     end
 end
 
-Δt = CFTime.Period(2,:day)
-@test typeof(round(Δt,Dates.Millisecond)) == Dates.Millisecond
+Δt = CFTime.Period(2, :day)
+@test typeof(round(Δt, Dates.Millisecond)) == Dates.Millisecond

@@ -63,17 +63,17 @@ function Base.floor(dt::AbstractCFDateTime, p::Dates.TimePeriod)
     return floor(dt, convert(Period, p))
 end
 
-function _floor(p, precision::TP) where TP
-    return TP(p - mod(p,precision))
+function _floor(p, precision::TP) where {TP}
+    return TP(p - mod(p, precision))
 end
 
 function _ceil(p, precision)
-    f = floor(p,precision)
+    f = floor(p, precision)
     return (f == p ? f : f + precision)
 end
 
 
-function _round(p, precision,::RoundingMode{:NearestTiesUp})
+function _round(p, precision, ::RoundingMode{:NearestTiesUp})
     f = floor(p, precision)
     c = ceil(p, precision)
     if p - f < c - p
@@ -83,41 +83,41 @@ function _round(p, precision,::RoundingMode{:NearestTiesUp})
     end
 end
 
-_round(p, precision) = _round(p, precision,RoundNearestTiesUp)
+_round(p, precision) = _round(p, precision, RoundNearestTiesUp)
 
 # fix ambiguities and avoid type-piracy
 
 for fun in (:ceil, :floor, :round)
-    _fun = Symbol(string('_',fun))
+    _fun = Symbol(string('_', fun))
     @eval begin
-        Base.$fun(p::Period, precision::Union{Period,Dates.Period}) = $_fun(p,precision)
-        Base.$fun(p::Union{Period,Dates.Period}, precision::Period) = $_fun(p,precision)
-        Base.$fun(p::Period, precision::Period) = $_fun(p,precision)
+        Base.$fun(p::Period, precision::Union{Period, Dates.Period}) = $_fun(p, precision)
+        Base.$fun(p::Union{Period, Dates.Period}, precision::Period) = $_fun(p, precision)
+        Base.$fun(p::Period, precision::Period) = $_fun(p, precision)
 
 
-        Base.$fun(p::Period, precision::Type{T}) where T <: Union{Period,Dates.Period} = $_fun(p,precision)
-        Base.$fun(p::Union{Period,Dates.Period}, precision::Type{T}) where T <: Period = $_fun(p,precision)
-        Base.$fun(p::Period, precision::Type{T}) where T <: Period = $_fun(p,precision)
+        Base.$fun(p::Period, precision::Type{T}) where {T <: Union{Period, Dates.Period}} = $_fun(p, precision)
+        Base.$fun(p::Union{Period, Dates.Period}, precision::Type{T}) where {T <: Period} = $_fun(p, precision)
+        Base.$fun(p::Period, precision::Type{T}) where {T <: Period} = $_fun(p, precision)
     end
 end
 
-for fun in (:ceil,:floor, :round)
-    _fun = Symbol(string('_',fun))
+for fun in (:ceil, :floor, :round)
+    _fun = Symbol(string('_', fun))
     @eval begin
-        function $_fun(p::Union{Period, Dates.Period}, ::Type{T}) where T <: Union{Period, Dates.Period}
-            return $_fun(p,oneunit(T))
+        function $_fun(p::Union{Period, Dates.Period}, ::Type{T}) where {T <: Union{Period, Dates.Period}}
+            return $_fun(p, oneunit(T))
         end
     end
 end
 
-function Base.round(p::Union{Period,Dates.Period}, precision::Period,r::RoundingMode{:NearestTiesUp})
-    _round(p,precision,r)
+function Base.round(p::Union{Period, Dates.Period}, precision::Period, r::RoundingMode{:NearestTiesUp})
+    return _round(p, precision, r)
 end
 
-function Base.round(p::Period, precision::Union{Period,Dates.Period},r::RoundingMode{:NearestTiesUp})
-    _round(p,precision,r)
+function Base.round(p::Period, precision::Union{Period, Dates.Period}, r::RoundingMode{:NearestTiesUp})
+    return _round(p, precision, r)
 end
 
-function Base.round(p::Period, precision::Period,r::RoundingMode{:NearestTiesUp})
-    _round(p,precision,r)
+function Base.round(p::Period, precision::Period, r::RoundingMode{:NearestTiesUp})
+    return _round(p, precision, r)
 end
