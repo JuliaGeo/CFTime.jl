@@ -157,7 +157,7 @@ end
 
     t = CFTime.timedecode(0, "seconds since 2000-01-01", "proleptic_gregorian", prefer_datetime = true)
     @test typeof(t) <: DateTime
-    @test CFTime.datetuple(t)[1:3] == (2000, 1, 1)
+    @test Dates.yearmonthday(t) == (2000, 1, 1)
 
     t = CFTime.timedecode(1, "microseconds since 2000-01-01 00:00:00.000001", "proleptic_gregorian", prefer_datetime = false)
     @test CFTime.datetuple(t)[8] == 2
