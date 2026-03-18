@@ -143,11 +143,13 @@ for (CFDateTime, calendar) in [
             return DT{T, Torigin}(args...)
         end
 
-        function $CFDateTime(t::Union{Number, Tuple}, units::AbstractString)
-            origintuple, factor, exponent = _timeunits(Tuple, units)
-            instant = Period(t, factor, exponent)
-            origintuple3 = chop0(origintuple, 3)
-            return dt = $CFDateTime{typeof(instant), Val(origintuple3)}(instant)
+        function $CFDateTime(t::T, units::AbstractString) where {T <: Number}
+            DT = $CFDateTime
+            t0, Δt = _timeunits(DT, units, T)
+            # essentially t0 + t * Δt
+            duration = typeof(Δt)(t)
+            dt = typeof(t0)(duration)
+            return dt
         end
 
         # @inline is important for type-stability

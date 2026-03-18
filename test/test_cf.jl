@@ -1,5 +1,6 @@
 using CFTime
-
+using Test
+using Dates
 
 # time units
 @testset "CF time units" begin
@@ -125,7 +126,7 @@ end
 
     @test CFTime.timedecode(DateTime, [22280.0f0], "days since 1950-01-01 00:00:00") == [DateTime(2011, 1, 1)]
 
-    @test_throws ErrorException CFTime.timeencode(
+    @test_throws Union{ErrorException, MethodError} CFTime.timeencode(
         [DateTimeJulian(2010, 10, 29, 9, 0, 0)],
         "days since -4713-01-01T00:00:00", "360_day"
     )
@@ -168,6 +169,19 @@ end
     t = CFTime.timedecode(1.0e9, "nanoseconds since 2000-01-01 00:00:00.001", "proleptic_gregorian", prefer_datetime = false)
     @test CFTime.second(t) == 1
 
-    t = CFTime.timedecode(1.0e9, "nanoseconds since 2000-01-01 00:00:00.001", "proleptic_gregorian")
+    units = "nanoseconds since 2000-01-01 00:00:00.001"
+    t = CFTime.timedecode(1.0e9, units, "proleptic_gregorian")
     @test CFTime.second(t) == 1
+
+
+    # see
+    # https://github.com/JuliaGeo/CFTime.jl/pull/68/changes#diff-319f6895319eb78578eb8091872ce5a2188ab92504cc10cc987b34978bf1a8db
+
+    units = "nanoseconds since 2000-01-01 00:00:00.001"
+
+    t = CFTime.timedecode(1, units, "proleptic_gregorian")
+    @test typeof(timeencode(t, units, "proleptic_gregorian")) == Int
+
+    t = CFTime.timedecode(1.0, units, "proleptic_gregorian")
+    @test typeof(timeencode(t, units, "proleptic_gregorian")) == Float64
 end

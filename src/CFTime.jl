@@ -55,8 +55,8 @@ import Dates:
 
 import Base: +, -, *, /, div, rem, lcm, gcd, gcdx, isless,
     abs, sign, signbit,
-    string, show, convert, reinterpret, ==,
-    promote_rule, floor, mod, round, typemax, typemin
+    string, print, show, convert, reinterpret, ==,
+    promote_rule, floor, ceil, mod, round, typemax, typemin
 
 include("constants.jl")
 include("types.jl")

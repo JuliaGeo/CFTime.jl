@@ -197,7 +197,9 @@ end
 
 # deprecated, but exported
 function timeunits(::Type{DT}, units) where {DT}
-    t0, factor, exponent = _timeunits(DT, units)
+    t0, Δt = _timeunits(DT, units, Int64)
+    factor = _factor(Δt)
+    exponent = _exponent(Δt)
 
     exponent = exponent + 3
 
@@ -210,28 +212,50 @@ function timeunits(::Type{DT}, units) where {DT}
     return t0, plength
 end
 
-function _timeunits(::Type{DT}, units) where {DT}
-    tunit_mixedcase, starttime = strip.(split(units, " since "))
-    tunit = lowercase(tunit_mixedcase)
+function _timeunits(::Type{DT}, units, T = Int64) where {DT}
+    tunits_mixedcase, starttime = strip.(split(units, " since "))
+    tunits = lowercase(tunits_mixedcase)
+    tunit = rstrip(tunits, 's') # singular
 
-    t0 = parseDT(DT, starttime)
+    found = false
 
     # make sure that plength is 64-bit on 32-bit platforms
     # plength is duration is *milliseconds*
-    if (tunit == "years") || (tunit == "year")
+    if tunit == "year"
         # SOLAR_YEAR is in ms
-        return t0, SOLAR_YEAR, -3
-    elseif (tunit == "months") || (tunit == "month")
-        return t0, SOLAR_YEAR ÷ 12, -3
+        factor = SOLAR_YEAR
+        exponent = -3
+        found = true
+    elseif tunit == "month"
+        factor = SOLAR_YEAR ÷ 12
+        exponent = -3
+        found = true
     else
-        for (name, factor, exponent) in TIME_DIVISION
-            if tunit == string(name, "s") || (tunit == string(name))
-                return t0, factor, exponent
+        for i in eachindex(TIME_DIVISION)
+            (name, factor, exponent) = TIME_DIVISION[i]
+            if tunit == string(name)
+                found = true
+                break
             end
         end
     end
 
-    error("unknown units \"$(tunit)\"")
+    if !found
+        error("unknown units \"$(tunits_mixedcase)\"")
+    end
+
+    if DT <: DateTime || DT <: Tuple
+        t0 = parseDT(DT, starttime)
+    else
+        z = Period{T, Val(factor), Val(exponent)}(zero(T))
+        origintuple = parseDT(Tuple, starttime)
+        origintuple3 = chop0(origintuple, 3)
+        t0 = DT(z, origintuple3)
+    end
+
+    Δt = Period{T, Val(factor), Val(exponent)}(one(T))
+
+    return (t0, Δt)
 end
 
 
@@ -270,30 +294,49 @@ function timeunits(units, calendar = "standard")
     return timeunits(DT, units)
 end
 
+function parseunits(units::AbstractString, ::Type{DT}, T::Type{<:Number} = Int64) where {DT <: Union{DateTime, AbstractCFDateTime}}
+    t0, Δt = _timeunits(DT, units, T)
+    return (t0, Δt)
+end
+
+function parseunits(units::AbstractString, calendar::AbstractString = "standard", T::Type{<:Number} = Int64)
+    DT = timetype(calendar)
+    return parseunits(units, DT, T)
+end
+
+
 # convert to Float64
-_better_than_Float32(data::Float32) = Float64.(data)
+_better_than_Float32(data::Float32) = Float64(data)
 _better_than_Float32(data) = data
 
 
+# t0 and Δt must represent the value 0 and 1 respectively
+function _timedecode(x_, t0::AbstractCFDateTime, Δt)
+    x = _better_than_Float32(x_)
+    DDT = typeof(Δt)
+    DTP = typeof(t0)
+    return DTP(DDT(x))
+end
+_timedecode(x::Missing, t0::AbstractCFDateTime, Δt) = missing
+_timedecode(x::Missing, t0::DateTime, Δt) = missing
+
+function _timedecode(x_, t0::DateTime, Δt)
+    x = _better_than_Float32(x_)
+    plength = Dates.value(round(Δt, Dates.Millisecond))
+    return t0 + Dates.Millisecond(round(Int64, plength * x))
+end
+
+
 function timedecode(::Type{DT}, data, units) where {DT <: AbstractCFDateTime}
-    _convert(DTP, DDT, x) = DTP(DDT(x))
-    _convert(DTP, DDT, x::Missing) = missing
-
     T = nonmissingtype(eltype(data))
-    origintuple, factor, exponent = _timeunits(Tuple, units)
-    DDT = Period{T, Val(factor), Val(exponent)}
-    DTP = DT{DDT, Val(chop0(origintuple, 3))}
-
-    return @. _convert(DTP, DDT, _better_than_Float32(data))
+    t0, Δt = _timeunits(DT, units, T)
+    return _timedecode.(data, t0, Δt)
 end
 
 
 function timedecode(::Type{DateTime}, data, units)
-    _convert(x, t0, plength) = t0 + Dates.Millisecond(round(Int64, plength * x))
-    _convert(x::Missing, t0, plength) = missing
-
-    t0, plength = timeunits(DateTime, units)
-    return @. _convert(_better_than_Float32(data), t0, plength)
+    t0, Δt = _timeunits(DateTime, units, Int64)
+    return _timedecode.(data, t0, Δt)
 end
 
 
@@ -379,6 +422,14 @@ function timedecode(data, units, calendar = "standard"; prefer_datetime = true)
     end
 end
 
+_timeencode(dt::Missing, t0, Δt) = missing
+# fast pass, prevent type promotion in division
+function _timeencode(dt::DT2, t0::DT2, Δt::Tperiod) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod}
+    return Dates.value(dt)
+end
+function _timeencode(dt, t0, Δt)
+    return (dt - t0) / Δt
+end
 
 """
     data = timeencode(dt,units,calendar = "standard")
@@ -412,36 +463,27 @@ CFTime.timeencode(dt,"days since 2000-01-01 00:00:00")
 
 """
 function timeencode(
-        data::AbstractArray{DT, N}, units,
+        data::AbstractArray{DT}, units,
         calendar = "standard"
-    ) where {N} where {DT <: Union{DateTime, AbstractCFDateTime, Union{DateTime, AbstractCFDateTime, Missing}}}
+    ) where {DT <: Union{DateTime, AbstractCFDateTime, Missing}}
+    T = Int64 # use type promotion?
+    (t0, Δt) = parseunits(units, calendar, T)
+    return _timeencode.(data, t0, Δt)
+end
 
-    DT2 = timetype(calendar)
-    t0, plength = timeunits(DT2, units)
-
-    function encode(dt)
-        if ismissing(dt)
-            return missing
-        end
-
-        tmp =
-        try
-            convert.(DT2, dt)
-        catch
-            error("It is not possible to convert from $(DT) to $(DT2)")
-        end
-
-        return ((tmp - t0) / Dates.Millisecond(1)) / plength
-    end
-    return encode.(data)
+# homogenous array should preserve the type of the underlying duration
+function timeencode(
+        data::Union{DT, AbstractArray{DT}}, units,
+        calendar = "standard"
+    ) where {DT <: AbstractCFDateTime{TPeriod}} where {TPeriod <: Period{T}} where {T}
+    (t0, Δt) = parseunits(units, calendar, T)
+    return _timeencode.(data, t0, Δt)
 end
 
 
-function timeencode(
-        data::DT, units,
-        calendar = "standard"
-    ) where {DT <: Union{DateTime, AbstractCFDateTime}}
-    return timeencode([data], units, calendar)[1]
+function timeencode(data::DateTime, units, calendar = "standard")
+    (t0, Δt) = parseunits(units, calendar, Int64)
+    return _timeencode.(data, t0, Δt)
 end
 
 
