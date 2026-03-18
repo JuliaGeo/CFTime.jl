@@ -306,12 +306,13 @@ end
 
 
 # convert to Float64
-_better_than_Float32(data::Float32) = Float64.(data)
+_better_than_Float32(data::Float32) = Float64(data)
 _better_than_Float32(data) = data
 
 
 # t0 and Δt must represent the value 0 and 1 respectively
-function _timedecode(x, t0::AbstractCFDateTime, Δt)
+function _timedecode(x_, t0::AbstractCFDateTime, Δt)
+    x = _better_than_Float32(x_)
     DDT = typeof(Δt)
     DTP = typeof(t0)
     return DTP(DDT(x))
@@ -319,29 +320,23 @@ end
 _timedecode(x::Missing, t0::AbstractCFDateTime, Δt) = missing
 _timedecode(x::Missing, t0::DateTime, Δt) = missing
 
-function _timedecode(x, t0::DateTime, Δt)
+function _timedecode(x_, t0::DateTime, Δt)
+    x = _better_than_Float32(x_)
     plength = Dates.value(round(Δt,Dates.Millisecond))
-    return t0 + Dates.Millisecond(plength * x)
+    return t0 + Dates.Millisecond(round(Int64,plength * x))
 end
 
 
 function timedecode(::Type{DT}, data, units) where {DT <: AbstractCFDateTime}
     T = nonmissingtype(eltype(data))
     t0, Δt = _timeunits(DT, units, T)
-
-    return _timedecode.(_better_than_Float32.(data), t0, Δt)
+    return _timedecode.(data, t0, Δt)
 end
 
 
 function timedecode(::Type{DateTime}, data, units)
     t0, Δt = _timeunits(DateTime, units, Int64)
-
-    return _timedecode.(_better_than_Float32.(data), t0, Δt)
-    # _convert(x, t0, plength) = t0 + Dates.Millisecond(round(Int64, plength * x))
-    # _convert(x::Missing, t0, plength) = missing
-
-    # t0, plength = timeunits(DateTime, units)
-    # return @. _convert(_better_than_Float32(data), t0, plength)
+    return _timedecode.(data, t0, Δt)
 end
 
 
