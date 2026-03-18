@@ -267,8 +267,8 @@ for (CFDateTime, calendar) in [
             # time origin
             p = _origin_period(dt)
 
-            p_ndays, p_subdays = divrem(p,Dates.Day(1))
-            dt_ndays, dt_subdays = divrem(dt.instant,Dates.Day(1))
+            p_ndays, p_subdays = divrem(p, Dates.Day(1))
+            dt_ndays, dt_subdays = divrem(dt.instant, Dates.Day(1))
 
             p2 = p_subdays + dt_subdays
 

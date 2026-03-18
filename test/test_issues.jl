@@ -261,5 +261,5 @@ date = timedecode(1, units, cal)
 
 cal = "proleptic_gregorian"
 newunits = "nanoseconds since 2025-06-26 00:00:00.000004001"
-dt = timedecode(2., newunits, cal)
+dt = timedecode(2.0, newunits, cal)
 @test CFTime.nanosecond(dt) == 3
