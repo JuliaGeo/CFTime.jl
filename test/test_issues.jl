@@ -250,9 +250,16 @@ a, b = CFTime.Picosecond(12), Dates.Microsecond(28)
 @test u * a + v * b == d
 
 
-#  issue #66
+# issue #66
 
 units = "nanoseconds since 2025-06-26T00:00:00.000001"
 cal = "proleptic_gregorian"
 date = timedecode(1, units, cal)
 @test date == timedecode(timeencode(date, units), units, cal)
+
+# issue #67
+
+cal = "proleptic_gregorian"
+newunits = "nanoseconds since 2025-06-26 00:00:00.000004001"
+dt = timedecode(2., newunits, cal)
+@test CFTime.nanosecond(dt) == 3

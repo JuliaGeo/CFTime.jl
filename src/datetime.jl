@@ -266,11 +266,15 @@ for (CFDateTime, calendar) in [
 
             # time origin
             p = _origin_period(dt)
-            # add duration to time origin
-            p2 = p + dt.instant
+
+            p_ndays, p_subdays = divrem(p,Dates.Day(1))
+            dt_ndays, dt_subdays = divrem(dt.instant,Dates.Day(1))
+
+            p2 = p_subdays + dt_subdays
+
             # HMS contains hours, minutes, seconds and all sub-second units
             days, HMS... = timetuplefrac(p2)
-            y, m, d = datetuple_ymd($CFDateTime, days)
+            y, m, d = datetuple_ymd($CFDateTime, days + dt_ndays + p_ndays)
             return (y, m, d, HMS...)
         end
 
