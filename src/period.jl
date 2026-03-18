@@ -15,6 +15,10 @@ end
     return Period(duration, Val(Symbol(units)))
 end
 
+function Period{T, Tfactor, Texponent}(p::Dates.Period) where {Texponent, Tfactor, T}
+    return convert(Period{T, Tfactor, Texponent}, p)
+end
+
 _type(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent} = T
 _factor(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent} = unwrap(Tfactor)
 _exponent(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent} = unwrap(Texponent)
@@ -254,7 +258,7 @@ for op in (:/, :div, :(==), :isless)
     end
 end
 
-div(p1::T, p2::T,mode) where T <: Period = div(p1.duration, p2.duration,mode)
+div(p1::T, p2::T,mode::RoundingMode) where T <: Period = div(p1.duration, p2.duration,mode)
 
 # operators not returning a CFTime.Period
 # different arguments
@@ -266,21 +270,21 @@ for op in (:+, :-, :/, :div, :mod, :(==), :isless, :lcm, :gcd, :gcdx, :rem)
     end
 end
 
-div(p1::Dates.Period, p2::Period,mode) = div(promote(p1, p2)...,mode)
-div(p1::Period, p2::Dates.Period,mode) = div(promote(p1, p2)...,mode)
-div(p1::Period, p2::Period,mode) = div(promote(p1, p2)...,mode)
+div(p1::Dates.Period, p2::Period,mode::RoundingMode) = div(promote(p1, p2)...,mode)
+div(p1::Period, p2::Dates.Period,mode::RoundingMode) = div(promote(p1, p2)...,mode)
+div(p1::Period, p2::Period,mode::RoundingMode) = div(promote(p1, p2)...,mode)
 
 # operations between CFTime.Period and a number
 for op in (:*, :/, :div)
     @eval begin
-        function $op(p::Period{T, Tfactor, Texponent}, v::Number) where {T, Tfactor, Texponent}
+        function $op(p::Period{T, Tfactor, Texponent}, v::Real) where {T, Tfactor, Texponent}
             pv = $op(p.duration, v)
             return Period{typeof(pv), Tfactor, Texponent}(pv)
         end
     end
 end
 
-*(v::Number, p::Period) = p * v
+*(v::Real, p::Period) = p * v
 
 function -(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
     return Period{T, Tfactor, Texponent}(-p.duration)
@@ -348,7 +352,8 @@ function units(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
 end
 
 
-function Base.show(io::IO, p::Period)
+function Base.string(p::Period)
+    io = IOBuffer()
     exp = _exponent(p)
     fact = _factor(p)
 
@@ -364,16 +369,19 @@ function Base.show(io::IO, p::Period)
             if p.duration != 1
                 print(io, "s")
             end
-            return
+            return String(take!(io))
         end
     end
     print(io, "$(p.duration * fact) ")
     if exp != 0
         print(io, "× 10^($(exp)) ")
     end
-    return print(io, "s")
+    print(io, "s")
+    return String(take!(io))
 end
 
+Base.print(io::IO, t::Period) = print(io, string(t))
+Base.show(io::IO, p::Period) = print(io,p)
 
 # Missing support
 (==)(x::Period, y::Missing) = missing

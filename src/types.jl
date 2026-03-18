@@ -16,6 +16,7 @@ abstract type AbstractCFDateTime{T, Torigintuple} <: Dates.TimeType
 end
 
 
+# Dates.DatePeriod seems to be a private type otherwise we could subtype
 """
     Period{T,Tfactor,Texponent}
 
