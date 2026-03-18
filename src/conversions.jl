@@ -321,7 +321,7 @@ _timedecode(x::Missing, t0::DateTime, Δt) = missing
 
 function _timedecode(x, t0::DateTime, Δt)
     plength = Dates.value(round(Δt,Dates.Millisecond))
-    t0 + Dates.Millisecond(round(Int64, plength * x))
+    return t0 + Dates.Millisecond(plength * x)
 end
 
 
@@ -334,11 +334,14 @@ end
 
 
 function timedecode(::Type{DateTime}, data, units)
-    _convert(x, t0, plength) = t0 + Dates.Millisecond(round(Int64, plength * x))
-    _convert(x::Missing, t0, plength) = missing
+    t0, Δt = _timeunits(DateTime, units, Int64)
 
-    t0, plength = timeunits(DateTime, units)
-    return @. _convert(_better_than_Float32(data), t0, plength)
+    return _timedecode.(_better_than_Float32.(data), t0, Δt)
+    # _convert(x, t0, plength) = t0 + Dates.Millisecond(round(Int64, plength * x))
+    # _convert(x::Missing, t0, plength) = missing
+
+    # t0, plength = timeunits(DateTime, units)
+    # return @. _convert(_better_than_Float32(data), t0, plength)
 end
 
 

@@ -15,7 +15,7 @@ end
     return Period(duration, Val(Symbol(units)))
 end
 
-function Period{T, Tfactor, Texponent}(p::Dates.Period) where {Texponent, Tfactor, T}
+function Period{T, Tfactor, Texponent}(p::Union{Period,Dates.Period}) where {Texponent, Tfactor, T}
     return convert(Period{T, Tfactor, Texponent}, p)
 end
 
@@ -30,13 +30,16 @@ _exponent(::Type{Period{T, Tfactor, Texponent}}) where {T, Tfactor, Texponent} =
 
 Dates.value(p::Period) = p.duration
 
-function Base.zero(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
-    return Period{T, Tfactor, Texponent}(0)
+function Base.zero(p::T) where T <: Period
+    return T(0)
 end
 
-function Base.one(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
-    return Period{T, Tfactor, Texponent}(1)
+function Base.one(p::T) where T <: Period
+    return T(1)
 end
+
+Base.zero(p::Type{T}) where T <: Period = T(0)
+Base.one(p::Type{T}) where T <: Period = T(1)
 
 function Base.abs(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
     return Period{T, Tfactor, Texponent}(abs(value(p)))

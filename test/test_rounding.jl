@@ -38,3 +38,20 @@ for DT in (DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian, DateTim
         @test floor(p, Dates.Microsecond) == Dates.Microsecond((2 * 24 + 23) * 60 * 60 * 1000 * 1000)
     end
 end
+
+p1 = CFTime.Period(2,:day) + CFTime.Period(1,:second)
+p2 = Dates.Second(2*24*60*60) + Dates.Second(1)
+
+
+for p in (p1, p2)
+    for pre in (CFTime.Period(1,:day), Dates.Day(1))
+        for precision in (pre, typeof(pre))
+            @test floor(p, precision) == Dates.Day(2)
+            @test round(p, precision) == Dates.Day(2)
+            @test ceil(p, precision) == Dates.Day(3)
+        end
+    end
+end
+
+Δt = CFTime.Period(2,:day)
+@test typeof(round(Δt,Dates.Millisecond)) == Dates.Millisecond
