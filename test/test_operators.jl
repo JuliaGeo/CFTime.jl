@@ -62,3 +62,14 @@ D = dt1 - dt0
 
 @test CFTime.Picosecond(1) * 2 == CFTime.Picosecond(2)
 @test 2 * CFTime.Picosecond(1) == CFTime.Picosecond(2)
+
+
+
+@test fld(CFTime.Microsecond(24*60*60*1000*1000),Dates.Day(1)) == 1
+@test div(CFTime.Microsecond(24*60*60*1000*1000),Dates.Day(1)) == 1
+@test div(CFTime.Microsecond(24*60*60*1000*1000 + 1),Dates.Day(1),RoundDown) == 1
+@test div(CFTime.Microsecond(24*60*60*1000*1000 - 1),Dates.Day(1),RoundDown) == 0
+@test div(CFTime.Microsecond(24*60*60*1000*1000 + 1),Dates.Day(1),RoundUp) == 2
+@test div(CFTime.Microsecond(24*60*60*1000*1000 - 1),Dates.Day(1),RoundUp) == 1
+@test div(CFTime.Microsecond(24*60*60*1000*1000 + 1),Dates.Day(1),RoundNearest) == 1
+@test div(CFTime.Microsecond(24*60*60*1000*1000 - 1),Dates.Day(1),RoundNearest) == 1

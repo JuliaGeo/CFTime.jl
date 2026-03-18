@@ -245,15 +245,19 @@ function Base.gcdx(a::T, b::T) where {T <: Period}
 end
 
 # operators not returning a CFTime.Period
+# same arguments
 for op in (:/, :div, :(==), :isless)
     @eval begin
-        function $op(p1::Period{T, Tfactor, Texponent}, p2::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
+        function $op(p1::T, p2::T) where T <: Period
             return $op(p1.duration, p2.duration)
         end
     end
 end
 
+div(p1::T, p2::T,mode) where T <: Period = div(p1.duration, p2.duration,mode)
 
+# operators not returning a CFTime.Period
+# different arguments
 for op in (:+, :-, :/, :div, :mod, :(==), :isless, :lcm, :gcd, :gcdx, :rem)
     @eval begin
         $op(p1::Period, p2::Period) = $op(promote(p1, p2)...)
@@ -261,6 +265,10 @@ for op in (:+, :-, :/, :div, :mod, :(==), :isless, :lcm, :gcd, :gcdx, :rem)
         $op(p1::Dates.Period, p2::Period) = $op(promote(p1, p2)...)
     end
 end
+
+div(p1::Dates.Period, p2::Period,mode) = div(promote(p1, p2)...,mode)
+div(p1::Period, p2::Dates.Period,mode) = div(promote(p1, p2)...,mode)
+div(p1::Period, p2::Period,mode) = div(promote(p1, p2)...,mode)
 
 # operations between CFTime.Period and a number
 for op in (:*, :/, :div)
