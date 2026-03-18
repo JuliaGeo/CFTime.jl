@@ -64,12 +64,12 @@ D = dt1 - dt0
 @test 2 * CFTime.Picosecond(1) == CFTime.Picosecond(2)
 
 
-for p1 in (CFTime.Period(24 * 60 * 60 * 1000 * 1000,:microsecond), Dates.Microsecond(24 * 60 * 60 * 1000 * 1000))
-    for p2 in (Dates.Day(1), CFTime.Period(1,:day))
+for p1 in (CFTime.Period(24 * 60 * 60 * 1000 * 1000, :microsecond), Dates.Microsecond(24 * 60 * 60 * 1000 * 1000))
+    for p2 in (Dates.Day(1), CFTime.Period(1, :day))
         @test fld(p1, p2) == 1
         @test div(p1, p2) == 1
 
-        for delta in (CFTime.Period(1,:microsecond),Dates.Microsecond(1))
+        for delta in (CFTime.Period(1, :microsecond), Dates.Microsecond(1))
             @test div(p1 + delta, p2, RoundDown) == 1
             @test div(p1 - delta, p2, RoundDown) == 0
             @test div(p1 + delta, p2, RoundUp) == 2

@@ -188,10 +188,10 @@ end
     @test zero(DateTime360Day) == CFTime.Millisecond(0)
     @test zero(DateTime360Day) == CFTime.Millisecond(0)
 
-    p = CFTime.Period(0,:day)
+    p = CFTime.Period(0, :day)
     @test p == zero(typeof(p))
 
-    p = CFTime.Period(1,:day)
+    p = CFTime.Period(1, :day)
     @test p == one(typeof(p))
 end
 
