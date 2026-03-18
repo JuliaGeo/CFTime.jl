@@ -294,23 +294,42 @@ function timeunits(units, calendar = "standard")
     return timeunits(DT, units)
 end
 
+function parseunits(units::AbstractString,::Type{DT},T::Type{<:Number} = Int64) where {DT <: Union{DateTime,AbstractCFDateTime}}
+    t0, Δt = _timeunits(DT, units, T)
+    return (t0, Δt)
+end
+
+function parseunits(units::AbstractString,calendar::AbstractString = "standard",T::Type{<:Number} = Int64)
+    DT = timetype(calendar)
+    return parseunits(units,DT,T)
+end
+
+
 # convert to Float64
 _better_than_Float32(data::Float32) = Float64.(data)
 _better_than_Float32(data) = data
 
 
-function timedecode(::Type{DT}, data, units) where {DT <: AbstractCFDateTime}
-    function _convert(x, t0, Δt)
-        DDT = typeof(Δt)
-        DTP = typeof(t0)
-        return DTP(DDT(x))
-    end
-    _convert(x::Missing, t0, Δt) = missing
+# t0 and Δt must represent the value 0 and 1 respectively
+function _timedecode(x, t0::AbstractCFDateTime, Δt)
+    DDT = typeof(Δt)
+    DTP = typeof(t0)
+    return DTP(DDT(x))
+end
+_timedecode(x::Missing, t0::AbstractCFDateTime, Δt) = missing
+_timedecode(x::Missing, t0::DateTime, Δt) = missing
 
+function _timedecode(x, t0::DateTime, Δt)
+    plength = Dates.value(round(Δt,Dates.Millisecond))
+    t0 + Dates.Millisecond(round(Int64, plength * x))
+end
+
+
+function timedecode(::Type{DT}, data, units) where {DT <: AbstractCFDateTime}
     T = nonmissingtype(eltype(data))
     t0, Δt = _timeunits(DT, units, T)
 
-    return _convert.(_better_than_Float32.(data), Ref(t0), Ref(Δt))
+    return _timedecode.(_better_than_Float32.(data), t0, Δt)
 end
 
 
@@ -405,7 +424,6 @@ function timedecode(data, units, calendar = "standard"; prefer_datetime = true)
     end
 end
 
-
 _timeencode(dt::Missing, t0, Δt) = missing
 # fast pass, prevent type promotion in division
 function _timeencode(dt::DT2, t0::DT2, Δt::Tperiod) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod}
@@ -450,32 +468,24 @@ function timeencode(
         data::AbstractArray{DT}, units,
         calendar = "standard"
     ) where {DT <: Union{DateTime, AbstractCFDateTime, Missing}}
-
-    DT2 = timetype(calendar)
     T = Int64 # use type promotion?
-    t0, Δt = _timeunits(DT2, units, T)
-
-    return _timeencode.(data, Ref(t0), Ref(Δt))
+    (t0, Δt) = parseunits(units,calendar,T)
+    return _timeencode.(data, t0, Δt)
 end
 
 # homogenous array should preserve the type of the underlying duration
 function timeencode(
-        data::AbstractArray{DT}, units,
+        data::Union{DT,AbstractArray{DT}}, units,
         calendar = "standard"
     ) where {DT <: AbstractCFDateTime{TPeriod}} where {TPeriod <: Period{T}} where {T}
-
-    DT2 = timetype(calendar)
-    t0, Δt = _timeunits(DT2, units, T)
-
-    return _timeencode.(data, Ref(t0), Ref(Δt))
+    (t0, Δt) = parseunits(units,calendar,T)
+    return _timeencode.(data, t0, Δt)
 end
 
 
-function timeencode(
-        data::DT, units,
-        calendar = "standard"
-    ) where {DT <: Union{DateTime, AbstractCFDateTime}}
-    return timeencode([data], units, calendar)[1]
+function timeencode(data::DateTime, units, calendar = "standard")
+    (t0, Δt) = parseunits(units,calendar,Int64)
+    return _timeencode.(data, t0, Δt)
 end
 
 

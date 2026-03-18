@@ -386,3 +386,7 @@ typemin(::Type{Period{T, Tfactor, Texponent}}) where {T, Tfactor, Texponent} = P
 
 typemax(p::T) where {T <: Period} = typemax(T)
 typemin(p::T) where {T <: Period} = typemin(T)
+
+
+# Period is a scalar for broadcasts
+Broadcast.broadcastable(p::Period) = Ref(p)
