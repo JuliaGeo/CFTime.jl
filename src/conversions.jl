@@ -231,31 +231,10 @@ function _parseunit(units)
     return (origintuple3, factor, exponent)
 end
 
-
-# deprecated, but exported
-function timeunits(::Type{DT}, units) where {DT}
-    periodtype(::Type{DT}) where {DT <: AbstractCFDateTime{T}} where {T} = T
-
-    if DT <: Tuple
-        (t0, factor, exponent) = _parseunit(units)
-    else
-        DDT = timetype(DT, units, Int64)
-        t0 = zero(DDT)
-        Δt = oneunit(periodtype(DDT))
-        factor = _factor(Δt)
-        exponent = _exponent(Δt)
-    end
-
-    # seconds to millisecods
-    exponent = exponent + 3
-
-    if exponent >= 0
-        plength = factor * Int64(10)^exponent
-    else
-        plength = factor // Int64(10)^(-exponent)
-    end
-
-    return t0, plength
+function timetype(::Type{DT}, units::AbstractString, T = Int64) where {DT}
+    (origintuple3, factor, exponent) = _parseunit(units)
+    TPeriod = Period{T, Val(factor), Val(exponent)}
+    return DT{TPeriod, Val(origintuple3)}
 end
 
 function timetype(calendar = "standard")
@@ -279,15 +258,43 @@ function timetype(calendar = "standard")
     return DT
 end
 
-function timetype(::Type{DT}, units::AbstractString, T = Int64) where {DT}
-    (origintuple3, factor, exponent) = _parseunit(units)
-    TPeriod = Period{T, Val(factor), Val(exponent)}
-    return DT{TPeriod, Val(origintuple3)}
-end
+"""
+    DT = CFTime.timetype(calendar::AbstractString, units::AbstractString, T::Type{<:Real} = Int64)
 
-function timetype(calendar::AbstractString, units::AbstractString, T = Int64) where {DT}
+Based on the CF calendar type ("standard", "proleptic_gregorian"...)
+and the time units (e.g. "days since 2000-01-01 00:00:00")
+returns the correspond CFTime date time type.
+"""
+function timetype(calendar::AbstractString, units::AbstractString, T::Type{<:Real} = Int64)
     DT = timetype(calendar)
     return timetype(DT, units, T)
+end
+
+
+# deprecated, but exported
+function timeunits(::Type{DT}, units) where {DT}
+    periodtype(::Type{DT}) where {DT <: AbstractCFDateTime{T}} where {T} = T
+
+    if DT <: Tuple
+        (t0, factor, exponent) = _parseunit(units)
+    else
+        DDT = timetype(DT, units, Int64)
+        t0 = origin(DDT)
+        Δt = oneunit(periodtype(DDT))
+        factor = _factor(Δt)
+        exponent = _exponent(Δt)
+    end
+
+    # seconds to millisecods
+    exponent = exponent + 3
+
+    if exponent >= 0
+        plength = factor * Int64(10)^exponent
+    else
+        plength = factor // Int64(10)^(-exponent)
+    end
+
+    return t0, plength
 end
 
 """
@@ -296,7 +303,7 @@ end
 Parse time units (e.g. "days since 2000-01-01 00:00:00") and returns the start
 time `t0` and the scaling factor `plength` in milliseconds.
 
-This function is deprecated.
+This function is deprecated use `CFTime.timetype` instead.
 """
 function timeunits(units, calendar = "standard")
     DT = timetype(calendar)
@@ -308,9 +315,22 @@ _better_than_Float32(::Type{Float32}) = Float64
 _better_than_Float32(::Type{T}) where {T} = T
 
 
-_timedecode(::Type{DT}, x) where {DT <: AbstractCFDateTime{T}} where {T} = DT(T(x))
-_timedecode(::Type{DT}, x::Missing) where {DT <: AbstractCFDateTime{T}} where {T} = missing
+timedecode(::Type{DT}, x) where {DT <: AbstractCFDateTime{T}} where {T} = DT(T(x))
+timedecode(::Type{DT}, x::Missing) where {DT <: AbstractCFDateTime{T}} where {T} = missing
 
+
+function maybe_to_datetime(dt::AbstractCFDateTime{Period{T, Tfactor, Texponent}}) where
+    {T, Tfactor, Texponent}
+
+    if unwrap(Texponent) >= -3
+        # milliseconds, seconds, ...
+        return round(DateTime, dt)
+    else
+        # do not convert microseconds or smaller
+        return dt
+    end
+end
+maybe_to_datetime(dt::Missing) = missing
 
 """
     dt = timedecode(data,units,calendar = "standard"; prefer_datetime = true)
@@ -366,19 +386,6 @@ dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00","360_day")
 
 """
 function timedecode(data, units, calendar = "standard"; prefer_datetime = true)
-    function maybe_to_datetime(dt::AbstractCFDateTime{Period{T, Tfactor, Texponent}}) where
-        {T, Tfactor, Texponent}
-
-        return if unwrap(Texponent) >= -3
-            # milliseconds, seconds, ...
-            round(DateTime, dt)
-        else
-            # do not convert microseconds or smaller
-            dt
-        end
-    end
-    maybe_to_datetime(dt::Missing) = missing
-
     DT = timetype(calendar)
     dt = timedecode(DT, data, units)
 
@@ -394,7 +401,7 @@ end
 
 function timedecode(::Type{DT}, data, units) where {DT <: AbstractCFDateTime}
     DTT = timetype(DT, units, _better_than_Float32(nonmissingtype(eltype(data))))
-    return dt = _timedecode.(DTT, data)
+    return dt = timedecode.(DTT, data)
 end
 
 function timedecode(::Type{DateTime}, data, units)
@@ -410,9 +417,9 @@ function _timeencode(::Type{DT2}, dt::DT2) where {DT2 <: AbstractCFDateTime{Tper
     return Dates.value(dt)
 end
 function _timeencode(::Type{DT2}, dt) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod}
-    _t0 = zero(DT2)
-    _Δt = oneunit(Tperiod)
-    return (dt - _t0) / _Δt
+    t0 = origin(DT2)
+    Δt = oneunit(Tperiod)
+    return (dt - t0) / Δt
 end
 
 """

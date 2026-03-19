@@ -234,7 +234,7 @@ for (CFDateTime, calendar) in [
             return $CFDateTime(p, _origintuple(dt))
         end
 
-        # TODO: not sure if this is correct
+        # Base.zero should return the neural element to addition
         Base.zero(::Type{$CFDateTime}) = Millisecond(0)
 
         function _origin_period(dt::$CFDateTime{T, Torigintuple}) where {T, Torigintuple}
@@ -286,7 +286,7 @@ for (CFDateTime, calendar) in [
 end
 
 
-Base.zero(::Type{DT}) where {DT <: AbstractCFDateTime{T}} where {T} = DT(zero(T))
+origin(::Type{DT}) where {DT <: AbstractCFDateTime{T}} where {T} = DT(zero(T))
 
 
 function units(dt::AbstractCFDateTime{T, Torigintuple}) where {T, Torigintuple}
