@@ -185,16 +185,6 @@ function parseDT(::Type{Tuple}, str)
     return (y, m, d, h, mi, s, subsec...)
 end
 
-function parseDT(::Type{DateTime}, str)
-    t = parseDT(Tuple, str)
-    t = t[1:min(length(t), 7)] # truncate smaller than microseconds
-    return DateTime(t...)
-end
-
-function parseDT(::Type{DT}, str) where {DT <: AbstractCFDateTime}
-    return DT(parseDT(Tuple, str)...)
-end
-
 function _parseunit(units)
     tunits_mixedcase, starttime = strip.(split(units, " since "))
     tunits = lowercase(tunits_mixedcase)
@@ -500,11 +490,6 @@ function timeencode(
     DTT = timetype(Tcalendar, units, T)
     return timeencode.(DTT, data)
 end
-
-# do not transform data is not a vector of DateTime
-# unused, should be removed
-timeencode(data, units, calendar = "standard") = data
-
 
 for CFDateTime in [
         :DateTimeStandard,

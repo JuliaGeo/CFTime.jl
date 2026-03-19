@@ -79,3 +79,8 @@ for p1 in (CFTime.Period(24 * 60 * 60 * 1000 * 1000, :microsecond), Dates.Micros
         end
     end
 end
+
+
+# test broadcasting
+@test [DateTimeStandard(2000, 1, 03)] .+ CFTime.Period(1, :day) == [DateTimeStandard(2000, 1, 4)]
+@test DateTimeStandard(2000, 1, 03) .+ [CFTime.Period(1, :day)] == [DateTimeStandard(2000, 1, 4)]
