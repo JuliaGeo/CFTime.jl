@@ -197,7 +197,11 @@ end
 
 # deprecated, but exported
 function timeunits(::Type{DT}, units) where {DT}
-    t0, Δt = _timeunits(DT, units, Int64)
+    periodtype(::Type{DT}) where {DT <: AbstractCFDateTime{T}} where {T} = T
+
+    t0, Δt, DDT = _timeunits(DT, units, Int64)
+    #t0 = zero(DDT)
+    #Δt = oneunit(periodtype(DDT))
     factor = _factor(Δt)
     exponent = _exponent(Δt)
 
@@ -212,7 +216,7 @@ function timeunits(::Type{DT}, units) where {DT}
     return t0, plength
 end
 
-function _timeunits(::Type{DT}, units, T = Int64) where {DT}
+function _timeunits(::Type{DT}, units::AbstractString, T = Int64) where {DT}
     tunits_mixedcase, starttime = strip.(split(units, " since "))
     tunits = lowercase(tunits_mixedcase)
     tunit = rstrip(tunits, 's') # singular
@@ -255,7 +259,7 @@ function _timeunits(::Type{DT}, units, T = Int64) where {DT}
 
     Δt = Period{T, Val(factor), Val(exponent)}(one(T))
 
-    return (t0, Δt)
+    return (t0, Δt, typeof(t0))
 end
 
 
@@ -280,6 +284,7 @@ function timetype(calendar = "standard")
     return DT
 end
 
+
 timetype(dt::Type{<:AbstractCFDateTime}) = dt
 timetype(dt::Type{DateTime}) = dt
 
@@ -288,63 +293,28 @@ timetype(dt::Type{DateTime}) = dt
 
 Parse time units (e.g. "days since 2000-01-01 00:00:00") and returns the start
 time `t0` and the scaling factor `plength` in milliseconds.
+
+Ths function is deprecated.
 """
 function timeunits(units, calendar = "standard")
     DT = timetype(calendar)
     return timeunits(DT, units)
 end
 
-function parseunits(units::AbstractString, ::Type{DT}, T::Type{<:Number} = Int64) where {DT <: Union{DateTime, AbstractCFDateTime}}
-    t0, Δt = _timeunits(DT, units, T)
-    return (t0, Δt)
-end
-
-function parseunits(units::AbstractString, calendar::AbstractString = "standard", T::Type{<:Number} = Int64)
-    DT = timetype(calendar)
-    return parseunits(units, DT, T)
-end
-
-
 # convert to Float64
-_better_than_Float32(data::Float32) = Float64(data)
-_better_than_Float32(data) = data
+_better_than_Float32(::Type{Float32}) = Float64
+_better_than_Float32(::Type{T}) where {T} = T
 
 
-# t0 and Δt must represent the value 0 and 1 respectively
-function _timedecode(x_, t0::AbstractCFDateTime, Δt)
-    x = _better_than_Float32(x_)
-    DDT = typeof(Δt)
-    DTP = typeof(t0)
-    return DTP(DDT(x))
-end
-_timedecode(x::Missing, t0::AbstractCFDateTime, Δt) = missing
-_timedecode(x::Missing, t0::DateTime, Δt) = missing
-
-function _timedecode(x_, t0::DateTime, Δt)
-    x = _better_than_Float32(x_)
-    plength = Dates.value(round(Δt, Dates.Millisecond))
-    return t0 + Dates.Millisecond(round(Int64, plength * x))
-end
-
-
-function timedecode(::Type{DT}, data, units) where {DT <: AbstractCFDateTime}
-    T = nonmissingtype(eltype(data))
-    t0, Δt = _timeunits(DT, units, T)
-    return _timedecode.(data, t0, Δt)
-end
-
-
-function timedecode(::Type{DateTime}, data, units)
-    t0, Δt = _timeunits(DateTime, units, Int64)
-    return _timedecode.(data, t0, Δt)
-end
+_timedecode(::Type{DT}, x) where {DT <: AbstractCFDateTime{T}} where {T} = DT(T(x))
+_timedecode(::Type{DT}, x::Missing) where {DT <: AbstractCFDateTime{T}} where {T} = missing
 
 
 """
     dt = timedecode(data,units,calendar = "standard"; prefer_datetime = true)
 
 Decode the time information in data as given by the units `units` according to
-the specified calendar.
+the specified calendar (from numeric data to date type).
 
 `units` has the format `"DURATION_UNIT since TIME_ORIGIN"` where
 `DURATION_UNIT` can be the year, month, $(join(getindex.(TIME_DIVISION, 1), ", ", " or "))
@@ -394,41 +364,54 @@ dt = CFTime.timedecode([0,1,2,3],"days since 2000-01-01 00:00:00","360_day")
 
 """
 function timedecode(data, units, calendar = "standard"; prefer_datetime = true)
-    function datetime_convert(dt::AbstractCFDateTime{Period{T, Tfactor, Texponent}}) where
+    function maybe_to_datetime(dt::AbstractCFDateTime{Period{T, Tfactor, Texponent}}) where
         {T, Tfactor, Texponent}
 
         return if unwrap(Texponent) >= -3
             # milliseconds, seconds, ...
-            convert(DateTime, dt)
+            round(DateTime, dt)
         else
             # do not convert microseconds or smaller
             dt
         end
     end
-    datetime_convert(dt::Missing) = missing
-
+    maybe_to_datetime(dt::Missing) = missing
 
     DT = timetype(calendar)
     dt = timedecode(DT, data, units)
 
     if (
             prefer_datetime &&
-                (DT in [DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian])
+                (DT in (DateTimeStandard, DateTimeProlepticGregorian, DateTimeJulian))
         )
-
-        return datetime_convert.(dt)
+        return maybe_to_datetime.(dt)
     else
         return dt
     end
 end
 
-_timeencode(dt::Missing, t0, Δt) = missing
+function timedecode(::Type{DT}, data, units) where {DT <: AbstractCFDateTime}
+    (x0, dt, DTT) = _timeunits(DT, units, _better_than_Float32(nonmissingtype(eltype(data))))
+
+    return dt = _timedecode.(DTT, data)
+end
+
+function timedecode(::Type{DateTime}, data, units)
+    to_datetime(dt::Missing) = missing
+    to_datetime(dt) = round(DateTime, dt)
+
+    return to_datetime.(timedecode(DateTimeProlepticGregorian, data, units))
+end
+
+_timeencode(::Type{DT2}, dt::Missing) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod} = missing
 # fast pass, prevent type promotion in division
-function _timeencode(dt::DT2, t0::DT2, Δt::Tperiod) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod}
+function _timeencode(::Type{DT2}, dt::DT2) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod}
     return Dates.value(dt)
 end
-function _timeencode(dt, t0, Δt)
-    return (dt - t0) / Δt
+function _timeencode(::Type{DT2}, dt) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod}
+    _t0 = zero(DT2)
+    _Δt = oneunit(Tperiod)
+    return (dt - _t0) / _Δt
 end
 
 """
@@ -438,7 +421,7 @@ Convert a vector or array of [`DateTime`](https://docs.julialang.org/en/v1/stdli
 [`DateTimeProlepticGregorian`](@ref), [`DateTimeJulian`](@ref), [`DateTimeNoLeap`](@ref),
 [`DateTimeAllLeap`](@ref), [`DateTime360Day`](@ref)) according to
 the specified units (e.g. `"days since 2000-01-01 00:00:00"`) using the calendar
-`calendar`.
+`calendar` (i.e. from date type to numeric data).
 
 `units` has the format `"DURATION_UNIT since TIME_ORIGIN"` where
 `DURATION_UNIT` can be the year, month, $(join(getindex.(TIME_DIVISION, 1), ", ", " or "))
@@ -463,29 +446,52 @@ CFTime.timeencode(dt,"days since 2000-01-01 00:00:00")
 
 """
 function timeencode(
-        data::AbstractArray{DT}, units,
+        data::Union{DT, AbstractArray{DT}}, units,
         calendar = "standard"
-    ) where {DT <: Union{DateTime, AbstractCFDateTime, Missing}}
+    ) where {DT <: Union{AbstractCFDateTime, DateTime, Missing}}
+
+    handle_datetime(dt) = dt
+    handle_datetime(dt::DateTime) = convert(DateTimeProlepticGregorian, dt)
+
+    return timeencode(handle_datetime.(data), units, calendar)
+end
+
+function timeencode(
+        data::Union{DT, AbstractArray{DT}}, units,
+        calendar = "standard"
+    ) where {DT <: Union{AbstractCFDateTime, Missing}}
+
+    return timeencode(data, units, timetype(calendar))
+end
+
+function timeencode(
+        data::Union{DT, AbstractArray{DT}}, units,
+        calendar::Type{DateTime}
+    ) where {DT <: Union{AbstractCFDateTime, Missing}}
+
+    to_datetimepg(dt::Missing) = missing
+    to_datetimepg(dt) = convert(DateTimeProlepticGregorian, dt)
+
+    data2 = to_datetimepg.(data)
+    return timeencode(data2, units, DateTimeProlepticGregorian)
+end
+
+
+function timeencode(
+        data::Union{DT, AbstractArray{DT}}, units, Tcalendar::Type
+    ) where {DT <: Union{AbstractCFDateTime, Missing}}
     T = Int64 # use type promotion?
-    (t0, Δt) = parseunits(units, calendar, T)
-    return _timeencode.(data, t0, Δt)
+    (t0, Δt, DTT) = _timeunits(Tcalendar, units, T)
+    return _timeencode.(DTT, data)
 end
 
 # homogenous array should preserve the type of the underlying duration
 function timeencode(
-        data::Union{DT, AbstractArray{DT}}, units,
-        calendar = "standard"
+        data::Union{DT, AbstractArray{DT}}, units, Tcalendar::Type{<:AbstractCFDateTime},
     ) where {DT <: AbstractCFDateTime{TPeriod}} where {TPeriod <: Period{T}} where {T}
-    (t0, Δt) = parseunits(units, calendar, T)
-    return _timeencode.(data, t0, Δt)
+    (t0, Δt, DTT) = _timeunits(Tcalendar, units, T)
+    return _timeencode.(DTT, data)
 end
-
-
-function timeencode(data::DateTime, units, calendar = "standard")
-    (t0, Δt) = parseunits(units, calendar, Int64)
-    return _timeencode.(data, t0, Δt)
-end
-
 
 # do not transform data is not a vector of DateTime
 # unused, should be removed
