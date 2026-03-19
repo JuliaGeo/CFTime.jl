@@ -411,12 +411,12 @@ function timedecode(::Type{DateTime}, data, units)
     return to_datetime.(timedecode(DateTimeProlepticGregorian, data, units))
 end
 
-_timeencode(::Type{DT2}, dt::Missing) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod} = missing
+timeencode(::Type{DT2}, dt::Missing) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod} = missing
 # fast pass, prevent type promotion in division
-function _timeencode(::Type{DT2}, dt::DT2) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod}
+function timeencode(::Type{DT2}, dt::DT2) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod}
     return Dates.value(dt)
 end
-function _timeencode(::Type{DT2}, dt) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod}
+function timeencode(::Type{DT2}, dt) where {DT2 <: AbstractCFDateTime{Tperiod}} where {Tperiod}
     t0 = origin(DT2)
     Δt = oneunit(Tperiod)
     return (dt - t0) / Δt
@@ -490,7 +490,7 @@ function timeencode(
     ) where {DT <: Union{AbstractCFDateTime, Missing}}
     T = Int64 # use type promotion?
     DTT = timetype(Tcalendar, units, T)
-    return _timeencode.(DTT, data)
+    return timeencode.(DTT, data)
 end
 
 # homogenous array should preserve the type of the underlying duration
@@ -498,7 +498,7 @@ function timeencode(
         data::Union{DT, AbstractArray{DT}}, units, Tcalendar::Type{<:AbstractCFDateTime},
     ) where {DT <: AbstractCFDateTime{TPeriod}} where {TPeriod <: Period{T}} where {T}
     DTT = timetype(Tcalendar, units, T)
-    return _timeencode.(DTT, data)
+    return timeencode.(DTT, data)
 end
 
 # do not transform data is not a vector of DateTime
