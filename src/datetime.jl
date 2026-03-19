@@ -144,7 +144,7 @@ for (CFDateTime, calendar) in [
         end
 
         function $CFDateTime(t::T, units::AbstractString) where {T <: Number}
-            periodtype(::Type{DT}) where {DT <: AbstractCFDateTime{T}} where T = T
+            periodtype(::Type{DT}) where {DT <: AbstractCFDateTime{T}} where {T} = T
 
             DT = _timeunits($CFDateTime, units, T)
             duration = periodtype(DT)(t)

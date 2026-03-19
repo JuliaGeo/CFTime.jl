@@ -228,16 +228,16 @@ function _parseunit(units)
     origintuple = parseDT(Tuple, starttime)
     origintuple3 = chop0(origintuple, 3)
 
-    return (origintuple3,factor,exponent)
+    return (origintuple3, factor, exponent)
 end
 
 
 # deprecated, but exported
 function timeunits(::Type{DT}, units) where {DT}
-    periodtype(::Type{DT}) where {DT <: AbstractCFDateTime{T}} where T = T
+    periodtype(::Type{DT}) where {DT <: AbstractCFDateTime{T}} where {T} = T
 
     if DT <: Tuple
-        (t0,factor,exponent) = _parseunit(units)
+        (t0, factor, exponent) = _parseunit(units)
     else
         DDT = _timeunits(DT, units, Int64)
         t0 = zero(DDT)
@@ -258,8 +258,8 @@ function timeunits(::Type{DT}, units) where {DT}
     return t0, plength
 end
 
-function _timeunits(::Type{DT}, units::AbstractString, T = Int64) where DT
-    (origintuple3,factor,exponent) = _parseunit(units)
+function _timeunits(::Type{DT}, units::AbstractString, T = Int64) where {DT}
+    (origintuple3, factor, exponent) = _parseunit(units)
 
     if DT <: DateTime
         t0 = DateTime(origintuple3[1:min(length(origintuple3), 7)]...)
