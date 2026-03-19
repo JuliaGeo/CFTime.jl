@@ -239,7 +239,7 @@ function timeunits(::Type{DT}, units) where {DT}
     if DT <: Tuple
         (t0, factor, exponent) = _parseunit(units)
     else
-        DDT = _timeunits(DT, units, Int64)
+        DDT = timetype(DT, units, Int64)
         t0 = zero(DDT)
         Δt = oneunit(periodtype(DDT))
         factor = _factor(Δt)
@@ -257,24 +257,6 @@ function timeunits(::Type{DT}, units) where {DT}
 
     return t0, plength
 end
-
-function _timeunits(::Type{DT}, units::AbstractString, T = Int64) where {DT}
-    (origintuple3, factor, exponent) = _parseunit(units)
-
-    if DT <: DateTime
-        t0 = DateTime(origintuple3[1:min(length(origintuple3), 7)]...)
-    elseif DT <: AbstractCFDateTime
-        z = Period{T, Val(factor), Val(exponent)}(zero(T))
-        t0 = DT(z, origintuple3)
-    else
-        t0 = origintuple3
-    end
-
-    Δt = Period{T, Val(factor), Val(exponent)}(one(T))
-
-    return typeof(t0)
-end
-
 
 function timetype(calendar = "standard")
     DT =
@@ -297,9 +279,16 @@ function timetype(calendar = "standard")
     return DT
 end
 
+function timetype(::Type{DT}, units::AbstractString, T = Int64) where {DT}
+    (origintuple3, factor, exponent) = _parseunit(units)
+    TPeriod = Period{T, Val(factor), Val(exponent)}
+    return DT{TPeriod, Val(origintuple3)}
+end
 
-timetype(dt::Type{<:AbstractCFDateTime}) = dt
-timetype(dt::Type{DateTime}) = dt
+function timetype(calendar::AbstractString, units::AbstractString, T = Int64) where {DT}
+    DT = timetype(calendar)
+    return timetype(DT, units, T)
+end
 
 """
     t0,plength = timeunits(units,calendar = "standard")
@@ -307,7 +296,7 @@ timetype(dt::Type{DateTime}) = dt
 Parse time units (e.g. "days since 2000-01-01 00:00:00") and returns the start
 time `t0` and the scaling factor `plength` in milliseconds.
 
-Ths function is deprecated.
+This function is deprecated.
 """
 function timeunits(units, calendar = "standard")
     DT = timetype(calendar)
@@ -404,7 +393,7 @@ function timedecode(data, units, calendar = "standard"; prefer_datetime = true)
 end
 
 function timedecode(::Type{DT}, data, units) where {DT <: AbstractCFDateTime}
-    DTT = _timeunits(DT, units, _better_than_Float32(nonmissingtype(eltype(data))))
+    DTT = timetype(DT, units, _better_than_Float32(nonmissingtype(eltype(data))))
     return dt = _timedecode.(DTT, data)
 end
 
@@ -493,7 +482,7 @@ function timeencode(
         data::Union{DT, AbstractArray{DT}}, units, Tcalendar::Type
     ) where {DT <: Union{AbstractCFDateTime, Missing}}
     T = Int64 # use type promotion?
-    DTT = _timeunits(Tcalendar, units, T)
+    DTT = timetype(Tcalendar, units, T)
     return _timeencode.(DTT, data)
 end
 
@@ -501,7 +490,7 @@ end
 function timeencode(
         data::Union{DT, AbstractArray{DT}}, units, Tcalendar::Type{<:AbstractCFDateTime},
     ) where {DT <: AbstractCFDateTime{TPeriod}} where {TPeriod <: Period{T}} where {T}
-    DTT = _timeunits(Tcalendar, units, T)
+    DTT = timetype(Tcalendar, units, T)
     return _timeencode.(DTT, data)
 end
 
