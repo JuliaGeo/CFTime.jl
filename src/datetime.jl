@@ -144,12 +144,11 @@ for (CFDateTime, calendar) in [
         end
 
         function $CFDateTime(t::T, units::AbstractString) where {T <: Number}
-            DT = $CFDateTime
-            t0, Δt = _timeunits(DT, units, T)
-            # essentially t0 + t * Δt
-            duration = typeof(Δt)(t)
-            dt = typeof(t0)(duration)
-            return dt
+            periodtype(::Type{DT}) where {DT <: AbstractCFDateTime{T}} where T = T
+
+            DT = _timeunits($CFDateTime, units, T)
+            duration = periodtype(DT)(t)
+            return DT(duration)
         end
 
         # @inline is important for type-stability
