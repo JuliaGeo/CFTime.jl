@@ -50,7 +50,7 @@ Base.signbit(x::Period) = signbit(value(x))
 
 
 # for integers, use at least Int64; always use Int64 for floats
-timetuple_type(::Type{T}) where T = promote_type(Int64, T)
+timetuple_type(::Type{T}) where {T} = promote_type(Int64, T)
 timetuple_type(::Type{<:AbstractFloat}) = Int64
 
 # helper functions for _timetuple
