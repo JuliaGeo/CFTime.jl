@@ -48,13 +48,18 @@ end
 Base.sign(x::Period) = sign(value(x))
 Base.signbit(x::Period) = signbit(value(x))
 
+
+# for integers, use at least Int64; always use Int64 for floats
+timetuple_type(::Type{T}) where T = promote_type(Int64, T)
+timetuple_type(::Type{<:AbstractFloat}) = Int64
+
 # helper functions for _timetuple
 @inline __tf(result, time) = result
 @inline function __tf(result, time::T, d1, dn...) where {T}
-    Ti = promote_type(Int64, T)
+    Ti = timetuple_type(T)
 
     return if d1 == 0
-        __tf((result..., Ti(0)), 0, dn...)
+        __tf((result..., Ti(0)), T(0), dn...)
     else
         p, time2 = divrem(time, d1, RoundDown)
         __tf((result..., Ti(p)), time2, dn...)
@@ -122,7 +127,6 @@ Return a tuple with the number of whole days, hours (`h`), minutes (`mi`),
 seconds (`s`) and millisecods (`ms`),... from the time period `t`.
 """
 function timetuplefrac(t::Period{T}) where {T}
-    # for integers
     factor = _factor(t)
     exponent = _exponent(t)
     divi = division(T, factor, exponent)

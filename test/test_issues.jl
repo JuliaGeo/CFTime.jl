@@ -263,3 +263,7 @@ cal = "proleptic_gregorian"
 newunits = "nanoseconds since 2025-06-26 00:00:00.000004001"
 dt = timedecode(2.0, newunits, cal)
 @test CFTime.nanosecond(dt) == 3
+
+# issue #70
+dt = CFTime.timedecode(674989.0,"days since 0001-01-01 00:00:00","365_day")
+reinterpret(CFTime.DateTimeStandard, dt) == DateTimeStandard(1850,4,15)
