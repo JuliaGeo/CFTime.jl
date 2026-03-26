@@ -375,7 +375,7 @@ r = DateTimeStandard(Int128, 2000, 1, 1):CFTime.Picosecond(1):DateTimeStandard(I
 
 # units
 
-@test CFTime.units(CFTime.Picosecond(1)) ==  "picoseconds"
+@test CFTime.units(CFTime.Picosecond(1)) == "picoseconds"
 
 dt = DateTimeStandard(2000, 1, 1, units = :day, origin = (1970, 1, 1))
 @test CFTime.units(dt) == "days since 1970-01-01"
@@ -384,6 +384,6 @@ dt = CFTime.timedecode(1, "seconds since 2000-01-01 01:02:03", "standard", prefe
 @test CFTime.units(dt) == "seconds since 2000-01-01 01:02:03"
 @test CFTime.calendar(dt) == "standard"
 
-dt = DateTime(2000,1,1)
+dt = DateTime(2000, 1, 1)
 @test CFTime.calendar(dt) == "prolepticgregorian"
 @test CFTime.units(dt) == "milliseconds since 0000-12-31 00:00:00"

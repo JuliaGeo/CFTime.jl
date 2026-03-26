@@ -292,7 +292,7 @@ origin(::Type{DT}) where {DT <: AbstractCFDateTime{T}} where {T} = DT(zero(T))
 calendar(::Type{DateTime}) = "prolepticgregorian"
 function units(::Type{DateTime})
     origin = DateTime(Dates.UTInstant{Millisecond}(Dates.Millisecond(0)))
-    origin_str = replace(string(origin),'T' => ' ')
+    origin_str = replace(string(origin), 'T' => ' ')
     return "milliseconds since $origin_str"
 end
 
@@ -320,8 +320,8 @@ function units(::Type{<:AbstractCFDateTime{T, Torigintuple}}) where {T, Torigint
     )
 end
 
-calendar(dt::Union{DateTime,AbstractCFDateTime}) = calendar(typeof(dt))
-units(dt::Union{DateTime,AbstractCFDateTime}) = units(typeof(dt))
+calendar(dt::Union{DateTime, AbstractCFDateTime}) = calendar(typeof(dt))
+units(dt::Union{DateTime, AbstractCFDateTime}) = units(typeof(dt))
 
 +(dt::AbstractCFDateTime, p::Union{Dates.TimePeriod, Dates.Day}) = dt + convert(CFTime.Period, p)
 
