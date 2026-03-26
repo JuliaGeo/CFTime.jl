@@ -345,9 +345,22 @@ for (name, factor, exponent) in TIME_DIVISION[8:end]
     end
 end
 
+"""
+    u = CFTime.units(::Type{<:Period})
+    u = CFTime.units(p::Period)
 
-function units(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
+Return the units (in plural) of the time period `p`. For example:
 
+```jldoctest
+using CFTime
+CFTime.units(CFTime.Picosecond(1))
+
+# output
+
+"picoseconds"
+```
+"""
+function units(::Type{<:Period{T, Tfactor, Texponent}}) where {T, Tfactor, Texponent}
     for (name, factor, exponent) in TIME_DIVISION
         if (Val(factor) == Tfactor) && (Val(exponent) == Texponent)
             # always append s for plural
@@ -358,6 +371,7 @@ function units(p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
     return string(unwrap(Tfactor), " × 10^", unwrap(Texponent), " s")
 end
 
+units(p::Period) = units(typeof(p))
 
 function Base.string(p::Period)
     io = IOBuffer()

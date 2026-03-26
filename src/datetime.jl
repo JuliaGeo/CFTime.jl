@@ -237,6 +237,8 @@ for (CFDateTime, calendar) in [
         # Base.zero should return the neural element to addition
         Base.zero(::Type{$CFDateTime}) = Millisecond(0)
 
+        calendar(dt::Type{<:$CFDateTime}) = string($calendar)
+
         function _origin_period(dt::$CFDateTime{T, Torigintuple}) where {T, Torigintuple}
             Ti = _type(T)
             if Ti <: AbstractFloat
@@ -285,16 +287,41 @@ for (CFDateTime, calendar) in [
     end
 end
 
-
 origin(::Type{DT}) where {DT <: AbstractCFDateTime{T}} where {T} = DT(zero(T))
 
+calendar(::Type{DateTime}) = "prolepticgregorian"
+function units(::Type{DateTime})
+    origin = DateTime(Dates.UTInstant{Millisecond}(Dates.Millisecond(0)))
+    origin_str = replace(string(origin),'T' => ' ')
+    return "milliseconds since $origin_str"
+end
 
-function units(dt::AbstractCFDateTime{T, Torigintuple}) where {T, Torigintuple}
+"""
+    u = CFTime.units(dt::AbstractCFDateTime)
+
+Return the units for the provided CF DateTime `dt`.
+
+For example
+
+```jldoctest
+using CFTime
+dt = DateTimeStandard(2000, 1, 1, units = :day, origin = (1970, 1, 1))
+CFTime.units(dt)
+
+# output
+
+"days since 1970-01-01"
+```
+"""
+function units(::Type{<:AbstractCFDateTime{T, Torigintuple}}) where {T, Torigintuple}
     return string(
-        units(dt.instant), " since ",
-        format_datetuple(unwrap(Torigintuple))
+        units(T), " since ",
+        format_datetuple(unwrap(Torigintuple), separator = ' ')
     )
 end
+
+calendar(dt::Union{DateTime,AbstractCFDateTime}) = calendar(typeof(dt))
+units(dt::Union{DateTime,AbstractCFDateTime}) = units(typeof(dt))
 
 +(dt::AbstractCFDateTime, p::Union{Dates.TimePeriod, Dates.Day}) = dt + convert(CFTime.Period, p)
 
@@ -357,14 +384,14 @@ pad_ymd(a::Tuple) = a
     end
 end
 
-function format_datetuple(timetuple::Tuple)
+function format_datetuple(timetuple::Tuple; separator = 'T')
     y, mo, d, rest... = pad_ymd(timetuple)
 
     io = IOBuffer()
     @printf(io, "%04d-%02d-%02d", y, mo, d)
 
     if length(rest) > 0
-        @printf(io, "T")
+        @printf(io, "%s", separator)
 
         for i in 1:3
             r, rest... = rest
