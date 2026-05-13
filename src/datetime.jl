@@ -243,7 +243,10 @@ for (CFDateTime, calendar) in [
             Ti = _type(T)
             if Ti <: AbstractFloat
                 Ti = Int64
+            else
+                Ti = promote_type(Int64,Ti)
             end
+
             y, m, d, HMS... = Ti.(_origintuple(dt))
 
             # factor and exponent can be different for the origin
@@ -284,6 +287,11 @@ for (CFDateTime, calendar) in [
             return chop0(_datetuple(dt), 7)
         end
 
+        # promote duration of a AbstractCFDateTime to be at least Ti
+        function promote_duration(Ti,p::$CFDateTime{T, Torigintuple}) where {T, Torigintuple}
+            instant = promote_duration(Ti,p.instant)
+            return $CFDateTime{typeof(instant),Torigintuple}(instant)
+        end
     end
 end
 

@@ -267,3 +267,20 @@ dt = timedecode(2.0, newunits, cal)
 # issue #70
 dt = CFTime.timedecode(674989.0, "days since 0001-01-01 00:00:00", "365_day")
 reinterpret(CFTime.DateTimeStandard, dt) == DateTimeStandard(1850, 4, 15)
+
+
+# issue https://github.com/JuliaGeo/NCDatasets.jl/issues/308
+
+dt = timedecode(Int16(0), "seconds since 2024-01-01T00:00:00Z", "standard", prefer_datetime=false);
+
+@test typeof(dt.instant.duration) == Int16
+@test string(dt) == "2024-01-01T00:00:00"
+@test Dates.yearmonthday(dt) == (2024, 1, 1)
+
+dt2 = CFTime.promote_duration(Int64,dt)
+@test typeof(dt2.instant.duration) == Int64
+@test convert(DateTime,dt) === DateTime(2024,1,1)
+@test round(DateTime,dt) === DateTime(2024,1,1)
+
+dt = timedecode(Int16(0), "seconds since 2024-01-01T00:00:00Z", "standard");
+@test dt === DateTime(2024,1,1)
