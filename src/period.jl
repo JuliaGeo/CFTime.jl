@@ -49,8 +49,8 @@ Base.sign(x::Period) = sign(value(x))
 Base.signbit(x::Period) = signbit(value(x))
 
 # promote duration of a Period to be at least Ti
-function promote_duration(Ti,p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
-    return Period{promote_type(T,Ti), Tfactor, Texponent}(p);
+function promote_duration(Ti, p::Period{T, Tfactor, Texponent}) where {T, Tfactor, Texponent}
+    return Period{promote_type(T, Ti), Tfactor, Texponent}(p)
 end
 
 # for integers, use at least Int64; always use Int64 for floats
