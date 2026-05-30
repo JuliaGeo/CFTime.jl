@@ -3,7 +3,7 @@ function Dates.len(first::T, last::T, step::DT) where {T <: AbstractCFDateTime} 
     if Dates.value(step) == 0
         throw(ArgumentError("step cannot be zero"))
     end
-    return (last - first) ÷ step
+    return Int((last - first) ÷ step)
 end
 
 function Dates.len(first::T, last::T, step) where {T <: AbstractCFDateTime}
