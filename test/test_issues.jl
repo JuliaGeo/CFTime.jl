@@ -288,10 +288,10 @@ dt = timedecode(Int16(0), "seconds since 2024-01-01T00:00:00Z", "standard");
 
 # issue #73
 
-P  = CFTime.Period{Float64, Val{86400}(), Val{0}()}
+P = CFTime.Period{Float64, Val{86400}(), Val{0}()}
 DT = DateTime360Day{P, Val{(2001, 1, 1)}()}
 start = DT(P(0.0))
-stop  = DT(P(86400.0 * 23))
+stop = DT(P(86400.0 * 23))
 step_ = P(86400.0)
 r = start:step_:stop
 @test length(r) === Int(24)

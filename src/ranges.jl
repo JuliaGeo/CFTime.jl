@@ -1,7 +1,7 @@
 function Dates.len(first::T, last::T, step::DT) where {T <: AbstractCFDateTime} where
     {DT <: Union{Period, Dates.Day, Dates.Hour, Dates.Minute, Dates.Second, Dates.Millisecond}}
     roundlen(x::AbstractFloat) = Int(x)
-    roundlen(x::T) where T = promote_type(T,Int)(x)
+    roundlen(x::T) where {T} = promote_type(T, Int)(x)
 
     if Dates.value(step) == 0
         throw(ArgumentError("step cannot be zero"))
